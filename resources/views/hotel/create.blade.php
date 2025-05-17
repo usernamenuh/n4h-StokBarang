@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.demo')
 @section('content')
 
-<div class="container">
+<div class="">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h2>Tambah Hotel</h2>
@@ -12,51 +12,69 @@
                 @csrf
                 <div class="mb-3">
                     <label for="pelanggan_id" class="form-label">Pelanggan</label>
-                    <select name="pelanggan_id" id="pelanggan_id" class="form-control @error('pelanggan_id') is-invalid @enderror" required>
-                        <option value="">-- Pilih Pelanggan --</option>
-                        @foreach($pelanggans as $pelanggan)
-                            <option value="{{ $pelanggan->id }}" {{ old('pelanggan_id') == $pelanggan->id ? 'selected' : '' }}>{{ $pelanggan->nama }}</option>
-                        @endforeach
-                    </select>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-user"></i></span>
+                        <select name="pelanggan_id" id="pelanggan_id" class="form-control @error('pelanggan_id') is-invalid @enderror" required>
+                            <option value="">-- Pilih Pelanggan --</option>
+                            @foreach($pelanggans as $pelanggan)
+                                <option value="{{ $pelanggan->id }}" {{ old('pelanggan_id') == $pelanggan->id ? 'selected' : '' }}>{{ $pelanggan->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     @error('pelanggan_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="mb-3">
                     <label for="room_id" class="form-label">Kamar</label>
-                    <select name="room_id" id="room_id" class="form-control @error('room_id') is-invalid @enderror" required>
-                        <option value="">-- Pilih Kamar --</option>
-                        @foreach($rooms as $room)
-                            <option value="{{ $room->id }}" data-harga="{{ $room->price }}" {{ old('room_id') == $room->id ? 'selected' : '' }}>
-                                {{ ucfirst($room->type) }} (Sisa: {{ $room->stock }})
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-bed"></i></span>
+                        <select name="room_id" id="room_id" class="form-control @error('room_id') is-invalid @enderror" required>
+                            <option value="">-- Pilih Kamar --</option>
+                            @foreach($rooms as $room)
+                                <option value="{{ $room->id }}" data-harga="{{ $room->price }}" {{ old('room_id') == $room->id ? 'selected' : '' }}>
+                                    {{ ucfirst($room->type) }} (Sisa: {{ $room->stock }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     @error('room_id')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="mb-3">
                     <label for="harga_kamar" class="form-label">Harga Kamar (Rp)</label>
-                    <input type="text" id="harga_kamar" class="form-control" value="" readonly>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-money"></i></span>
+                        <input type="text" id="harga_kamar" class="form-control" value="" readonly>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="check_in" class="form-label">Check In</label>
-                    <input type="datetime-local" class="form-control @error('check_in') is-invalid @enderror" id="check_in" name="check_in" value="{{ old('check_in') }}" required>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+                        <input type="datetime-local" class="form-control @error('check_in') is-invalid @enderror" id="check_in" name="check_in" value="{{ old('check_in') }}" required>
+                    </div>
                     @error('check_in')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="mb-3">
                     <label for="check_out" class="form-label">Check Out</label>
-                    <input type="datetime-local" class="form-control @error('check_out') is-invalid @enderror" id="check_out" name="check_out" value="{{ old('check_out') }}" required>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+                        <input type="datetime-local" class="form-control @error('check_out') is-invalid @enderror" id="check_out" name="check_out" value="{{ old('check_out') }}" required>
+                    </div>
                     @error('check_out')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="mb-3">
                     <label for="total_harga" class="form-label">Total Harga (Rp)</label>
-                    <input type="text" id="total_harga" class="form-control" value="" readonly>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-calculator"></i></span>
+                        <input type="text" id="total_harga" class="form-control" value="" readonly>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Simpan</button>
             </form>

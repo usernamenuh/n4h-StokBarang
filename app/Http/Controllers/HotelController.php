@@ -56,8 +56,8 @@ class HotelController extends Controller
     {
         $hotel = hotel::findOrFail($id);
         $pelanggans = pelanggan::all();
-        $room_id = ['single', 'double', 'suite'];
-        return view('hotel.edit', compact('hotel', 'pelanggans', 'room_id'));
+        $rooms = rooms::all();
+        return view('hotel.edit', compact('hotel', 'pelanggans', 'rooms'));
     }
 
     public function update(Request $request, $id)

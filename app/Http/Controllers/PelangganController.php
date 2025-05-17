@@ -10,7 +10,16 @@ class PelangganController extends Controller
     public function index()
     {
         $pelanggans = pelanggan::all();
-        return view('pelanggan.index', compact('pelanggans'));
+        $jumlahPelanggan = \App\Models\pelanggan::count();
+        $jumlahKamar = \App\Models\rooms::count();
+        $totalPendapatan = \App\Models\hotel::whereNotNull('check_out')->get()->sum(function($hotel) {
+            if ($hotel->room && $hotel->check_in && $hotel->check_out) {
+                $hari = \Carbon\Carbon::parse($hotel->check_in)->diffInDays(\Carbon\Carbon::parse($hotel->check_out));
+                return $hari * $hotel->room->price;
+            }
+            return 0;
+        });
+        return view('pelanggan.index', compact('pelanggans', 'jumlahPelanggan', 'jumlahKamar', 'totalPendapatan'));
     }
 
     public function create()

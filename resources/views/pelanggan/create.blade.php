@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.demo')
 @section('content')
 
-<div class="container">
+<div class="">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h2>Tambah Pelanggan</h2>
@@ -12,28 +12,40 @@
                 @csrf
                 <div class="mb-3">
                     <label for="id_pelanggan" class="form-label">ID Pelanggan</label>
-                    <input type="text" class="form-control @error('id_pelanggan') is-invalid @enderror" id="id_pelanggan" name="id_pelanggan" value="{{ old('id_pelanggan') }}" required>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-id-card"></i></span>
+                        <input type="text" class="form-control @error('id_pelanggan') is-invalid @enderror" id="id_pelanggan" name="id_pelanggan" value="{{ old('id_pelanggan') }}" required>
+                    </div>
                     @error('id_pelanggan')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="mb-3">
                     <label for="nama" class="form-label">Nama</label>
-                    <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama') }}" required>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-user"></i></span>
+                        <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama') }}" required>
+                    </div>
                     @error('nama')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="mb-3">
                     <label for="telepon" class="form-label">Telepon</label>
-                    <input type="text" class="form-control @error('telepon') is-invalid @enderror" id="telepon" name="telepon" value="{{ old('telepon') }}" required>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-phone"></i></span>
+                        <input type="text" class="form-control @error('telepon') is-invalid @enderror" id="telepon" name="telepon" value="{{ old('telepon') }}" required>
+                    </div>
                     @error('telepon')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="mb-3">
                     <label for="alamat" class="form-label">Alamat</label>
-                    <textarea class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" rows="3" required>{{ old('alamat') }}</textarea>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bx bx-map"></i></span>
+                        <textarea class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" rows="3" required>{{ old('alamat') }}</textarea>
+                    </div>
                     @error('alamat')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
