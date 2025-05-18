@@ -114,29 +114,37 @@
           <div class="menu-inner-shadow"></div>
 
           <ul class="menu-inner py-1">
+            <!-- Dashboard (langsung link, tidak ada submenu) -->
             <li class="menu-item {{ request()->routeIs('home') ? 'active' : '' }}">
               <a href="{{ route('home') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div>Dashboard</div>
               </a>
             </li>
-            <li class="menu-item {{ request()->routeIs('pelanggan.*') ? 'active' : '' }}">
-              <a href="{{ route('pelanggan.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-user"></i>
-                <div>Pelanggan</div>
-              </a>
-            </li>
-            <li class="menu-item {{ request()->routeIs('hotel.*') ? 'active' : '' }}">
-              <a href="{{ route('hotel.index') }}" class="menu-link">
+
+            <!-- Menu baru: Aplikasi Hotel (punya submenu) -->
+            <li class="menu-item has-sub {{ request()->routeIs('hotel.*') || request()->routeIs('rooms.*') || request()->routeIs('pelanggan.*') ? 'open active' : '' }}">
+              <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-building"></i>
-                <div>Hotel</div>
+                <div>Aplikasi Hotel</div>
               </a>
-            </li>
-            <li class="menu-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}">
-              <a href="{{ route('rooms.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-bed"></i>
-                <div>Rooms</div>
-              </a>
+              <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('hotel.*') ? 'active' : '' }}">
+                  <a href="{{ route('hotel.index') }}" class="menu-link">
+                    <div>Hotel</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}">
+                  <a href="{{ route('rooms.index') }}" class="menu-link">
+                    <div>Rooms</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('pelanggan.*') ? 'active' : '' }}">
+                  <a href="{{ route('pelanggan.index') }}" class="menu-link">
+                    <div>Pelanggan</div>
+                  </a>
+                </li>
+              </ul>
             </li>
           </ul>
         </aside>
@@ -173,17 +181,6 @@
 
               <ul class="navbar-nav flex-row align-items-center ms-auto">
                 <!-- Place this tag where you want the button to render. -->
-                <li class="nav-item lh-1 me-3">
-                  <a
-                    class="github-button"
-                    href="https://github.com/themeselection/sneat-html-admin-template-free"
-                    data-icon="octicon-star"
-                    data-size="large"
-                    data-show-count="true"
-                    aria-label="Star themeselection/sneat-html-admin-template-free on GitHub"
-                    >Star</a
-                  >
-                </li>
 
                 <!-- User -->
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
