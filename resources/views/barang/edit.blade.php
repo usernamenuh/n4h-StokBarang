@@ -33,7 +33,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="harga" class="form-label">Harga</label>
-                    <input type="number" name="harga" id="harga" class="form-control @error('harga') is-invalid @enderror" value="Rp. {{ number_format($barang->harga, 0, ',', '.') }}">
+                    <input type="number" name="harga" id="harga" class="form-control @error('harga') is-invalid @enderror" value="{{ $barang->harga }}">
                     @error('harga')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
