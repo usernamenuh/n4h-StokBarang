@@ -146,6 +146,25 @@
                 </li>
               </ul>
             </li>
+            <li class="menu-item has-sub
+                {{ request()->routeIs('barang.*') || request()->routeIs('transaksi.*') ? 'open active' : '' }}">
+              <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-box"></i>
+                <div>Aplikasi Barang</div>
+              </a>
+              <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('barang.*') ? 'active' : '' }}">
+                  <a href="{{ route('barang.index') }}" class="menu-link">
+                    <div>Data Barang</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('transaksi.*') ? 'active' : '' }}">
+                  <a href="{{ route('transaksi.index') }}" class="menu-link">
+                    <div>Transaksi</div>
+                  </a>
+                </li>
+              </ul>
+            </li>
           </ul>
         </aside>
         <!-- / Menu -->
@@ -274,6 +293,19 @@
       <!-- Overlay -->
       <div class="layout-overlay layout-menu-toggle"></div>
     </div>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"/>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#hotel-table').DataTable({
+        "paging": true,
+        "searching": true,
+        "info": true
+    });
+});
+</script>
     <!-- / Layout wrapper -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Core JS -->
