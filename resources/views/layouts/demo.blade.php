@@ -177,6 +177,28 @@
                     <div>Data Nilai</div>
                   </a>
                 </li>
+              </ul>
+            </li>
+            <li class="menu-item has-sub
+                {{ request()->routeIs('mobil.*') ? 'open active' : '' }}">
+              <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-car"></i>
+                <div>Aplikasi Mobil</div>
+              </a>
+              <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('mobil.*') ? 'active' : '' }}">
+                  <a href="{{ route('mobil.index') }}" class="menu-link">
+                    <div>Data Mobil</div>
+                  </a>
+                </li>
+              </ul>
+              <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('rental.*') ? 'active' : '' }}">
+                  <a href="{{ route('rental.index') }}" class="menu-link">
+                    <div>Data Rental</div>
+                  </a>
+                </li>
+              </ul>
             </li>
           </ul>
         </aside>
@@ -336,6 +358,20 @@ $(document).ready(function() {
 
     <!-- Main JS -->
     <script src="{{ asset('template/assets/js/main.js')}}"></script>
+
+    <!-- Page JS -->
+    <script src="{{ asset('template/assets/js/dashboards-analytics.js')}}"></script>
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  </body>
+</html>
+
 
     <!-- Page JS -->
     <script src="{{ asset('template/assets/js/dashboards-analytics.js')}}"></script>
