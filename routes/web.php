@@ -20,3 +20,5 @@ Route::resource('transaksi', App\Http\Controllers\TransaksiController::class);
 Route::resource('nilai', App\Http\Controllers\NilaiController::class);
 Route::resource('mobil', App\Http\Controllers\MobilController::class);
 Route::resource('rental', App\Http\Controllers\RentalController::class);
+Route::resource('dokter', App\Http\Controllers\DokterController::class);
+Route::resource('booking', App\Http\Controllers\BookingController::class);

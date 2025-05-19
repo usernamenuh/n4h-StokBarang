@@ -52,9 +52,9 @@
                         <td>{{ $m->type_kendaraan }}</td>
                         <td>
                             @if ($m->status == 'dirental')
-                                <span class="badge bg-danger">Dirental</span>
+                                <span class="badge bg-label-danger">Dirental</span>
                             @else
-                                <span class="badge bg-success">Tersedia</span>
+                                <span class="badge bg-label-success">Tersedia</span>
                             @endif
                         </td>
                         <td>
