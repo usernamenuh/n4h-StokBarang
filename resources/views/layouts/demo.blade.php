@@ -165,6 +165,19 @@
                 </li>
               </ul>
             </li>
+            <li class="menu-item has-sub
+                {{ request()->routeIs('nilai.*') ? 'open active' : '' }}">
+              <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-book"></i>
+                <div>Aplikasi Nilai</div>
+              </a>
+              <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('nilai.*') ? 'active' : '' }}">
+                  <a href="{{ route('nilai.index') }}" class="menu-link">
+                    <div>Data Nilai</div>
+                  </a>
+                </li>
+            </li>
           </ul>
         </aside>
         <!-- / Menu -->

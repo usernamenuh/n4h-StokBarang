@@ -17,3 +17,4 @@ Route::resource('hotel', App\Http\Controllers\HotelController::class);
 Route::resource('rooms', App\Http\Controllers\RoomController::class);
 Route::resource('barang', App\Http\Controllers\BarangController::class);
 Route::resource('transaksi', App\Http\Controllers\TransaksiController::class);
+Route::resource('nilai', App\Http\Controllers\NilaiController::class);
