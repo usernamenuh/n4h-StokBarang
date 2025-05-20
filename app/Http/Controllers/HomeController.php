@@ -56,13 +56,10 @@ class HomeController extends Controller
         $mobilDisewa = mobil::where('status', 'dirental')->count();
         $servis = 0;
         $totalDokter = dokter::count();
-    // Jadwal Hari Ini: dokter yang hari-nya sama dengan hari ini (dalam bahasa Indonesia)
-    $hariIni = \Carbon\Carbon::now()->locale('id')->isoFormat('dddd');
-    $jadwalHariIni = dokter::where('hari', $hariIni)->count();
-    // Booking Aktif: jumlah data di tabel bookings
-    $bookingAktif = booking::count();
-    // Dokter Offline: status = 'offline'
-    $dokterOffline = dokter::where('status', 'offline')->count();
-        return view('home', compact('pelanggans', 'jumlahPelanggan', 'jumlahKamar', 'totalPendapatan', 'jumlahKamarDisewa', 'totalBarang', 'totalStok', 'barangStokTerbanyak', 'barangHargaTertinggi', 'jumlahSiswa', 'nilaiRataRata', 'nilaiTertinggi', 'nilaiTerendah', 'totalMobil', 'mobilTersedia', 'mobilDisewa', 'servis',  'totalDokter', 'jadwalHariIni', 'bookingAktif', 'dokterOffline'));
+        $hariIni = \Carbon\Carbon::now()->locale('id')->isoFormat('dddd');
+        $jadwalHariIni = dokter::where('hari', $hariIni)->count();
+        $bookingAktif = booking::count();
+        $dokterOffline = dokter::where('status', 'offline')->count();
+        return view('home', compact('pelanggans', 'jumlahPelanggan', 'jumlahKamar', 'totalPendapatan', 'jumlahKamarDisewa', 'totalBarang', 'totalStok', 'barangStokTerbanyak', 'barangHargaTertinggi', 'jumlahSiswa', 'nilaiRataRata', 'nilaiTertinggi', 'nilaiTerendah', 'totalMobil', 'mobilTersedia', 'mobilDisewa', 'servis', 'totalDokter', 'jadwalHariIni', 'bookingAktif', 'dokterOffline'));
     }
 }
