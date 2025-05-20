@@ -67,7 +67,7 @@
           </div>
           <h3 class="mb-2" style="font-weight:600;">{{ $jumlahKamarDisewa }}</h3>
           <div class="d-flex align-items-center">
-            <span class="text-danger fw-semibold"><i class="bx bx-down-arrow-alt"></i> -28.42%</span>
+            <span class="text-dangerimage.png fw-semibold"><i class="bx bx-down-arrow-alt"></i> -28.42%</span>
           </div>
         </div>
       </div>
@@ -195,40 +195,50 @@
         </div>
         <span class="fw-semibold text-muted">Total Barang</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">120</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $totalBarang }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
     <div class="card shadow-sm rounded-4 p-4 h-100">
       <div class="d-flex align-items-center mb-2">
         <div class="d-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-3 me-3" style="width:44px; height:44px;">
-          <i class="bx bx-log-in" style="font-size:1.7rem; color:#fff;"></i>
+          <i class="bx bx-layer" style="font-size:1.7rem; color:#fff;"></i>
         </div>
-        <span class="fw-semibold text-muted">Barang Masuk</span>
+        <span class="fw-semibold text-muted">Total Stok</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">30</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $totalStok }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
     <div class="card shadow-sm rounded-4 p-4 h-100">
       <div class="d-flex align-items-center mb-2">
         <div class="d-flex align-items-center justify-content-center bg-danger bg-opacity-10 rounded-3 me-3" style="width:44px; height:44px;">
-          <i class="bx bx-log-out" style="font-size:1.7rem; color:#fff;"></i>
+          <i class="bx bx-up-arrow-circle" style="font-size:1.7rem; color:#fff;"></i>
         </div>
-        <span class="fw-semibold text-muted">Barang Keluar</span>
+        <span class="fw-semibold text-muted">Stok Terbanyak</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">15</h3>
+      <h3 class="mb-2" style="font-weight:600;">
+        {{ $barangStokTerbanyak ? $barangStokTerbanyak->stok : 0 }}
+      </h3>
+      <div class="small text-muted">
+        {{ $barangStokTerbanyak ? $barangStokTerbanyak->nama_barang : '-' }}
+      </div>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
     <div class="card shadow-sm rounded-4 p-4 h-100">
       <div class="d-flex align-items-center mb-2">
         <div class="d-flex align-items-center justify-content-center bg-warning bg-opacity-10 rounded-3 me-3" style="width:44px; height:44px;">
-          <i class="bx bx-error" style="font-size:1.7rem; color:#fff;"></i>
+          <i class="bx bx-money" style="font-size:1.7rem; color:#fff;"></i>
         </div>
-        <span class="fw-semibold text-muted">Barang Rusak</span>
+        <span class="fw-semibold text-muted">Harga Tertinggi</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">2</h3>
+      <h3 class="mb-2" style="font-weight:600;">
+        {{ $barangHargaTertinggi ? 'Rp ' . number_format($barangHargaTertinggi->harga, 0, ',', '.') : 0 }}
+      </h3>
+      <div class="small text-muted">
+        {{ $barangHargaTertinggi ? $barangHargaTertinggi->nama_barang : '-' }}
+      </div>
     </div>
   </div>
 </div>
@@ -244,7 +254,7 @@
         </div>
         <span class="fw-semibold text-muted">Siswa</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">40</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $jumlahSiswa }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
@@ -255,7 +265,7 @@
         </div>
         <span class="fw-semibold text-muted">Nilai Rata-rata</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">85</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ number_format($nilaiRataRata, 0) }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
@@ -266,7 +276,7 @@
         </div>
         <span class="fw-semibold text-muted">Nilai Tertinggi</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">100</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $nilaiTertinggi }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
@@ -277,7 +287,7 @@
         </div>
         <span class="fw-semibold text-muted">Nilai Terendah</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">60</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $nilaiTerendah }}</h3>
     </div>
   </div>
 </div>
@@ -293,7 +303,7 @@
         </div>
         <span class="fw-semibold text-muted">Total Mobil</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">25</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $totalMobil }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
@@ -304,7 +314,7 @@
         </div>
         <span class="fw-semibold text-muted">Mobil Tersedia</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">10</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $mobilTersedia }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
@@ -315,7 +325,7 @@
         </div>
         <span class="fw-semibold text-muted">Mobil Disewa</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">12</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $mobilDisewa }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
@@ -326,7 +336,7 @@
         </div>
         <span class="fw-semibold text-muted">Servis</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">3</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $servis }}</h3>
     </div>
   </div>
 </div>
@@ -342,7 +352,7 @@
         </div>
         <span class="fw-semibold text-muted">Total Dokter</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">8</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $totalDokter }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
@@ -353,7 +363,7 @@
         </div>
         <span class="fw-semibold text-muted">Jadwal Hari Ini</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">3</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $jadwalHariIni }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
@@ -364,7 +374,7 @@
         </div>
         <span class="fw-semibold text-muted">Booking Aktif</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">5</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $bookingAktif }}</h3>
     </div>
   </div>
   <div class="col-md-6 col-lg-3">
@@ -375,7 +385,7 @@
         </div>
         <span class="fw-semibold text-muted">Dokter Offline</span>
       </div>
-      <h3 class="mb-2" style="font-weight:600;">2</h3>
+      <h3 class="mb-2" style="font-weight:600;">{{ $dokterOffline }}</h3>
     </div>
   </div>
 </div>
