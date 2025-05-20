@@ -14,9 +14,9 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>Hotel Management System</title>
+    <title>Aplikasi Mana Manajemen</title>
 
-    <meta name="description" content="Hotel Management System" />
+    <meta name="description" content="Aplikasi Mana Manajemen" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('template/assets/img/favicon/favicon.ico')}}" />
