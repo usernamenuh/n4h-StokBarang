@@ -69,18 +69,34 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <form action="{{ route('barang.destroy', $barang->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="bx bx-trash me-2"></i> Delete
-                                            </button>
-                                        </form>
+                                        <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $barang->id }}">
+                                            <i class="bx bx-trash me-2"></i> Delete
+                                        </button>
                                     </li>
                                 </ul>
                             </div>
                         </td>
                     </tr>
+                    <!-- Delete Modal -->
+                    <div class="modal fade modal-confirm" id="deleteModal{{ $barang->id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $barang->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content text-center p-4">
+                                <img src="https://img.icons8.com/color/96/000000/trash--v1.png" alt="Trash Icon" style="width:72px; margin: 0 auto 16px;"/>
+                                <div class="modal-body p-0">
+                                    <h4 class="fw-bold mb-2" style="font-size:1.25rem;">Apakah Anda yakin ingin menghapus barang ini?</h4>
+                                    <div class="mb-4 text-muted" style="font-size:1rem;">"{{ $barang->nama_barang }}"</div>
+                                </div>
+                                <div class="d-flex gap-2 justify-content-center mt-2">
+                                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" data-bs-dismiss="modal">Batal</button>
+                                    <form action="{{ route('barang.destroy', $barang->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-lg px-4">Hapus</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     @endforeach
                 </tbody>
             </table>
@@ -181,6 +197,104 @@
         padding: 12px 8px;
         font-size: 0.95rem;
     }
+}
+
+/* Custom Modal Styles */
+.modal-confirm {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-confirm .modal-dialog {
+    max-width: 400px;
+}
+
+.modal-confirm .modal-content {
+    border-radius: 18px;
+    border: none;
+    box-shadow: 0 5px 24px rgba(0,0,0,0.13);
+    padding: 0;
+    max-width: 370px;
+}
+
+.modal-confirm .modal-header {
+    border-bottom: none;
+    padding: 20px 30px 0;
+}
+
+.modal-confirm .modal-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.modal-confirm .btn-close {
+    background: none;
+    opacity: 1;
+}
+
+.modal-confirm .btn-close:hover {
+    opacity: 0.75;
+}
+
+.modal-confirm .modal-body {
+    padding: 20px 30px;
+}
+
+.modal-confirm .modal-body p {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    color: #666;
+}
+
+.modal-confirm .modal-body .text-danger {
+    color: #dc3545;
+    font-size: 0.9rem;
+}
+
+.modal-confirm .modal-footer {
+    border: none;
+    padding: 10px 30px 20px;
+    justify-content: space-between;
+}
+
+.modal-confirm .btn-lg {
+    font-size: 1.1rem;
+    border-radius: 8px;
+    min-width: 120px;
+    font-weight: 500;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.modal-confirm .btn-outline-secondary {
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    color: #333;
+    transition: background 0.2s, color 0.2s;
+}
+
+.modal-confirm .btn-outline-secondary:hover {
+    background: #f3f3f3;
+    color: #111;
+}
+
+.modal-confirm .btn-danger {
+    background: #e53935;
+    border: none;
+    transition: background 0.2s;
+}
+
+.modal-confirm .btn-danger:hover {
+    background: #b71c1c;
+}
+
+.modal.fade .modal-dialog {
+    transform: scale(0.8);
+    transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
 }
 </style>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
