@@ -14,7 +14,7 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>Aplikasi Mana Manajemen</title>
+    <title>Aplikasi Stok Barang</title>
 
     <meta name="description" content="Aplikasi Mana Manajemen" />
 
@@ -123,34 +123,11 @@
             </li>
 
             <!-- Menu baru: Aplikasi Hotel (punya submenu) -->
-            <li class="menu-item has-sub {{ request()->routeIs('hotel.*') || request()->routeIs('rooms.*') || request()->routeIs('pelanggan.*') ? 'open active' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-building"></i>
-                <div>Aplikasi Hotel</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->routeIs('hotel.*') ? 'active' : '' }}">
-                  <a href="{{ route('hotel.index') }}" class="menu-link">
-                    <div>Hotel</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}">
-                  <a href="{{ route('rooms.index') }}" class="menu-link">
-                    <div>Rooms</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->routeIs('pelanggan.*') ? 'active' : '' }}">
-                  <a href="{{ route('pelanggan.index') }}" class="menu-link">
-                    <div>Pelanggan</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
             <li class="menu-item has-sub
                 {{ request()->routeIs('barang.*') || request()->routeIs('transaksi.*') ? 'open active' : '' }}">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-box"></i>
-                <div>Aplikasi Barang</div>
+                <div>Managemen Barang</div>
               </a>
               <ul class="menu-sub">
                 <li class="menu-item {{ request()->routeIs('barang.*') ? 'active' : '' }}">
@@ -161,62 +138,6 @@
                 <li class="menu-item {{ request()->routeIs('transaksi.*') ? 'active' : '' }}">
                   <a href="{{ route('transaksi.index') }}" class="menu-link">
                     <div>Transaksi</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li class="menu-item has-sub
-                {{ request()->routeIs('nilai.*') ? 'open active' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-book"></i>
-                <div>Aplikasi Nilai</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->routeIs('nilai.*') ? 'active' : '' }}">
-                  <a href="{{ route('nilai.index') }}" class="menu-link">
-                    <div>Data Nilai</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li class="menu-item has-sub
-                {{ request()->routeIs('mobil.*') ? 'open active' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-car"></i>
-                <div>Aplikasi Mobil</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->routeIs('mobil.*') ? 'active' : '' }}">
-                  <a href="{{ route('mobil.index') }}" class="menu-link">
-                    <div>Data Mobil</div>
-                  </a>
-                </li>
-              </ul>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->routeIs('rental.*') ? 'active' : '' }}">
-                  <a href="{{ route('rental.index') }}" class="menu-link">
-                    <div>Data Rental</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li class="menu-item has-sub
-                {{ request()->routeIs('dokter.*') ? 'open active' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-book"></i>
-                <div>Aplikasi Dokter</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->routeIs('dokter.*') ? 'active' : '' }}">
-                  <a href="{{ route('dokter.index') }}" class="menu-link">
-                    <div>Data Dokter</div>
-                  </a>
-                </li>
-              </ul>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->routeIs('booking.*') ? 'active' : '' }}">
-                  <a href="{{ route('booking.index') }}" class="menu-link">
-                    <div>Data Booking</div>
                   </a>
                 </li>
               </ul>
