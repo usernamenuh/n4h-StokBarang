@@ -13,4 +13,5 @@ class transaksi extends Model
     {
         return $this->belongsTo(Barang::class, 'id_barang');
     }
+    
 }

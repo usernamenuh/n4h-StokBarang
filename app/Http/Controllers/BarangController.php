@@ -9,8 +9,14 @@ class BarangController extends Controller
 {
     public function index()
     {
+         $barangTerlaris = Barang::withSum('transaksis as total_terjual', 'quantity')
+        ->orderByDesc('total_terjual')
+        ->take(10)
+        ->get();
         $barangs = Barang::orderBy('nama_barang', 'asc')->get();
-        return view('barang.index', compact('barangs'));
+       
+    return view('barang.index', compact('barangs', 'barangTerlaris'));
+
     }
     public function create()
     {

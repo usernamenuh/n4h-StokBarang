@@ -103,6 +103,34 @@
         </div>
     </div>
 </div>
+
+<div class="">
+    <div class="card mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h1>Barang Terlaris</h1>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Barang</th>
+                    <th>Total Terjual</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($barangTerlaris as $i => $barang)
+                <tr>
+                    <td>{{ $i + 1 }}</td>
+                    <td>{{ $barang->nama_barang }}</td>
+                    <td>{{ $barang->total_terjual ?? 0 }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
 <style>
 .custom-alert-success {
     display: flex;
