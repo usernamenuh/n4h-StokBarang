@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Barang extends Model
 {
-    use HasFactory;
+    protected $table = 'barangs';
 
-    protected $table = 'barang';
-    
+    protected $primaryKey = 'kode';
+    public $incrementing = false; // Karena kode_barang bukan integer auto increment
+
     protected $fillable = [
         'kode',
         'nama',
@@ -20,33 +18,12 @@ class Barang extends Model
         'golongan',
         'hbeli',
         'user_id',
-        'keterangan'
+        'keterangan',
     ];
 
-    protected $casts = [
-        'does_pcs' => 'decimal:2',
-        'hbeli' => 'decimal:2',
-    ];
-
-    public function transaksi(): HasMany
+    // Jika kamu ingin relasi ke transaksi detail
+    public function transaksiDetails()
     {
-        return $this->hasMany(Transaksi::class);
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    // Calculate total sales for ABC analysis
-    public function getTotalSalesAttribute()
-    {
-        return $this->transaksi()->sum('total');
-    }
-
-    // Calculate total quantity sold
-    public function getTotalQtyAttribute()
-    {
-        return $this->transaksi()->sum('qty');
+        return $this->hasMany(TransaksiDetail::class, 'kode_barang', 'kode_barang');
     }
 }

@@ -3,195 +3,221 @@
 namespace App\Imports;
 
 use App\Models\Transaksi;
-use App\Models\Barang;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\SkipsErrors;
-use Maatwebsite\Excel\Concerns\SkipsOnError;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Maatwebsite\Excel\Concerns\WithBatchInserts;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
+use App\Models\TransaksiDetail;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
 
-class TransaksiImport implements 
-    ToModel, 
-    WithHeadingRow, 
-    SkipsOnError, 
-    SkipsOnFailure,
-    WithBatchInserts, 
-    WithChunkReading
+class TransaksiImport implements ToCollection
 {
-    use Importable, SkipsErrors, SkipsFailures;
+    private $currentTransaksi = null;
 
-    private $rowCount = 0;
-    private $successCount = 0;
-
-    public function model(array $row)
+    public function collection(Collection $rows)
     {
-        $this->rowCount++;
+        $transaksiCount = 0;
+        $detailCount = 0;
         
-        // Map different possible column names
-        $mappedRow = $this->mapColumns($row);
-        
-        // Find barang by kode or nama
-        $barang = $this->findBarang($mappedRow);
-        if (!$barang) {
-            return null; // Skip if barang not found
-        }
-
-        // Parse date
-        $tanggal = $this->parseDate($mappedRow['tanggal'] ?? null);
-        if (!$tanggal) {
-            return null; // Skip if date is invalid
-        }
-
-        $this->successCount++;
-        return new Transaksi([
-            'tanggal' => $tanggal,
-            'nomor' => trim($mappedRow['nomor'] ?? ''),
-            'customer' => trim($mappedRow['customer'] ?? ''),
-            'barang_id' => $barang->id,
-            'qty' => $this->parseInteger($mappedRow['qty'] ?? 1),
-            'subtotal' => $this->parseNumeric($mappedRow['subtotal'] ?? 0),
-            'disc' => $this->parseNumeric($mappedRow['disc'] ?? 0),
-            'ongkos' => $this->parseNumeric($mappedRow['ongkos'] ?? 0),
-            'total' => $this->parseNumeric($mappedRow['total'] ?? 0),
-            'keterangan' => trim($mappedRow['keterangan'] ?? ''),
-            'user_id' => auth()->id(),
-        ]);
-    }
-
-    private function mapColumns(array $row)
-    {
-        $mapped = [];
-        
-        // Map various column names to expected format
-        $columnMappings = [
-            'tanggal' => ['tanggal', 'date', 'transaction_date', 'tgl'],
-            'nomor' => ['nomor', 'number', 'transaction_number', 'no', 'invoice'],
-            'customer' => ['customer', 'client', 'buyer', 'pelanggan'],
-            'kode_barang' => ['kode_barang', 'item_code', 'product_code', 'kode'],
-            'nama_barang' => ['nama_barang', 'item_name', 'product_name', 'nama'],
-            'qty' => ['qty', 'quantity', 'jumlah', 'amount'],
-            'subtotal' => ['subtotal', 'sub_total', 'amount'],
-            'disc' => ['disc', 'discount', 'diskon', 'potongan'],
-            'ongkos' => ['ongkos', 'shipping', 'delivery', 'ongkir'],
-            'total' => ['total', 'grand_total', 'amount_total'],
-            'keterangan' => ['keterangan', 'notes', 'remarks', 'description']
-        ];
-        
-        foreach ($columnMappings as $targetKey => $possibleKeys) {
-            foreach ($possibleKeys as $key) {
-                if (isset($row[$key]) && !empty($row[$key])) {
-                    $mapped[$targetKey] = $row[$key];
+        foreach ($rows as $index => $row) {
+            $rowNumber = $index + 1;
+            
+            // Skip 2 baris pertama
+            if ($rowNumber <= 2) {
+                continue;
+            }
+            
+            // Ambil SEMUA kolom yang ada
+            $cols = [];
+            for ($i = 0; $i < count($row); $i++) {
+                $rawValue = isset($row[$i]) ? $row[$i] : '';
+                $cols[$i] = trim(preg_replace('/\s+/', ' ', $rawValue));
+            }
+            
+            // DEBUGGING: Tampilkan semua kolom untuk 5 baris pertama
+            if ($rowNumber <= 7) {
+                \Log::info("=== ROW {$rowNumber} ALL COLUMNS ===", $cols);
+            }
+            
+            // DETEKSI TRANSAKSI: Cari di SEMUA kolom yang mengandung format XXXX-XXXXX
+            $isTransaksi = false;
+            $transaksiCol = -1;
+            
+            foreach ($cols as $colIndex => $colValue) {
+                if (preg_match('/^\d{4}-\d{5}$/', $colValue)) {
+                    $isTransaksi = true;
+                    $transaksiCol = $colIndex;
+                    \Log::info("✅ TRANSAKSI FOUND in column {$colIndex}: {$colValue}");
                     break;
                 }
             }
+            
+            if ($isTransaksi) {
+                // BUAT TRANSAKSI - Gunakan kolom yang ditemukan
+                try {
+                    // Cari kolom tanggal (biasanya kolom pertama atau sebelum nomor transaksi)
+                    $tanggalCol = $transaksiCol > 0 ? $transaksiCol - 1 : 0;
+                    
+                    $this->currentTransaksi = Transaksi::create([
+                        'tanggal' => $this->parseDate($cols[$tanggalCol] ?? ''),
+                        'nomor' => $cols[$transaksiCol],
+                        'customer' => $cols[$transaksiCol + 1] ?? 'Unknown Customer',
+                        'subtotal' => $this->parseAmount($cols[$transaksiCol + 2] ?? '0'),
+                        'diskon' => $this->parseAmount($cols[$transaksiCol + 3] ?? '0'),
+                        'ongkir' => $this->parseAmount($cols[$transaksiCol + 4] ?? '0'),
+                        'total' => $this->parseAmount($cols[$transaksiCol + 5] ?? '0'),
+                        'keterangan' => $cols[$transaksiCol + 6] ?? '',
+                        'user_id' => 1,
+                    ]);
+                    
+                    $transaksiCount++;
+                    \Log::info("🎉 TRANSAKSI CREATED: ID={$this->currentTransaksi->id}, Nomor={$cols[$transaksiCol]}");
+                    
+                } catch (\Exception $e) {
+                    \Log::error("❌ Error creating transaksi: " . $e->getMessage(), [
+                        'row' => $rowNumber,
+                        'transaksi_col' => $transaksiCol,
+                        'data' => array_slice($cols, 0, 10)
+                    ]);
+                }
+                
+            } else {
+                // DETEKSI DETAIL - Jika ada current transaksi dan baris tidak kosong
+                if ($this->currentTransaksi && !empty(array_filter($cols))) {
+                    
+                    // Cari kolom yang berisi kode barang atau nama barang
+                    $kodeBarang = '';
+                    $namaBarang = '';
+                    $qty = 1;
+                    $hargaSatuan = 0;
+                    $subtotal = 0;
+                    
+                    // Strategi: Ambil kolom pertama yang tidak kosong sebagai kode barang
+                    foreach ($cols as $colIndex => $colValue) {
+                        if (!empty($colValue) && $colValue != 'DEKSON') {
+                            if (empty($kodeBarang)) {
+                                $kodeBarang = $colValue;
+                            } else if (empty($namaBarang) && strlen($colValue) > 3) {
+                                $namaBarang = $colValue;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Cari angka untuk qty, harga, subtotal
+                    foreach ($cols as $colValue) {
+                        if (is_numeric($colValue) || preg_match('/[\d,.]/', $colValue)) {
+                            $amount = $this->parseAmount($colValue);
+                            if ($amount > 0) {
+                                if ($qty == 1 && $amount < 100) {
+                                    $qty = $amount;
+                                } else if ($hargaSatuan == 0) {
+                                    $hargaSatuan = $amount;
+                                } else if ($subtotal == 0) {
+                                    $subtotal = $amount;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!empty($kodeBarang) || !empty($namaBarang)) {
+                        try {
+                            TransaksiDetail::create([
+                                'transaksi_id' => $this->currentTransaksi->id,
+                                'kode_barang' => $kodeBarang ?: 'AUTO-' . time(),
+                                'nama_barang' => $namaBarang ?: 'Unknown Item',
+                                'qty' => $qty,
+                                'harga_satuan' => $hargaSatuan,
+                                'subtotal' => $subtotal ?: ($qty * $hargaSatuan),
+                            ]);
+                            
+                            $detailCount++;
+                            \Log::info("🎉 DETAIL CREATED: {$kodeBarang} - {$namaBarang}");
+                            
+                        } catch (\Exception $e) {
+                            \Log::error("❌ Error creating detail: " . $e->getMessage(), [
+                                'row' => $rowNumber,
+                                'transaksi_id' => $this->currentTransaksi->id,
+                                'kode_barang' => $kodeBarang,
+                                'nama_barang' => $namaBarang
+                            ]);
+                        }
+                    }
+                }
+            }
         }
         
-        return $mapped;
+        \Log::info("🏁 FINAL RESULT", [
+            'transaksi' => $transaksiCount,
+            'detail' => $detailCount,
+            'current_transaksi_id' => $this->currentTransaksi ? $this->currentTransaksi->id : null
+        ]);
     }
 
-    private function findBarang($mappedRow)
+    private function parseDate($dateValue)
     {
-        // Try to find by kode first
-        if (!empty($mappedRow['kode_barang'])) {
-            $barang = Barang::where('kode', trim($mappedRow['kode_barang']))->first();
-            if ($barang) return $barang;
-        }
-        
-        // Try to find by nama
-        if (!empty($mappedRow['nama_barang'])) {
-            $barang = Barang::where('nama', 'LIKE', '%' . trim($mappedRow['nama_barang']) . '%')->first();
-            if ($barang) return $barang;
-        }
-        
-        return null;
-    }
-
-    public function batchSize(): int
-    {
-        return 100;
-    }
-
-    public function chunkSize(): int
-    {
-        return 100;
-    }
-    
-    public function getRowCount(): int
-    {
-        return $this->rowCount;
-    }
-    
-    public function getSuccessCount(): int
-    {
-        return $this->successCount;
-    }
-
-    private function parseNumeric($value)
-    {
-        if (is_numeric($value)) {
-            return floatval($value);
-        }
-        
-        // Remove currency symbols and spaces
-        $cleaned = preg_replace('/[^\d,.-]/', '', $value);
-        
-        // Handle different decimal separators
-        if (strpos($cleaned, ',') !== false && strpos($cleaned, '.') !== false) {
-            $cleaned = str_replace(',', '', $cleaned);
-        } elseif (strpos($cleaned, ',') !== false) {
-            $cleaned = str_replace(',', '.', $cleaned);
-        }
-        
-        if (is_numeric($cleaned)) {
-            return floatval($cleaned);
-        }
-        
-        return 0;
-    }
-
-    private function parseInteger($value)
-    {
-        if (is_numeric($value)) {
-            return intval($value);
-        }
-        
-        return 1;
-    }
-
-    private function parseDate($value)
-    {
-        if (empty($value)) {
-            return null;
+        if (empty($dateValue)) {
+            return Carbon::now()->format('Y-m-d');
         }
 
         try {
-            // Handle Excel date serial numbers
-            if (is_numeric($value)) {
-                return Carbon::createFromFormat('Y-m-d', '1900-01-01')->addDays($value - 2);
+            // Jika format d/m/Y
+            if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $dateValue)) {
+                return Carbon::createFromFormat('d/m/Y', $dateValue)->format('Y-m-d');
             }
             
-            // Try different date formats
-            $formats = [
-                'Y-m-d', 'd/m/Y', 'd-m-Y', 'm/d/Y', 'Y-m-d H:i:s',
-                'd/m/Y H:i:s', 'd-m-Y H:i:s', 'Y/m/d', 'Y/m/d H:i:s'
-            ];
-            
-            foreach ($formats as $format) {
-                $date = \DateTime::createFromFormat($format, $value);
-                if ($date !== false) {
-                    return Carbon::instance($date);
-                }
+            // Jika Excel serial number
+            if (is_numeric($dateValue) && $dateValue > 40000) {
+                $unixTimestamp = ($dateValue - 25569) * 86400;
+                return date('Y-m-d', $unixTimestamp);
             }
             
-            // Try Carbon's flexible parsing
-            return Carbon::parse($value);
+            // Fallback
+            return Carbon::parse($dateValue)->format('Y-m-d');
+            
         } catch (\Exception $e) {
-            return Carbon::now(); // Use current date as fallback
+            \Log::warning("Date parse failed: {$dateValue}");
+            return Carbon::now()->format('Y-m-d');
         }
+    }
+
+    private function parseAmount($value)
+    {
+        if (empty($value)) return 0;
+        
+        // Convert to string first
+        $value = (string) $value;
+        
+        // Hapus semua kecuali angka, koma, titik
+        $cleaned = preg_replace('/[^\d,.]/', '', $value);
+        if (empty($cleaned)) return 0;
+        
+        // Jika ada titik dan koma (format Indonesia)
+        if (strpos($cleaned, '.') !== false && strpos($cleaned, ',') !== false) {
+            $cleaned = str_replace('.', '', $cleaned); // Hapus titik
+            $cleaned = str_replace(',', '.', $cleaned); // Koma jadi titik
+        }
+        // Jika hanya ada koma
+        else if (strpos($cleaned, ',') !== false) {
+            $cleaned = str_replace(',', '.', $cleaned);
+        }
+        
+        return (float) $cleaned;
+    }
+
+    private function parseQty($value)
+    {
+        if (empty($value)) return 1;
+        
+        // Convert to string first
+        $value = (string) $value;
+        
+        // Extract angka saja
+        $cleaned = preg_replace('/[^\d,.]/', '', $value);
+        if (empty($cleaned)) return 1;
+        
+        $cleaned = str_replace(',', '.', $cleaned);
+        $result = (float) $cleaned;
+        
+        return $result > 0 ? $result : 1;
     }
 }

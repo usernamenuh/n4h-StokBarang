@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Imports\BarangImportFinal; // Ganti ke Final version
+use App\Imports\BarangImportFinal;
+use App\Imports\TransaksiExcelImport;
 use App\Models\Barang;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
 
@@ -22,97 +24,5 @@ class ImportController extends Controller
         $transaksiCount = Transaksi::count();
         
         return view('import.index', compact('barangCount', 'transaksiCount'));
-    }
-
-    public function importBarang(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv|max:10240'
-        ]);
-
-        try {
-            Log::info('Starting FINAL FIXED import');
-            $startTime = microtime(true);
-            
-            // Use final version
-            $import = new BarangImportFinal();
-            Excel::import($import, $request->file('file'));
-            
-            $endTime = microtime(true);
-            $executionTime = round($endTime - $startTime, 2);
-            
-            $totalRows = $import->getRowCount();
-            $successCount = $import->getSuccessCount();
-            $createdUsers = $import->getCreatedUsersCount();
-            $errors = $import->getErrors();
-            
-            Log::info("Final import completed in {$executionTime}s");
-            
-            $message = "Import selesai dalam {$executionTime} detik! ";
-            if ($createdUsers > 0) {
-                $message .= "{$createdUsers} user baru dibuat, ";
-            }
-            $message .= "{$successCount} barang berhasil diimport dari {$totalRows} baris.";
-            
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'processed' => $totalRows,
-                    'success_count' => $successCount,
-                    'users_created' => $createdUsers,
-                    'errors' => $errors,
-                    'execution_time' => $executionTime
-                ]);
-            }
-            
-            return back()->with('success', $message);
-                        
-        } catch (\Exception $e) {
-            Log::error('Import Error: ' . $e->getMessage());
-            
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Import gagal: ' . $e->getMessage(),
-                    'errors' => [$e->getMessage()]
-                ], 500);
-            }
-            
-            return back()->with('error', 'Import gagal: ' . $e->getMessage());
-        }
-    }
-
-    public function importTransaksi(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv|max:10240'
-        ]);
-
-        try {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => "Import transaksi berhasil!",
-                    'processed' => 0,
-                    'errors' => []
-                ]);
-            }
-            
-            return back()->with('success', "Import transaksi berhasil!");
-                        
-        } catch (\Exception $e) {
-            Log::error('Import Transaksi Error: ' . $e->getMessage());
-            
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Import gagal: ' . $e->getMessage(),
-                    'errors' => [$e->getMessage()]
-                ], 500);
-            }
-            
-            return back()->with('error', 'Import gagal: ' . $e->getMessage());
-        }
     }
 }

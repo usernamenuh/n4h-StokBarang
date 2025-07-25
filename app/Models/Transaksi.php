@@ -4,42 +4,29 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Transaksi extends Model
 {
-    use HasFactory;
+    protected $table = 'transaksis';
 
-    protected $table = 'transaksi';
-    
     protected $fillable = [
         'tanggal',
         'nomor',
         'customer',
-        'barang_id',
-        'qty',
         'subtotal',
-        'disc',
-        'ongkos',
+        'diskon',
+        'ongkir',
         'total',
         'keterangan',
-        'user_id'
+        'user_id',
     ];
 
-    protected $casts = [
-        'tanggal' => 'date',
-        'subtotal' => 'decimal:2',
-        'disc' => 'decimal:2',
-        'ongkos' => 'decimal:2',
-        'total' => 'decimal:2',
-    ];
-
-    public function barang(): BelongsTo
+    public function details()
     {
-        return $this->belongsTo(Barang::class);
+        return $this->hasMany(TransaksiDetail::class);
     }
 
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

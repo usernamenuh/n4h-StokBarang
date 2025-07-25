@@ -24,25 +24,10 @@ class HomeController extends Controller
         $totalCustomers = Transaksi::distinct('customer')->count();
 
         // Get latest ABC analysis results
-        $topCustomers = ParetoAnalysis::where('analysis_type', 'customer')
-            ->where('period', date('Y-m'))
-            ->orderBy('total_value', 'desc')
-            ->limit(10)
-            ->get();
+  
 
-        $topBarang = ParetoAnalysis::where('analysis_type', 'barang')
-            ->where('period', date('Y-m'))
-            ->orderBy('total_value', 'desc')
-            ->limit(10)
-            ->get();
+        return view('home', 
 
-        return view('home', compact(
-            'totalBarang',
-            'totalTransaksi', 
-            'totalRevenue',
-            'totalCustomers',
-            'topCustomers',
-            'topBarang'
-        ));
+        );
     }
 }

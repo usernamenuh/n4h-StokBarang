@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class ImportLogController extends Controller
+class TransaksiDetailController extends Controller
 {
     //
 }
