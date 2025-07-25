@@ -9,7 +9,6 @@
         @if (session('success'))
             <div id="alert-success" class="custom-alert-success">
                 <span class="custom-alert-icon">
-                    <!-- SVG centang -->
                     <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
                         <circle cx="10" cy="10" r="10" fill="#22c55e" fill-opacity="0.15"/>
                         <path d="M6 10.5l3 3 5-5" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -22,7 +21,6 @@
         @if (session('danger') || session('error'))
             <div id="alert-danger" class="custom-alert-danger">
                 <span class="custom-alert-icon">
-                    <!-- SVG silang -->
                     <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
                         <circle cx="10" cy="10" r="10" fill="#f87171" fill-opacity="0.15"/>
                         <path d="M7 7l6 6M13 7l-6 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
@@ -33,14 +31,16 @@
             </div>
         @endif
         <div class="card-body">
-            <table class="table table-bordered table-striped" id="hotel-table">
+            <table class="table table-bordered table-striped" id="barang-table">
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Nama Barang</th>
                         <th>Kode Barang</th>
-                        <th>Stok</th>
-                        <th>Harga</th>
+                        <th>Nama Barang</th>
+                        <th>Does Pcs</th>
+                        <th>Golongan</th>
+                        <th>Harga Beli</th>
+                        <th>User Input</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -48,10 +48,12 @@
                     @foreach ($barangs as $i => $barang)
                     <tr>
                         <td>{{ $i + 1 }}</td>
-                        <td>{{ $barang->nama_barang }}</td>
-                        <td>{{ $barang->kode_barang }}</td>
-                        <td>{{ $barang->stok }}</td>
-                        <td>Rp. {{ number_format($barang->harga, 0, ',', '.') }}</td>
+                        <td><span class="badge bg-primary">{{ $barang->kode }}</span></td>
+                        <td>{{ $barang->nama }}</td>
+                        <td>{{ number_format($barang->does_pcs, 2) }}</td>
+                        <td><span class="badge bg-info">{{ $barang->golongan }}</span></td>
+                        <td>Rp. {{ number_format($barang->hbeli, 0, ',', '.') }}</td>
+                        <td>{{ $barang->user->name ?? $barang->user_id }}</td>
                         <td>
                             <div class="dropdown">
                                 <button class="btn btn-link text-dark p-0" type="button" id="aksiDropdownBarang{{ $barang->id }}" data-bs-toggle="dropdown" aria-expanded="false">
@@ -84,7 +86,7 @@
                                 <img src="https://img.icons8.com/color/96/000000/trash--v1.png" alt="Trash Icon" style="width:72px; margin: 0 auto 16px;"/>
                                 <div class="modal-body p-0">
                                     <h4 class="fw-bold mb-2" style="font-size:1.25rem;">Apakah Anda yakin ingin menghapus barang ini?</h4>
-                                    <div class="mb-4 text-muted" style="font-size:1rem;">"{{ $barang->nama_barang }}"</div>
+                                    <div class="mb-4 text-muted" style="font-size:1rem;">"{{ $barang->nama }}"</div>
                                 </div>
                                 <div class="d-flex gap-2 justify-content-center mt-2">
                                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" data-bs-dismiss="modal">Batal</button>
@@ -104,33 +106,13 @@
     </div>
 </div>
 
-<div class="">
-    <div class="card mt-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h1>Barang Terlaris</h1>
-    </div>
-    <div class="card-body">
-        <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Barang</th>
-                    <th>Total Terjual</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($barangTerlaris as $i => $barang)
-                <tr>
-                    <td>{{ $i + 1 }}</td>
-                    <td>{{ $barang->nama_barang }}</td>
-                    <td>{{ $barang->total_terjual ?? 0 }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+<!-- Pagination jika ada -->
+@if(method_exists($barangs, 'links'))
+<div class="d-flex justify-content-center mt-3">
+    {{ $barangs->links() }}
 </div>
-</div>
+@endif
+
 <style>
 .custom-alert-success {
     display: flex;

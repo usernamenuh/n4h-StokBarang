@@ -2,85 +2,107 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Barang;
+use App\Models\User; // Pastikan model User diimport
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // Untuk mendapatkan user yang sedang login
 
 class BarangController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-         $barangTerlaris = Barang::withSum('transaksis as total_terjual', 'quantity')
-        ->orderByDesc('total_terjual')
-        ->take(10)
-        ->get();
-        $barangs = Barang::orderBy('nama_barang', 'asc')->get();
-       
-    return view('barang.index', compact('barangs', 'barangTerlaris'));
-
+        $barangs = Barang::with('user')->orderBy('nama')->paginate(10);
+        return view('barang.index', compact('barangs'));
     }
+
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
-        $barangs = Barang::all();
-        return view('barang.create', compact('barangs'));
+        // Anda bisa mengirimkan daftar user jika ingin memilih user_id_fk dari dropdown
+        // $users = User::all();
+        return view('barang.create'); // , compact('users')
     }
+
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         $request->validate([
-            'nama_barang' => 'required|string|max:255|unique:barangs,nama_barang,' . $request->id,
-            'kode_barang' => 'required|unique:barangs,kode_barang',
-            'stok' => 'required|integer',
-            'harga' => 'required|integer',
-        ], [
-            'nama_barang.unique' => 'Nama barang sudah terdaftar',
-            'nama_barang.max' => 'Nama barang maksimal 255 karakter',
-            'nama_barang.required' => 'Nama barang tidak boleh kosong',
-            'kode_barang.required' => 'Kode barang tidak boleh kosong',
-            'kode_barang.unique' => 'Kode barang sudah terdaftar',
-            'stok.required' => 'Stok tidak boleh kosong',
-            'stok.integer' => 'Stok harus berupa angka',
-            'harga.required' => 'Harga tidak boleh kosong',
-            'harga.integer' => 'Harga harus berupa angka',
+            'kode' => 'required|string|max:50|unique:barangs,kode',
+            'nama' => 'required|string|max:255',
+            'does_pcs' => 'required|numeric|min:0.01',
+            'golongan' => 'nullable|string|max:255',
+            'hbeli' => 'required|numeric|min:0',
+            'keterangan' => 'nullable|string|max:1000',
         ]);
-        Barang::create($request->all());
-        return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan');
+
+        Barang::create([
+            'kode' => $request->kode,
+            'nama' => $request->nama,
+            'does_pcs' => $request->does_pcs,
+            'golongan' => $request->golongan,
+            'hbeli' => $request->hbeli,
+            'user_id' => Auth::check() ? Auth::user()->name : 'system', // Mengambil nama user
+            'user_id_fk' => Auth::id() ?? null, // Mengambil ID user yang login
+            'keterangan' => $request->keterangan,
+        ]);
+
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan!');
     }
-    public function edit($id)
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Barang $barang)
     {
-        $barang = Barang::findOrFail($id);
-        return view('barang.edit', compact('barang'));
+        // $users = User::all();
+        return view('barang.edit', compact('barang')); // , compact('barang', 'users')
     }
+
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, Barang $barang)
     {
         $request->validate([
-            'nama_barang' => 'required|string|max:255',
-            'kode_barang' => 'required|unique:barangs,kode_barang,' . $barang->id,
-            'stok' => 'required|integer',
-            'harga' => 'required|integer',
-        ], [
-            'nama_barang.unique' => 'Nama barang sudah terdaftar',
-            'nama_barang.max' => 'Nama barang maksimal 255 karakter',
-            'nama_barang.required' => 'Nama barang tidak boleh kosong',
-            'kode_barang.required' => 'Kode barang tidak boleh kosong',
-            'kode_barang.unique' => 'Kode barang sudah terdaftar',
-            'stok.required' => 'Stok tidak boleh kosong',
-            'stok.integer' => 'Stok harus berupa angka',
-            'harga.required' => 'Harga tidak boleh kosong',
-            'harga.integer' => 'Harga harus berupa angka',
+            'kode' => 'required|string|max:50|unique:barangs,kode,' . $barang->id,
+            'nama' => 'required|string|max:255',
+            'does_pcs' => 'required|numeric|min:0.01',
+            'golongan' => 'nullable|string|max:255',
+            'hbeli' => 'required|numeric|min:0',
+            'keterangan' => 'nullable|string|max:1000',
         ]);
-        $barang->update($request->all());
-        return redirect()->route('barang.index')->with('success', 'Barang berhasil diubah');
+
+        $barang->update([
+            'kode' => $request->kode,
+            'nama' => $request->nama,
+            'does_pcs' => $request->does_pcs,
+            'golongan' => $request->golongan,
+            'hbeli' => $request->hbeli,
+            'user_id' => Auth::check() ? Auth::user()->name : 'system', // Mengambil nama user
+            'user_id_fk' => Auth::id() ?? null, // Mengambil ID user yang login
+            'keterangan' => $request->keterangan,
+        ]);
+
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil diperbarui!');
     }
+
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(Barang $barang)
     {
-        if ($barang->delete()) {
-            return redirect()->route('barang.index')->with('danger', 'Barang berhasil dihapus');
-        } else {
-            return redirect()->route('barang.index')->with('error', 'Barang gagal dihapus');
+        try {
+            $barang->delete();
+            return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->route('barang.index')->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
         }
-    }
-    public function show(Barang $barang)
-    {
-        $barang = Barang::findOrFail($barang->id);
-        return view('barang.show', compact('barang'));
     }
 }

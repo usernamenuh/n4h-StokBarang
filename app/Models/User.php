@@ -45,4 +45,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+      // Relationships
+    public function barangs()
+    {
+        return $this->hasMany(Barang::class, 'user_id_fk');
+    }
+
+    public function transaksis()
+    {
+        return $this->hasMany(Transaksi::class, 'user_id_fk');
+    }
+
+    public function importLogs()
+    {
+        return $this->hasMany(ImportLog::class, 'imported_by');
+    }
 }

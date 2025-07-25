@@ -1,0 +1,167 @@
+<?php
+
+namespace App\Imports;
+
+use App\Models\Barang;
+use App\Models\User;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\Importable;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+
+class BarangImportWithUserCreation implements ToCollection, WithHeadingRow
+{
+    use Importable;
+
+    private $rowCount = 0;
+    private $successCount = 0;
+    private $updateCount = 0;
+    private $skipCount = 0;
+    private $userCache = [];
+
+    public function collection(Collection $rows)
+    {
+        $this->rowCount = $rows->count();
+        
+        // Cache existing users
+        $this->cacheUsers();
+        
+        foreach ($rows as $index => $row) {
+            try {
+                $kode = trim($row['kode'] ?? '');
+                $nama = trim($row['nama'] ?? '');
+                $doesPcs = $this->parseNumeric($row['does_pcs'] ?? 1);
+                $golongan = trim($row['golongan'] ?? 'GENERAL');
+                $hbeli = $this->parseNumeric($row['hbeli'] ?? 0);
+                $keterangan = trim($row['keterangan'] ?? '');
+                $userIdFromExcel = trim($row['user_id'] ?? '');
+                
+                if (empty($kode) || empty($nama)) {
+                    Log::warning("Skipping row " . ($index + 2) . ": Missing required fields (kode or nama)");
+                    $this->skipCount++;
+                    continue;
+                }
+                
+                // Get or create user ID
+                $userId = $this->getOrCreateUserId($userIdFromExcel);
+                
+                // Use updateOrCreate to handle duplicates
+                $barang = Barang::updateOrCreate(
+                    ['kode' => $kode], // Search condition
+                    [
+                        'nama' => $nama,
+                        'does_pcs' => $doesPcs,
+                        'golongan' => $golongan,
+                        'hbeli' => $hbeli,
+                        'user_id' => $userId,
+                        'keterangan' => $keterangan,
+                    ]
+                );
+                
+                if ($barang->wasRecentlyCreated) {
+                    $this->successCount++;
+                    Log::info("Created new barang: {$kode} for user: {$userIdFromExcel}");
+                } else {
+                    $this->updateCount++;
+                    Log::info("Updated existing barang: {$kode} for user: {$userIdFromExcel}");
+                }
+                
+            } catch (\Exception $e) {
+                Log::error("Error processing row " . ($index + 2) . ": " . $e->getMessage());
+                $this->skipCount++;
+            }
+        }
+        
+        Log::info("Import completed: {$this->successCount} created, {$this->updateCount} updated, {$this->skipCount} skipped");
+    }
+    
+    private function cacheUsers()
+    {
+        $users = User::all();
+        foreach ($users as $user) {
+            $this->userCache[strtolower($user->name)] = $user->id;
+            $emailUsername = strtolower(explode('@', $user->email)[0]);
+            $this->userCache[$emailUsername] = $user->id;
+        }
+    }
+    
+    private function getOrCreateUserId($username)
+    {
+        if (empty($username)) {
+            return auth()->id(); // Fallback to current user
+        }
+        
+        $username = strtolower(trim($username));
+        
+        // Check cache first
+        if (isset($this->userCache[$username])) {
+            return $this->userCache[$username];
+        }
+        
+        // Try to find existing user
+        $user = User::where('name', 'LIKE', $username)
+                   ->orWhere('email', 'LIKE', $username . '%')
+                   ->first();
+                   
+        if ($user) {
+            $this->userCache[$username] = $user->id;
+            return $user->id;
+        }
+        
+        // Create new user if not found
+        $newUser = User::create([
+            'name' => ucfirst($username),
+            'email' => $username . '@example.com',
+            'password' => Hash::make('password123'), // Default password
+        ]);
+        
+        $this->userCache[$username] = $newUser->id;
+        Log::info("Created new user: {$username}");
+        
+        return $newUser->id;
+    }
+    
+    public function getRowCount(): int
+    {
+        return $this->rowCount;
+    }
+    
+    public function getSuccessCount(): int
+    {
+        return $this->successCount + $this->updateCount;
+    }
+    
+    public function getCreateCount(): int
+    {
+        return $this->successCount;
+    }
+    
+    public function getUpdateCount(): int
+    {
+        return $this->updateCount;
+    }
+    
+    public function getSkipCount(): int
+    {
+        return $this->skipCount;
+    }
+
+    private function parseNumeric($value)
+    {
+        if (is_numeric($value)) {
+            return floatval($value);
+        }
+        
+        $cleaned = str_replace(',', '', $value);
+        $cleaned = preg_replace('/[^\d.-]/', '', $cleaned);
+        
+        if (is_numeric($cleaned)) {
+            return floatval($cleaned);
+        }
+        
+        return 0;
+    }
+}

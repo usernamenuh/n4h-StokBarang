@@ -1,256 +1,112 @@
 @extends('layouts.demo')
+
+@section('title', 'Data Transaksi')
+
 @section('content')
-<div class="">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h1>Data Transaksi</h1>
-            <a href="{{ route('transaksi.create') }}" class="btn btn-primary">Tambah Transaksi</a>
-        </div>
-        @if (session('success'))
-        <div id="alert-success" class="custom-alert-success">
-            <span class="custom-alert-icon">
-                <!-- SVG centang -->
-                <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
-                    <circle cx="10" cy="10" r="10" fill="#22c55e" fill-opacity="0.15"/>
-                    <path d="M6 10.5l3 3 5-5" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </span>
-            <span class="custom-alert-text">{{ session('success') }}</span>
-            <span class="custom-alert-close" onclick="$('#alert-success').fadeOut(300);">&times;</span>
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Data Transaksi</h1>
+
+    @if (session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ session('success') }}</span>
         </div>
     @endif
-    @if (session('danger') || session('error'))
-        <div id="alert-danger" class="custom-alert-danger">
-            <span class="custom-alert-icon">
-                <!-- SVG silang -->
-                <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
-                    <circle cx="10" cy="10" r="10" fill="#f87171" fill-opacity="0.15"/>
-                    <path d="M7 7l6 6M13 7l-6 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </span>
-            <span class="custom-alert-text">{{ session('danger') ?? session('error') }}</span>
-            <span class="custom-alert-close" onclick="$('#alert-danger').fadeOut(300);">&times;</span>
+
+    @if (session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ session('error') }}</span>
         </div>
     @endif
-        <div class="card-body">
-            <table class="table table-bordered table-striped" id="hotel-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Barang</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($transaksis as $i => $transaksi)
-                    <tr>
-                        <td>{{ $i + 1 }}</td>
-                        <td>{{ $transaksi->barang->nama_barang }}</td>
-                        <td>{{ $transaksi->quantity }}</td>
-                        <td>Rp. {{ number_format($transaksi->total, 0, ',', '.') }}</td>
-                        <td>
-                            <div class="dropdown">
-                                <button class="btn btn-link text-dark p-0" type="button" id="aksiDropdownTransaksi{{ $transaksi->id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bx bx-dots-vertical-rounded" style="font-size: 1.5rem;"></i>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="aksiDropdownTransaksi{{ $transaksi->id }}">
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('transaksi.edit', $transaksi->id) }}">
-                                            <i class="bx bx-edit me-2"></i> Edit
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('transaksi.show', $transaksi->id) }}">
-                                            <i class="bx bx-show me-2"></i> Show
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deleteModalTransaksi{{ $transaksi->id }}">
-                                            <i class="bx bx-trash me-2"></i> Delete
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                            <!-- Delete Modal -->
-                            <div class="modal fade modal-confirm" id="deleteModalTransaksi{{ $transaksi->id }}" tabindex="-1" aria-labelledby="deleteModalLabelTransaksi{{ $transaksi->id }}" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content text-center p-4">
-                                        <img src="https://img.icons8.com/color/96/000000/trash--v1.png" alt="Trash Icon" style="width:72px; margin: 0 auto 16px;"/>
-                                        <div class="modal-body p-0">
-                                            <h4 class="fw-bold mb-2" style="font-size:1.25rem;">Apakah Anda yakin ingin menghapus transaksi ini?</h4>
-                                            <div class="mb-4 text-muted" style="font-size:1rem;">"{{ $transaksi->barang->nama_barang }}"</div>
-                                        </div>
-                                        <div class="d-flex gap-2 justify-content-center mt-2">
-                                            <button type="button" class="btn btn-outline-secondary btn-lg px-4" data-bs-dismiss="modal">Batal</button>
-                                            <form action="{{ route('transaksi.destroy', $transaksi->id) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-lg px-4">Hapus</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+
+    <div class="mb-4">
+        <a href="{{ route('transaksi.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Tambah Transaksi Baru
+        </a>
+    </div>
+
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+        <table class="min-w-full leading-normal">
+            <thead>
+                <tr>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Tanggal
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Nomor
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Customer
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Subtotal
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Disc
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Ongkos Kirim
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Total
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        User Input
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Aksi
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($transaksis as $transaksi)
+                <tr>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        {{ $transaksi->tanggal }}
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        {{ $transaksi->nomor }}
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        {{ $transaksi->customer }}
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        Rp {{ number_format($transaksi->subtotal, 2, ',', '.') }}
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        Rp {{ number_format($transaksi->disc, 2, ',', '.') }}
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        Rp {{ number_format($transaksi->ongkos_kirim, 2, ',', '.') }}
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        Rp {{ number_format($transaksi->total, 2, ',', '.') }}
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        {{ $transaksi->user->name ?? $transaksi->user_id }}
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <a href="{{ route('transaksi.show', $transaksi->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">Lihat</a>
+                        <a href="{{ route('transaksi.edit', $transaksi->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                        <form action="{{ route('transaksi.destroy', $transaksi->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="9" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
+                        Tidak ada data transaksi.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        {{ $transaksis->links() }}
     </div>
 </div>
-<style>
-    .custom-alert-success {
-        display: flex;
-        align-items: center;
-        background: #f0fdf4;
-        color: #166534;
-        border-radius: 10px;
-        padding: 16px 24px;
-        min-width: 500px;
-        max-width: 600px;
-        position: fixed;
-        top: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 9999;
-        box-shadow: 0 2px 8px rgba(34,197,94,0.08);
-        font-size: 1rem;
-        font-weight: 500;
-        animation: fadeInDown 0.5s;
-    }
-    .custom-alert-icon {
-        margin-right: 12px;
-        display: flex;
-        align-items: center;
-    }
-    .custom-alert-text {
-        flex: 1;
-    }
-    .custom-alert-close {
-        margin-left: 16px;
-        cursor: pointer;
-        font-size: 1.3rem;
-        color: #22c55e;
-        transition: color 0.2s;
-    }
-    .custom-alert-close:hover {
-        color: #166534;
-    }
-    @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-20px) translateX(-50%);}
-        to { opacity: 1; transform: translateY(0) translateX(-50%);}
-    }
-    @media (max-width: 600px) {
-        .custom-alert-success {
-            min-width: 90vw;
-            max-width: 98vw;
-            padding: 12px 8px;
-            font-size: 0.95rem;
-        }
-    }
-    .custom-alert-danger {
-        display: flex;
-        align-items: center;
-        background: #fef2f2;
-        color: #991b1b;
-        border-radius: 10px;
-        padding: 16px 24px;
-        min-width: 500px;
-        max-width: 600px;
-        position: fixed;
-        top: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 9999;
-        box-shadow: 0 2px 8px rgba(239,68,68,0.08);
-        font-size: 1rem;
-        font-weight: 500;
-        animation: fadeInDown 0.5s;
-    }
-    .custom-alert-danger .custom-alert-icon svg {
-        margin-right: 12px;
-        display: flex;
-        align-items: center;
-    }
-    .custom-alert-danger .custom-alert-text {
-        flex: 1;
-    }
-    .custom-alert-danger .custom-alert-close {
-        margin-left: 16px;
-        cursor: pointer;
-        font-size: 1.3rem;
-        color: #ef4444;
-        transition: color 0.2s;
-    }
-    .custom-alert-danger .custom-alert-close:hover {
-        color: #991b1b;
-    }
-    @media (max-width: 600px) {
-        .custom-alert-danger {
-            min-width: 90vw;
-            max-width: 98vw;
-            padding: 12px 8px;
-            font-size: 0.95rem;
-        }
-    }
-    .modal-confirm .modal-content {
-        border-radius: 18px;
-        border: none;
-        box-shadow: 0 5px 24px rgba(0,0,0,0.13);
-        padding: 0;
-        max-width: 370px;
-    }
-    .modal-confirm .btn-lg {
-        font-size: 1.1rem;
-        border-radius: 8px;
-        min-width: 120px;
-        font-weight: 500;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
-    .modal-confirm .btn-outline-secondary {
-        background: #fff;
-        border: 2px solid #e0e0e0;
-        color: #333;
-        transition: background 0.2s, color 0.2s;
-    }
-    .modal-confirm .btn-outline-secondary:hover {
-        background: #f3f3f3;
-        color: #111;
-    }
-    .modal-confirm .btn-danger {
-        background: #e53935;
-        border: none;
-        transition: background 0.2s;
-    }
-    .modal-confirm .btn-danger:hover {
-        background: #b71c1c;
-    }
-    .modal.show .modal-dialog {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        margin: 0 auto;
-    }
-    .modal.fade .modal-dialog {
-        transition: transform 0.3s ease-out;
-        transform: scale(0.95);
-    }
-    .modal.show .modal-dialog {
-        transform: scale(1);
-    }
-</style>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script>
-    $(document).ready(function(){
-        setTimeout(function(){
-            $("#alert-success").fadeOut(400);
-            $("#alert-danger").fadeOut(400);
-        }, 3000); // 3 detik
-    });
-    </script>
 @endsection
