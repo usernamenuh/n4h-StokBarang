@@ -3,43 +3,66 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
-use App\Models\User; // Pastikan model User diimport
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Untuk mendapatkan user yang sedang login
+use Illuminate\Support\Facades\Auth;
 
 class BarangController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct()
     {
-        $barangs = Barang::with('user')->orderBy('nama')->paginate(10);
+        $this->middleware('auth');
+    }
+
+    public function index(Request $request)
+    {
+        $query = Barang::with('user');
+        
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('kode', 'LIKE', "%{$search}%")
+                  ->orWhere('nama', 'LIKE', "%{$search}%")
+                  ->orWhere('keterangan', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        // Filter by golongan
+        if ($request->filled('golongan')) {
+            $query->where('golongan', $request->golongan);
+        }
+        
+        // Filter by user
+        if ($request->filled('user_filter')) {
+            $query->where('user_id', $request->user_filter);
+        }
+        
+        // Order by latest
+        $query->orderBy('created_at', 'desc');
+        
+        // Get all barangs for DataTables (no pagination)
+        $barangs = $query->get();
+        
         return view('barang.index', compact('barangs'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        // Anda bisa mengirimkan daftar user jika ingin memilih user_id_fk dari dropdown
-        // $users = User::all();
-        return view('barang.create'); // , compact('users')
+        $users = User::orderBy('name')->get();
+        return view('barang.create', compact('users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'kode' => 'required|string|max:50|unique:barangs,kode',
-            'nama' => 'required|string|max:255',
-            'does_pcs' => 'required|numeric|min:0.01',
-            'golongan' => 'nullable|string|max:255',
+            'kode' => 'required|unique:barang,kode',
+            'nama' => 'required',
+            'does_pcs' => 'required|numeric|min:0',
+            'golongan' => 'required',
             'hbeli' => 'required|numeric|min:0',
-            'keterangan' => 'nullable|string|max:1000',
+            'user_id' => 'nullable|exists:users,id',
+            'keterangan' => 'nullable|string'
         ]);
 
         Barang::create([
@@ -48,35 +71,35 @@ class BarangController extends Controller
             'does_pcs' => $request->does_pcs,
             'golongan' => $request->golongan,
             'hbeli' => $request->hbeli,
-            'user_id' => Auth::check() ? Auth::user()->name : 'system', // Mengambil nama user
-            'user_id_fk' => Auth::id() ?? null, // Mengambil ID user yang login
+            'user_id' => $request->user_id ?? Auth::id(),
             'keterangan' => $request->keterangan,
         ]);
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan!');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Barang $barang)
+    public function show(Barang $barang)
     {
-        // $users = User::all();
-        return view('barang.edit', compact('barang')); // , compact('barang', 'users')
+        $barang->load('user');
+        return view('barang.show', compact('barang'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    public function edit(Barang $barang)
+    {
+        $users = User::orderBy('name')->get();
+        return view('barang.edit', compact('barang', 'users'));
+    }
+
     public function update(Request $request, Barang $barang)
     {
         $request->validate([
-            'kode' => 'required|string|max:50|unique:barangs,kode,' . $barang->id,
-            'nama' => 'required|string|max:255',
-            'does_pcs' => 'required|numeric|min:0.01',
-            'golongan' => 'nullable|string|max:255',
+            'kode' => 'required|unique:barang,kode,' . $barang->id,
+            'nama' => 'required',
+            'does_pcs' => 'required|numeric|min:0',
+            'golongan' => 'required',
             'hbeli' => 'required|numeric|min:0',
-            'keterangan' => 'nullable|string|max:1000',
+            'user_id' => 'nullable|exists:users,id',
+            'keterangan' => 'nullable|string'
         ]);
 
         $barang->update([
@@ -85,24 +108,16 @@ class BarangController extends Controller
             'does_pcs' => $request->does_pcs,
             'golongan' => $request->golongan,
             'hbeli' => $request->hbeli,
-            'user_id' => Auth::check() ? Auth::user()->name : 'system', // Mengambil nama user
-            'user_id_fk' => Auth::id() ?? null, // Mengambil ID user yang login
+            'user_id' => $request->user_id,
             'keterangan' => $request->keterangan,
         ]);
 
-        return redirect()->route('barang.index')->with('success', 'Barang berhasil diperbarui!');
+        return redirect()->route('barang.show', $barang->id)->with('success', 'Barang berhasil diupdate!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Barang $barang)
     {
-        try {
-            $barang->delete();
-            return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus!');
-        } catch (\Exception $e) {
-            return redirect()->route('barang.index')->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
-        }
+        $barang->delete();
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus!');
     }
 }

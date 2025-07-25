@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 
-class BarangImportFixed implements ToArray, WithHeadingRow
+class BarangImportFinal implements ToArray, WithHeadingRow
 {
     use Importable;
 
@@ -24,14 +24,14 @@ class BarangImportFixed implements ToArray, WithHeadingRow
     {
         $this->rowCount = count($rows);
         
-        Log::info("=== FIXED NUMERIC IMPORT START ===");
+        Log::info("=== FINAL IMPORT START ===");
         Log::info("Processing {$this->rowCount} rows");
         
         try {
-            // Step 1: Create users dengan email unique handling
+            // Step 1: Create users
             $this->createUsersWithUniqueEmails($rows);
             
-            // Step 2: Import barang dengan numeric parsing yang benar
+            // Step 2: Import barang dengan parsing yang sudah diperbaiki
             $this->importBarang($rows);
             
         } catch (\Exception $e) {
@@ -49,34 +49,24 @@ class BarangImportFixed implements ToArray, WithHeadingRow
             'errors' => $this->errors
         ];
     }
-    
+
     private function createUsersWithUniqueEmails(array $rows)
     {
-        // Get unique user_ids from Excel
         $userIds = array_unique(array_filter(array_column($rows, 'user_id')));
-        
-        Log::info("Found unique user_ids: " . implode(', ', $userIds));
-        
-        // Get existing users (by name and email)
         $existingUserNames = User::whereIn('name', $userIds)->pluck('name')->toArray();
-        
-        // Create new users
         $newUsers = array_diff($userIds, $existingUserNames);
         
         foreach ($newUsers as $userId) {
             try {
-                // Generate unique email
                 $baseEmail = strtolower($userId);
                 $email = $baseEmail . '@example.com';
                 $counter = 1;
                 
-                // Check if email exists, add counter if needed
                 while (User::where('email', $email)->exists()) {
                     $email = $baseEmail . $counter . '@example.com';
                     $counter++;
                 }
                 
-                // Create user
                 User::create([
                     'name' => $userId,
                     'email' => $email,
@@ -93,17 +83,13 @@ class BarangImportFixed implements ToArray, WithHeadingRow
             }
         }
     }
-    
+
     private function importBarang(array $rows)
     {
-        // Get user mapping
         $users = User::pluck('id', 'name')->toArray();
-        
-        // Get existing barang codes
         $existingCodes = Barang::pluck('id', 'kode')->toArray();
         
         $insertData = [];
-        $updateData = [];
         
         foreach ($rows as $index => $row) {
             try {
@@ -134,13 +120,17 @@ class BarangImportFixed implements ToArray, WithHeadingRow
                     continue;
                 }
                 
-                // FIXED: Parse numeric values correctly
-                $doesPcs = $this->parseExcelNumeric($row['does_pcs'] ?? 1);
-                $hbeli = $this->parseExcelNumeric($row['hbeli'] ?? 0);
+                // FIXED: Parse values dengan method yang tepat berdasarkan debug
+                $rawDoesPcs = $row['does_pcs'] ?? 1;
+                $rawHbeli = $row['hbeli'] ?? 0;
                 
-                // Debug log untuk melihat parsing
-                Log::info("Row " . ($index + 2) . " - Original does_pcs: " . ($row['does_pcs'] ?? 'null') . " -> Parsed: {$doesPcs}");
-                Log::info("Row " . ($index + 2) . " - Original hbeli: " . ($row['hbeli'] ?? 'null') . " -> Parsed: {$hbeli}");
+                // For does_pcs: direct cast works fine (1.00 -> 1.0)
+                $doesPcs = (float) $rawDoesPcs;
+                
+                // For hbeli: use fixed currency parser
+                $hbeli = $this->parseIndonesianCurrency($rawHbeli);
+                
+                Log::info("Row " . ($index + 2) . " - does_pcs: {$rawDoesPcs} -> {$doesPcs}, hbeli: {$rawHbeli} -> {$hbeli}");
                 
                 $data = [
                     'kode' => $kode,
@@ -188,56 +178,58 @@ class BarangImportFixed implements ToArray, WithHeadingRow
             }
         }
     }
-    
+
     public function getRowCount(): int { return $this->rowCount; }
     public function getSuccessCount(): int { return $this->successCount; }
     public function getCreatedUsersCount(): int { return $this->createdUsers; }
     public function getErrors(): array { return $this->errors; }
 
     /**
-     * FIXED: Parse Excel numeric values correctly
-     * Handle berbagai format Excel seperti:
-     * - 1.00 -> 1.00 (bukan 100.00)
-     * - 2,900,000.00 -> 2900000.00
-     * - "139,500.00" -> 139500.00
+     * FIXED: Parse Indonesian currency format correctly
+     * Handles: "60,500.00", "2,900,000.00", "139,500.00" etc.
      */
-    private function parseExcelNumeric($value)
+    private function parseIndonesianCurrency($value)
     {
-        // Jika sudah numeric dan tidak ada koma, return langsung
-        if (is_numeric($value) && !str_contains($value, ',')) {
+        // If already numeric and no comma, return as is
+        if (is_numeric($value) && !str_contains((string)$value, ',')) {
             return floatval($value);
         }
         
-        // Convert to string untuk processing
+        // Convert to string for processing
         $value = (string) $value;
-        
-        // Trim whitespace
         $value = trim($value);
         
-        // Jika kosong, return 0
+        // If empty, return 0
         if (empty($value)) {
             return 0;
         }
         
-        // Handle format Indonesia: 2,900,000.00
-        // Remove thousand separators (koma) tapi keep decimal point
-        if (str_contains($value, ',') && str_contains($value, '.')) {
-            // Format: 2,900,000.00 -> remove commas, keep last dot as decimal
-            $parts = explode('.', $value);
-            if (count($parts) == 2) {
-                // Last part is decimal
-                $decimal = array_pop($parts);
-                $integer = str_replace(',', '', implode('', $parts));
-                $value = $integer . '.' . $decimal;
+        // Remove any currency symbols
+        $value = str_replace(['Rp', 'Rp.', '$', '€', '¥', ' '], '', $value);
+        $value = trim($value);
+        
+        // Handle Indonesian format: "2,900,000.00" or "60,500.00"
+        if (str_contains($value, ',')) {
+            // Check if there's a decimal point
+            if (str_contains($value, '.')) {
+                // Format: "2,900,000.00" 
+                // Split by decimal point
+                $parts = explode('.', $value);
+                $decimalPart = array_pop($parts); // Get last part as decimal
+                $integerPart = implode('', $parts); // Join remaining parts
+                
+                // Remove all commas from integer part
+                $integerPart = str_replace(',', '', $integerPart);
+                
+                // Reconstruct the number
+                $value = $integerPart . '.' . $decimalPart;
+            } else {
+                // Format: "2,900,000" (no decimal)
+                $value = str_replace(',', '', $value);
             }
-        } 
-        // Handle format dengan koma sebagai thousand separator tanpa decimal
-        elseif (str_contains($value, ',') && !str_contains($value, '.')) {
-            // Format: 2,900,000 -> remove all commas
-            $value = str_replace(',', '', $value);
         }
         
-        // Remove any non-numeric characters except decimal point and minus
+        // Final cleanup: remove any remaining non-numeric characters except decimal point and minus
         $value = preg_replace('/[^\d.-]/', '', $value);
         
         // Convert to float

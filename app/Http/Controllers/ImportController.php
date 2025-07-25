@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Imports\BarangImportFixed;
+use App\Imports\BarangImportFinal; // Ganti ke Final version
 use App\Models\Barang;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
@@ -31,28 +31,28 @@ class ImportController extends Controller
         ]);
 
         try {
-            Log::info('Starting FIXED import');
+            Log::info('Starting FINAL FIXED import');
             $startTime = microtime(true);
             
-            $import = new BarangImportFixed();
+            // Use final version
+            $import = new BarangImportFinal();
             Excel::import($import, $request->file('file'));
             
             $endTime = microtime(true);
             $executionTime = round($endTime - $startTime, 2);
             
-            $result = $import->array([]); // Get results
             $totalRows = $import->getRowCount();
             $successCount = $import->getSuccessCount();
             $createdUsers = $import->getCreatedUsersCount();
             $errors = $import->getErrors();
             
-            Log::info("Fixed import completed in {$executionTime}s");
+            Log::info("Final import completed in {$executionTime}s");
             
             $message = "Import selesai dalam {$executionTime} detik! ";
             if ($createdUsers > 0) {
                 $message .= "{$createdUsers} user baru dibuat, ";
             }
-            $message .= "{$successCount} barang berhasil diimport.";
+            $message .= "{$successCount} barang berhasil diimport dari {$totalRows} baris.";
             
             if ($request->ajax()) {
                 return response()->json([
@@ -85,7 +85,6 @@ class ImportController extends Controller
 
     public function importTransaksi(Request $request)
     {
-        // Keep existing implementation
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:10240'
         ]);
