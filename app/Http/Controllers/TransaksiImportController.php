@@ -92,43 +92,5 @@ class TransaksiImportController extends Controller
         }
     }
 
-    public function testData()
-    {
-        try {
-            // Test buat transaksi manual
-            $transaksi = \App\Models\Transaksi::create([
-                'tanggal' => '2025-01-26',
-                'nomor' => 'TEST-00001',
-                'customer' => 'Test Customer',
-                'subtotal' => 100000,
-                'diskon' => 0,
-                'ongkir' => 5000,
-                'total' => 105000,
-                'keterangan' => 'Test transaksi',
-                'user_id' => 1,
-            ]);
 
-            // Test buat detail manual
-            \App\Models\TransaksiDetail::create([
-                'transaksi_id' => $transaksi->id,
-                'kode_barang' => 'TEST001',
-                'nama_barang' => 'Test Barang',
-                'qty' => 1,
-                'harga_satuan' => 100000,
-                'subtotal' => 100000,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Test data berhasil dibuat',
-                'transaksi_id' => $transaksi->id
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ]);
-        }
-    }
 }
