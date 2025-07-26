@@ -80,35 +80,47 @@ class TransaksiImport implements ToCollection
                 \Log::error("Error creating transaksi: " . $e->getMessage());
             }
 
-        } elseif (!$this->isDate($colB) && !empty($colC) && $this->currentTransaksi) {
+        } elseif (!$this->isDate($colB) && !empty($colB) && $this->currentTransaksi) {
     // Ini baris DETAIL
+    try {
+        $namaBarang = $colC;
+        $qty = $this->parseQty($colE);
+        $hargaSatuan = $this->parseAmount($colH);
+        $subtotalDetail = $qty * $hargaSatuan;
 
-            // Ini baris DETAIL
-            try {
-                $namaBarang = $colC;
-                $qty = $this->parseQty($colE);
-                $hargaSatuan = $this->parseAmount($colH);
-                $subtotalDetail = $qty * $hargaSatuan;
-
-                $barangId = $this->findBarangId($namaBarang);
-                $kodeBarang = $this->generateKodeBarang($namaBarang);
-
-                TransaksiDetail::create([
-                    'transaksi_id' => $this->currentTransaksi->id,
-                    'barang_id' => $barangId,
-                    'kode_barang' => $kodeBarang,
-                    'nama_barang' => $namaBarang,
-                    'qty' => $qty,
-                    'harga_satuan' => $hargaSatuan,
-                    'subtotal' => $subtotalDetail,
-                ]);
-
-                $detailCount++;
-
-            } catch (\Exception $e) {
-                \Log::error("Error creating detail: " . $e->getMessage());
-            }
+        $barang = Barang::where('kode', $colA) // kalau di Excel ada kode barang (colA)
+    ->orWhere('kode', $colB) // mungkin colB kadang berisi kode
+    ->orWhere('nama', 'LIKE', '%' . $namaBarang . '%')
+    ->first();
+        if ($barang) {
+            $barangId = $barang->id;
+            $kodeBarang = $barang->kode;
+        } else {
+            $barangId = null;
+            $kodeBarang = $this->generateKodeBarang($namaBarang);
+            \Log::warning("Barang tidak ditemukan, generate kode: $kodeBarang", [
+                'nama_excel' => $namaBarang
+            ]);
         }
+
+        TransaksiDetail::create([
+            'transaksi_id' => $this->currentTransaksi->id,
+            'barang_id' => $barangId,
+            'kode_barang' => $kodeBarang,
+            'nama_barang' => $namaBarang,
+            'qty' => $qty,
+            'harga_satuan' => $hargaSatuan,
+            'subtotal' => $subtotalDetail,
+        ]);
+
+        $detailCount++;
+
+    } catch (\Exception $e) {
+        \Log::error("Error creating detail: " . $e->getMessage());
+    }
+}
+
+
     }
 
     \Log::info("FINAL RESULT", [
