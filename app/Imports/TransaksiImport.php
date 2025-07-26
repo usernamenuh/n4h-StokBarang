@@ -16,10 +16,13 @@ class TransaksiImport implements ToCollection
     private $transaksiCount = 0;
     private $detailCount = 0;
 
-    public function collection(Collection $rows)
+public function collection(Collection $rows)
 {
     $transaksiCount = 0;
     $detailCount = 0;
+
+    // Ambil semua barang di awal untuk cache
+    $barangList = Barang::all();
 
     foreach ($rows as $index => $row) {
         $rowNumber = $index + 1;
@@ -30,18 +33,17 @@ class TransaksiImport implements ToCollection
         }
 
         // Ambil kolom sesuai posisi di Excel
-        $colA = trim($row[0] ?? ''); // Kode
-        $colB = $row[1] ?? '';       // Tanggal
-        $colC = trim($row[2] ?? ''); // Nomor
-        $colD = trim($row[3] ?? ''); // Customer
-        $colE = $row[4] ?? '';       // Qty/Subtotal
-        $colF = $row[5] ?? '';       // Diskon
-        $colG = $row[6] ?? '';       // Ongkos
-        $colH = $row[7] ?? '';       // Total
-        $colI = trim($row[8] ?? ''); // Keterangan
-        $colJ = trim($row[9] ?? ''); // User
+        $colA = trim($row[0] ?? '');
+        $colB = $row[1] ?? '';
+        $colC = trim($row[2] ?? '');
+        $colD = trim($row[3] ?? '');
+        $colE = $row[4] ?? '';
+        $colF = $row[5] ?? '';
+        $colG = $row[6] ?? '';
+        $colH = $row[7] ?? '';
+        $colI = trim($row[8] ?? '');
+        $colJ = trim($row[9] ?? '');
 
-        // Debug info
         \Log::info("ROW {$rowNumber}", [
             'colA' => $colA,
             'colB' => $colB,
@@ -80,29 +82,52 @@ class TransaksiImport implements ToCollection
                 \Log::error("Error creating transaksi: " . $e->getMessage());
             }
 
-        } elseif (!$this->isDate($colB) && !empty($colB) && $this->currentTransaksi) {
-    // Ini baris DETAIL
+        }elseif (!$this->isDate($colB) && !empty($colC) && $this->currentTransaksi) {
     try {
-        $namaBarang = $colC;
+        $namaBarangExcel = trim($colC);
         $qty = $this->parseQty($colE);
         $hargaSatuan = $this->parseAmount($colH);
         $subtotalDetail = $qty * $hargaSatuan;
 
-        $barang = Barang::where('kode', $colA) // kalau di Excel ada kode barang (colA)
-    ->orWhere('kode', $colB) // mungkin colB kadang berisi kode
-    ->orWhere('nama', 'LIKE', '%' . $namaBarang . '%')
-    ->first();
+        // Cari barang berdasarkan nama persis
+        $barang = Barang::where('nama', $namaBarangExcel)->first();
+
+        if (!$barang) {
+            // Cari dengan LIKE jika tidak ketemu
+            $barang = Barang::where('nama', 'LIKE', '%' . $namaBarangExcel . '%')->first();
+        }
+
         if ($barang) {
             $barangId = $barang->id;
             $kodeBarang = $barang->kode;
+            $namaBarang = $barang->nama;
+
+            // Hitung stok baru (tidak boleh minus)
+            $stokLama = $barang->does_pcs;
+            $stokBaru = max($stokLama - $qty, 0);
+
+            // Update stok di database
+            Barang::where('id', $barangId)->update(['does_pcs' => $stokBaru]);
+
+            // Logging stok update
+            \Log::info("Stok diperbarui", [
+                'barang' => $namaBarang,
+                'stok_lama' => $stokLama,
+                'qty_dikurangi' => $qty,
+                'stok_baru' => $stokBaru
+            ]);
         } else {
+            // Jika barang tidak ditemukan
             $barangId = null;
-            $kodeBarang = $this->generateKodeBarang($namaBarang);
+            $kodeBarang = $this->generateKodeBarang($namaBarangExcel);
+            $namaBarang = $namaBarangExcel;
+
             \Log::warning("Barang tidak ditemukan, generate kode: $kodeBarang", [
-                'nama_excel' => $namaBarang
+                'nama_excel' => $namaBarangExcel
             ]);
         }
 
+        // Simpan detail transaksi
         TransaksiDetail::create([
             'transaksi_id' => $this->currentTransaksi->id,
             'barang_id' => $barangId,
@@ -118,15 +143,8 @@ class TransaksiImport implements ToCollection
     } catch (\Exception $e) {
         \Log::error("Error creating detail: " . $e->getMessage());
     }
-}
-
-
+        }
     }
-
-    \Log::info("FINAL RESULT", [
-        'transaksi' => $transaksiCount,
-        'detail' => $detailCount
-    ]);
 }
 
 private function isDate($value)

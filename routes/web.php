@@ -19,9 +19,7 @@ Route::middleware(['auth'])->group(function () {
     // Management Barang
 
     
-Route::get('/barang/import', [BarangImportController::class, 'showImportForm'])->name('barang.import.form');
-Route::post('/barang/import', [BarangImportController::class, 'import'])->name('barang.import');
-Route::get('/barang/template', [BarangImportController::class, 'downloadTemplate'])->name('barang.template');
+
 
     // Pareto Analysis
     Route::prefix('pareto')->name('pareto.')->group(function () {
@@ -31,6 +29,9 @@ Route::get('/barang/template', [BarangImportController::class, 'downloadTemplate
     });
 });
 
+Route::get('/barang/import', [BarangImportController::class, 'showImportForm'])->name('barang.import.form');
+Route::post('/barang/import', [BarangImportController::class, 'import'])->name('barang.import');
+Route::get('/barang/template', [BarangImportController::class, 'downloadTemplate'])->name('barang.template');
 // Routes untuk import transaksi
 Route::get('/transaksi/import', [TransaksiImportController::class, 'showImportForm'])->name('transaksi.import.form');
 Route::post('/transaksi/import', [TransaksiImportController::class, 'import'])->name('transaksi.import');
