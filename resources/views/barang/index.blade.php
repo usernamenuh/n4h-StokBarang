@@ -7,6 +7,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Data Barang</h1>
             <p class="text-sm text-gray-600 mt-1">Kelola data barang dan inventory</p>
         </div>
+        @if ($role != 'owner')
         <a href="{{ route('barang.create') }}" 
            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,6 +15,14 @@
             </svg>
             Tambah Barang
         </a>
+        <a href="{{ route('barang.import') }}" 
+           class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            import
+        </a>
+        @endif
     </div>
 
     <!-- Success Alert -->
@@ -87,7 +96,7 @@
                         </td>
                         <td class="px-4 py-4">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                {{ number_format($barang->does_pcs, 2) }}
+                                {{ number_format($barang->does_pcs, 0) }}
                             </span>
                         </td>
                         <td class="px-4 py-4">
@@ -96,7 +105,7 @@
                             </span>
                         </td>
                         <td class="px-4 py-4 text-sm font-semibold text-green-600">
-                            Rp {{ number_format($barang->hbeli, 3, ',', '.') }}
+                            Rp {{ number_format($barang->hbeli, 0, '.', '.') }}
                         </td>
                         <td class="px-4 py-4">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">

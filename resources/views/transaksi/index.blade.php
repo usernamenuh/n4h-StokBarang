@@ -18,9 +18,12 @@
         </div>
     @endif
 
-    <div class="mb-4">
+    <div class="mb-4 flex flex-wrap gap-2">
         <a href="{{ route('transaksi.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Tambah Transaksi Baru
+        </a>
+        <a href="{{ route('transaksi.import.form') }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+            Import Transaksi
         </a>
     </div>
 
@@ -73,10 +76,10 @@
                         Rp {{ number_format($transaksi->subtotal, 2, ',', '.') }}
                     </td>
                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                        Rp {{ number_format($transaksi->disc, 2, ',', '.') }}
+                        Rp {{ number_format($transaksi->diskon, 2, ',', '.') }}
                     </td>
                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                        Rp {{ number_format($transaksi->ongkos_kirim, 2, ',', '.') }}
+                        Rp {{ number_format($transaksi->ongkir, 2, ',', '.') }}
                     </td>
                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                         Rp {{ number_format($transaksi->total, 2, ',', '.') }}

@@ -8,6 +8,7 @@ use App\Models\Barang;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParetoExport;
 use Illuminate\Support\Facades\DB;
+use App\Models\ParetoAnalisis;
 
 class LaporanController extends Controller
 {
@@ -57,41 +58,61 @@ class LaporanController extends Controller
     public function analisisPareto()
     {
         [$analisis, $totalNilaiSemua] = $this->getParetoData();
+
+        // Ambil periode sekarang (misal: tahun-bulan)
+        $periode = date('Y-m');
+
+        // Hapus data lama untuk periode ini (opsional, agar tidak dobel)
+        ParetoAnalisis::where('periode', $periode)->delete();
+
+        // Simpan hasil analisis ke tabel pareto_analises
+        foreach ($analisis as $item) {
+            ParetoAnalisis::create([
+                'barang_id'      => $item->barang_id,
+                'nama_barang'    => $item->nama_barang,
+                'total_qty'      => $item->total_qty,
+                'total_nilai'    => $item->total_nilai,
+                'persentase'     => $item->persentase,
+                'kategori'       => $item->kategori,
+                'stok_saat_ini'  => $item->stok_saat_ini,
+                'periode'        => $periode,
+            ]);
+        }
+
         return view('laporan.pareto', compact('analisis', 'totalNilaiSemua'));
     }
 
     /**
      * Export analisis Pareto ke Excel
      */
-   public function exportPareto()
-{
-    $analisis = DB::table('transaksi_details')
-        ->selectRaw('barang_id, nama_barang, SUM(qty) as total_qty, SUM(subtotal) as total_nilai')
-        ->groupBy('barang_id', 'nama_barang')
-        ->orderByDesc('total_nilai')
-        ->get();
+    public function exportPareto()
+    {
+        $analisis = DB::table('transaksi_details')
+            ->selectRaw('barang_id, nama_barang, SUM(qty) as total_qty, SUM(subtotal) as total_nilai')
+            ->groupBy('barang_id', 'nama_barang')
+            ->orderByDesc('total_nilai')
+            ->get();
 
-    $totalNilaiSemua = $analisis->sum('total_nilai');
-    $akumulasi = 0;
+        $totalNilaiSemua = $analisis->sum('total_nilai');
+        $akumulasi = 0;
 
-    foreach ($analisis as $item) {
-        $persentase = $totalNilaiSemua > 0 ? ($item->total_nilai / $totalNilaiSemua) * 100 : 0;
-        $akumulasi += $persentase;
+        foreach ($analisis as $item) {
+            $persentase = $totalNilaiSemua > 0 ? ($item->total_nilai / $totalNilaiSemua) * 100 : 0;
+            $akumulasi += $persentase;
 
-        if ($akumulasi <= 80) {
-            $kategori = 'A';
-        } elseif ($akumulasi <= 95) {
-            $kategori = 'B';
-        } else {
-            $kategori = 'C';
+            if ($akumulasi <= 80) {
+                $kategori = 'A';
+            } elseif ($akumulasi <= 95) {
+                $kategori = 'B';
+            } else {
+                $kategori = 'C';
+            }
+
+            $item->persentase = round($persentase, 2);
+            $item->kategori = $kategori;
+            $item->stok_saat_ini = Barang::find($item->barang_id)?->does_pcs ?? 0;
         }
 
-        $item->persentase = round($persentase, 2);
-        $item->kategori = $kategori;
-        $item->stok_saat_ini = Barang::find($item->barang_id)?->does_pcs ?? 0;
+        return Excel::download(new ParetoExport($analisis), 'analisis_pareto.xlsx');
     }
-
-    return Excel::download(new ParetoExport($analisis), 'analisis_pareto.xlsx');
-}
-
 }

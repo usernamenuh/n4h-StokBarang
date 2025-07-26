@@ -19,6 +19,7 @@ class Transaksi extends Model
         'total',
         'keterangan',
         'user_id',
+        'tgl_input', 'jum_print',
     ];
 
     public function details()

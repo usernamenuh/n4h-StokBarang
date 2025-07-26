@@ -4,16 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\Transaksi;
-use App\Models\ParetoAnalysis;
+use App\Models\ParetoAnalisis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     public function index()
     {
@@ -24,10 +20,18 @@ class HomeController extends Controller
         $totalCustomers = Transaksi::distinct('customer')->count();
 
         // Get latest ABC analysis results
-  
+        $analisis = ParetoAnalisis::all(); // Ganti dengan query Pareto Analysis kamu, misal: ParetoAnalysis::all();
 
-        return view('home', 
+        // Hitung total nilai semua (misal total penjualan)
+        $totalNilaiSemua = $analisis->sum('total_nilai');
 
-        );
+        return view('home', compact(
+            'totalBarang',
+            'totalTransaksi',
+            'totalRevenue',
+            'totalCustomers',
+            'analisis',
+            'totalNilaiSemua' // <-- tambahkan ini
+        ));
     }
 }

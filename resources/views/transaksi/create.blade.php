@@ -59,7 +59,7 @@
                 </div>
                 <div>
                     <label for="jum_print" class="block text-gray-700 text-sm font-bold mb-2">Jumlah Print:</label>
-                    <input type="number" name="jum_print" id="jum_print" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('jum_print') border-red-500 @enderror" value="{{ old('jum_print', 0) }}" min="0">
+                    <input type="number" name="jum_print" id="jum_print" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('jum_print') border-red-500 @enderror" value="{{ old('jum_print', $transaksi->jum_print ?? 0) }}" min="0">
                     @error('jum_print')
                         <p class="text-red-500 text-xs italic">{{ $message }}</p>
                     @enderror
@@ -70,10 +70,66 @@
             <div id="transaction-details-container">
                 @if (old('details'))
                     @foreach (old('details') as $index => $detail)
-                        @include('transaksi.partials.detail_row', ['index' => $index, 'detail' => $detail, 'barangs' => $barangs])
+                        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4 border p-4 rounded-lg relative">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Barang:</label>
+                                <select name="details[{{ $index }}][barang_id]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                    <option value="">Pilih Barang</option>
+                                    @foreach($barangs as $barang)
+                                        <option value="{{ $barang->id }}" {{ (old("details.$index.barang_id", $detail['barang_id'] ?? '') == $barang->id) ? 'selected' : '' }}>
+                                            {{ $barang->nama }} ({{ $barang->kode }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Kuantitas:</label>
+                                <input type="number" step="0.01" name="details[{{ $index }}][qty]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old("details.$index.qty", $detail['qty'] ?? 1) }}" required min="0.01">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Harga Satuan:</label>
+                                <input type="number" step="0.01" name="details[{{ $index }}][harga_satuan]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old("details.$index.harga_satuan", $detail['harga_satuan'] ?? 0) }}" required min="0">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Diskon Item:</label>
+                                <input type="number" step="0.01" name="details[{{ $index }}][discount]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old("details.$index.discount", $detail['discount'] ?? 0) }}" min="0">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Keterangan Item:</label>
+                                <textarea name="details[{{ $index }}][keterangan]" rows="1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ old("details.$index.keterangan", $detail['keterangan'] ?? '') }}</textarea>
+                            </div>
+                            <button type="button" class="absolute top-2 right-2 bg-red-500 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded remove-detail-row">X</button>
+                        </div>
                     @endforeach
                 @else
-                    @include('transaksi.partials.detail_row', ['index' => 0, 'detail' => [], 'barangs' => $barangs])
+                    <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4 border p-4 rounded-lg relative">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Barang:</label>
+                            <select name="details[0][barang_id]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                <option value="">Pilih Barang</option>
+                                @foreach($barangs as $barang)
+                                    <option value="{{ $barang->id }}">{{ $barang->nama }} ({{ $barang->kode }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Kuantitas:</label>
+                            <input type="number" step="0.01" name="details[0][qty]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="1" required min="0.01">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Harga Satuan:</label>
+                            <input type="number" step="0.01" name="details[0][harga_satuan]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="0" required min="0">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Diskon Item:</label>
+                            <input type="number" step="0.01" name="details[0][discount]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="0" min="0">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Keterangan Item:</label>
+                            <textarea name="details[0][keterangan]" rows="1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                        </div>
+                        <button type="button" class="absolute top-2 right-2 bg-red-500 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded remove-detail-row">X</button>
+                    </div>
                 @endif
             </div>
             <button type="button" id="add-detail-row" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4">Tambah Item</button>
@@ -108,11 +164,11 @@
             </div>
             <div>
                 <label for="details_${detailIndex}_quantity" class="block text-gray-700 text-sm font-bold mb-2">Kuantitas:</label>
-                <input type="number" step="0.01" name="details[${detailIndex}][quantity]" id="details_${detailIndex}_quantity" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="1" required min="0.01">
+                <input type="number" step="0.01" name="details[${detailIndex}][qty]" id="details_${detailIndex}_quantity" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="1" required min="0.01">
             </div>
             <div>
                 <label for="details_${detailIndex}_price" class="block text-gray-700 text-sm font-bold mb-2">Harga Satuan:</label>
-                <input type="number" step="0.01" name="details[${detailIndex}][price]" id="details_${detailIndex}_price" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="0" required min="0">
+                <input type="number" step="0.01" name="details[${detailIndex}][harga_satuan]" id="details_${detailIndex}_price" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="0" required min="0">
             </div>
             <div>
                 <label for="details_${detailIndex}_discount" class="block text-gray-700 text-sm font-bold mb-2">Diskon Item:</label>
@@ -126,17 +182,12 @@
         `;
         container.appendChild(newRow);
         detailIndex++;
-        attachRemoveListeners();
     });
 
-    function attachRemoveListeners() {
-        document.querySelectorAll('.remove-detail-row').forEach(button => {
-            button.onclick = function() {
-                this.closest('.grid').remove();
-            };
-        });
-    }
-
-    attachRemoveListeners(); // Attach listeners for initial rows
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-detail-row')) {
+            e.target.closest('.grid').remove();
+        }
+    });
 </script>
 @endsection

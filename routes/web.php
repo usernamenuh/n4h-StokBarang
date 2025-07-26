@@ -14,29 +14,32 @@ use App\Http\Controllers\LaporanController;
 
 
 Auth::routes();
-
-Route::middleware(['auth'])->group(function () {
-    // Home/Dashboard
     Route::get('/', [HomeController::class, 'index'])->name('home');
-    
-    // Management Barang
+    Route::controller(BarangController::class)->group(function () {
+    // Import & template harus di atas agar tidak tertimpa route parameter
+    Route::get('/barang/import', 'showImportForm')->name('barang.import.form');
+    Route::post('/barang/import', 'import')->name('barang.import');
+    Route::get('/barang/template', 'downloadTemplate')->name('barang.template');
 
-    
-
-
-    // Pareto Analysis
-    
+    Route::get('/barang', 'index')->name('barang.index');
+    Route::get('/barang/create', 'create')->name('barang.create');
+    Route::post('/barang', 'store')->name('barang.store');
+    Route::get('/barang/{barang}/edit', 'edit')->name('barang.edit');
+    Route::put('/barang/{barang}', 'update')->name('barang.update');
+    Route::delete('/barang/{barang}', 'destroy')->name('barang.destroy');
+    Route::get('/barang/{barang}', 'show')->name('barang.show');
 });
+
+
+Route::controller(TransaksiController::class)->group(function () {
+    Route::get('/transaksi/import', 'showImportForm')->name('transaksi.import.form')->middleware('RoleCheck');
+    Route::post('/transaksi/import', 'import')->name('transaksi.import');
+    Route::get('/transaksi/clear', 'clearData')->name('transaksi.clear');
+    Route::get('/transaksi/test', 'testData')->name('transaksi.test');
+    Route::get('/transaksi/import/template', 'downloadTemplate')->name('transaksi.import.template');
+});
+Route::resource('transaksi', TransaksiController::class);
+
+
 Route::get('/laporan/pareto', [LaporanController::class, 'analisisPareto'])->name('laporan.pareto');
 Route::get('/laporan/pareto/export', [App\Http\Controllers\LaporanController::class, 'exportPareto'])->name('laporan.pareto.export');
-
-Route::get('/barang/import', [BarangImportController::class, 'showImportForm'])->name('barang.import.form');
-Route::post('/barang/import', [BarangImportController::class, 'import'])->name('barang.import');
-Route::get('/barang/template', [BarangImportController::class, 'downloadTemplate'])->name('barang.template');
-// Routes untuk import transaksi
-Route::get('/transaksi/import', [TransaksiImportController::class, 'showImportForm'])->name('transaksi.import.form');
-Route::post('/transaksi/import', [TransaksiImportController::class, 'import'])->name('transaksi.import');
-Route::get('/transaksi/clear', [TransaksiImportController::class, 'clearData'])->name('transaksi.clear');
-Route::get('/transaksi/test', [TransaksiImportController::class, 'testData'])->name('transaksi.test');
-Route::get('/transaksi/import/template', [TransaksiImportController::class, 'downloadTemplate'])->name('transaksi.import.template');
-Route::get('/transaksi/test', [TransaksiImportController::class, 'testData'])->name('transaksi.test');

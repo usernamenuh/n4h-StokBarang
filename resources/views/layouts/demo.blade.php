@@ -136,26 +136,6 @@
                 </li>
               </ul>
             </li>
-
-            <!-- Import & Analysis -->
-            <li class="menu-item {{ request()->routeIs('imports.*') || request()->routeIs('pareto.*') ? 'open active' : '' }}">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
-                <div>Import & Analysis</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ request()->routeIs('imports.*') ? 'active' : '' }}">
-                  <a href="{{ route('imports.index') }}" class="menu-link">
-                    <div>Import Excel</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ request()->routeIs('pareto.*') ? 'active' : '' }}">
-                  <a href="{{ route('pareto.index') }}" class="menu-link">
-                    <div>Analisis ABC</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
           </ul>
         </aside>
         <!-- / Menu -->

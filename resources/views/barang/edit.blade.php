@@ -104,12 +104,11 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <span class="text-gray-500 sm:text-sm">Rp</span>
                             </div>
-                            <input type="number" 
-                                   step="0.01" 
+                            <input type="text" 
                                    name="hbeli" 
                                    id="hbeli" 
                                    class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('hbeli') border-red-500 @enderror" 
-                                   value="{{ old('hbeli', $barang->hbeli) }}" 
+                                   value="{{ old('hbeli', number_format($barang->hbeli, 0, ',', '.')) }}" 
                                    min="0"
                                    placeholder="0"
                                    required>
@@ -176,12 +175,15 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Format harga input
     const hargaInput = document.getElementById('hbeli');
-    hargaInput.addEventListener('input', function() {
-        // Remove non-numeric characters except decimal point
-        let value = this.value.replace(/[^\d.]/g, '');
-        this.value = value;
+    hargaInput.addEventListener('input', function(e) {
+        let value = this.value.replace(/[^0-9]/g, '');
+        this.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    });
+
+    // Saat submit, ubah ke angka saja
+    hargaInput.form.addEventListener('submit', function() {
+        hargaInput.value = hargaInput.value.replace(/\./g, '');
     });
 });
 </script>

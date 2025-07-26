@@ -6,45 +6,43 @@ use App\Models\Barang;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class BarangController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     public function index(Request $request)
     {
         $query = Barang::with('user');
-        
+        $role = auth()->user()->role;
+
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('kode', 'LIKE', "%{$search}%")
-                  ->orWhere('nama', 'LIKE', "%{$search}%")
-                  ->orWhere('keterangan', 'LIKE', "%{$search}%");
+                    ->orWhere('nama', 'LIKE', "%{$search}%")
+                    ->orWhere('keterangan', 'LIKE', "%{$search}%");
             });
         }
-        
+
         // Filter by golongan
         if ($request->filled('golongan')) {
             $query->where('golongan', $request->golongan);
         }
-        
+
         // Filter by user
         if ($request->filled('user_filter')) {
             $query->where('user_id', $request->user_filter);
         }
-        
+
         // Order by latest
         $query->orderBy('created_at', 'desc');
-        
+
         // Get all barangs for DataTables (no pagination)
         $barangs = $query->get();
-        
-        return view('barang.index', compact('barangs'));
+
+        return view('barang.index', compact('barangs', 'role'));
     }
 
     public function create()
@@ -93,7 +91,12 @@ class BarangController extends Controller
     public function update(Request $request, Barang $barang)
     {
         $request->validate([
-            'kode' => 'required|unique:barang,kode,' . $barang->id,
+            'kode' => [
+                'required',
+                Rule::unique('barangs')->where(function ($query) use ($request) {
+                    return $query->where('nama', $request->nama);
+                })->ignore($barang->id),
+            ],
             'nama' => 'required',
             'does_pcs' => 'required|numeric|min:0',
             'golongan' => 'required',
@@ -119,5 +122,33 @@ class BarangController extends Controller
     {
         $barang->delete();
         return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus!');
+    }
+    public function showImportForm()
+    {
+        return view('barang.import');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        try {
+            $importer = new \App\Imports\BarangImportFinal;
+            $importer->import($request->file('file'));
+
+            return redirect()->back()->with([
+                'success' => 'Import barang berhasil!',
+                'import_errors' => $importer->getErrors()
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['file' => 'Gagal import: ' . $e->getMessage()]);
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        return response()->download(storage_path('app/templates/template_barang.xlsx'));
     }
 }
