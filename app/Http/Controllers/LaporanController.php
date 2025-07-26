@@ -65,7 +65,7 @@ class LaporanController extends Controller
      */
    public function exportPareto()
 {
-    $analisis = \DB::table('transaksi_details')
+    $analisis = DB::table('transaksi_details')
         ->selectRaw('barang_id, nama_barang, SUM(qty) as total_qty, SUM(subtotal) as total_nilai')
         ->groupBy('barang_id', 'nama_barang')
         ->orderByDesc('total_nilai')
@@ -88,7 +88,7 @@ class LaporanController extends Controller
 
         $item->persentase = round($persentase, 2);
         $item->kategori = $kategori;
-        $item->stok_saat_ini = \App\Models\Barang::find($item->barang_id)?->does_pcs ?? 0;
+        $item->stok_saat_ini = Barang::find($item->barang_id)?->does_pcs ?? 0;
     }
 
     return Excel::download(new ParetoExport($analisis), 'analisis_pareto.xlsx');

@@ -82,50 +82,35 @@ public function collection(Collection $rows)
                 \Log::error("Error creating transaksi: " . $e->getMessage());
             }
 
-        }elseif (!$this->isDate($colB) && !empty($colC) && $this->currentTransaksi) {
+       } elseif (!$this->isDate($colB) && !empty($colC) && $this->currentTransaksi) {
     try {
         $namaBarangExcel = trim($colC);
         $qty = $this->parseQty($colE);
         $hargaSatuan = $this->parseAmount($colH);
         $subtotalDetail = $qty * $hargaSatuan;
 
-        // Cari barang berdasarkan nama persis
-        $barang = Barang::where('nama', $namaBarangExcel)->first();
+        // Cari barang
+        $barang = Barang::where('nama', $namaBarangExcel)
+            ->orWhere('nama', 'LIKE', '%' . $namaBarangExcel . '%')
+            ->first();
 
         if (!$barang) {
-            // Cari dengan LIKE jika tidak ketemu
-            $barang = Barang::where('nama', 'LIKE', '%' . $namaBarangExcel . '%')->first();
-        }
-
-        if ($barang) {
-            $barangId = $barang->id;
-            $kodeBarang = $barang->kode;
-            $namaBarang = $barang->nama;
-
-            // Hitung stok baru (tidak boleh minus)
-            $stokLama = $barang->does_pcs;
-            $stokBaru = max($stokLama - $qty, 0);
-
-            // Update stok di database
-            Barang::where('id', $barangId)->update(['does_pcs' => $stokBaru]);
-
-            // Logging stok update
-            \Log::info("Stok diperbarui", [
-                'barang' => $namaBarang,
-                'stok_lama' => $stokLama,
-                'qty_dikurangi' => $qty,
-                'stok_baru' => $stokBaru
-            ]);
-        } else {
-            // Jika barang tidak ditemukan
-            $barangId = null;
-            $kodeBarang = $this->generateKodeBarang($namaBarangExcel);
-            $namaBarang = $namaBarangExcel;
-
-            \Log::warning("Barang tidak ditemukan, generate kode: $kodeBarang", [
+            // Skip jika barang tidak ada
+            \Log::warning("Barang tidak ditemukan, dilewati", [
                 'nama_excel' => $namaBarangExcel
             ]);
+            continue;
         }
+
+        // Jika ditemukan
+        $barangId = $barang->id;
+        $kodeBarang = $barang->kode;
+        $namaBarang = $barang->nama;
+
+        // Update stok
+        $stokLama = $barang->does_pcs;
+        $stokBaru = max($stokLama - $qty, 0);
+        Barang::where('id', $barangId)->update(['does_pcs' => $stokBaru]);
 
         // Simpan detail transaksi
         TransaksiDetail::create([
@@ -139,11 +124,11 @@ public function collection(Collection $rows)
         ]);
 
         $detailCount++;
-
     } catch (\Exception $e) {
         \Log::error("Error creating detail: " . $e->getMessage());
     }
-        }
+}
+
     }
 }
 
