@@ -14,7 +14,7 @@ use App\Http\Controllers\LaporanController;
 
 
 Auth::routes();
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::controller(BarangController::class)->group(function () {
     // Import & template harus di atas agar tidak tertimpa route parameter
     Route::get('/barang/import', 'showImportForm')->name('barang.import.form');
