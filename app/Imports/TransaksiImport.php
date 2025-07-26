@@ -80,10 +80,12 @@ class TransaksiImport implements ToCollection
                 \Log::error("Error creating transaksi: " . $e->getMessage());
             }
 
-        } elseif (!empty($colA) && $this->currentTransaksi) {
+        } elseif (!$this->isDate($colB) && !empty($colC) && $this->currentTransaksi) {
+    // Ini baris DETAIL
+
             // Ini baris DETAIL
             try {
-                $namaBarang = $colA;
+                $namaBarang = $colC;
                 $qty = $this->parseQty($colE);
                 $hargaSatuan = $this->parseAmount($colH);
                 $subtotalDetail = $qty * $hargaSatuan;
