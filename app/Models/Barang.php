@@ -4,26 +4,29 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
+
 class Barang extends Model
 {
     protected $table = 'barangs';
 
-    protected $primaryKey = 'kode';
-    public $incrementing = false; // Karena kode_barang bukan integer auto increment
+    protected $primaryKey = 'id'; // ✅ perbaiki
+    public $incrementing = true;  // ✅ karena pakai auto increment id
 
     protected $fillable = [
         'kode',
         'nama',
-        'does_pcs',
+        'does_pcs',  // ✅ ini stok
         'golongan',
         'hbeli',
         'user_id',
         'keterangan',
     ];
 
-    // Jika kamu ingin relasi ke transaksi detail
     public function transaksiDetails()
     {
-        return $this->hasMany(TransaksiDetail::class, 'kode_barang', 'kode_barang');
+        return $this->hasMany(TransaksiDetail::class, 'barang_id', 'id');
     }
 }
+
+

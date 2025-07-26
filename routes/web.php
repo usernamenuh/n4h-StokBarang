@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\TransaksiImportController;
 use App\Http\Controllers\BarangImportController;
+use App\Http\Controllers\LaporanController;
+
+
 
 Auth::routes();
 
@@ -22,12 +25,10 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Pareto Analysis
-    Route::prefix('pareto')->name('pareto.')->group(function () {
-        Route::get('/', [ParetoController::class, 'index'])->name('index');
-        Route::post('/analyze', [ParetoController::class, 'analyze'])->name('analyze');
-        Route::get('/results/{type}', [ParetoController::class, 'results'])->name('results');
-    });
+    
 });
+Route::get('/laporan/pareto', [LaporanController::class, 'analisisPareto'])->name('laporan.pareto');
+Route::get('/laporan/pareto/export', [App\Http\Controllers\LaporanController::class, 'exportPareto'])->name('laporan.pareto.export');
 
 Route::get('/barang/import', [BarangImportController::class, 'showImportForm'])->name('barang.import.form');
 Route::post('/barang/import', [BarangImportController::class, 'import'])->name('barang.import');
