@@ -14,7 +14,7 @@
     />
 
     <!-- Main Content with proper spacing -->
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <!-- Breadcrumb -->
         <nav class="flex mb-8" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">

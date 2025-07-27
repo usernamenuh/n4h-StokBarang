@@ -14,7 +14,7 @@
     />
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-2 lg:px-8 pt-0 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-2 lg:px-8 pt- pb-8">
         <!-- Breadcrumb -->
         <nav class="flex mb-8" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
@@ -142,14 +142,20 @@
                             <label for="ongkir" class="block text-sm font-semibold text-gray-700">
                                 Ongkos Kirim
                             </label>
-                            <input type="number" 
-                                   step="0.01"
-                                   name="ongkir" 
-                                   id="ongkir" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('ongkir') border-red-500 ring-2 ring-red-200 @enderror" 
-                                   value="{{ old('ongkir', $transaksi->ongkir) }}" 
-                                   min="0"
-                                   placeholder="0">
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-gray-500">Rp</span>
+                                @php
+                                    $ongkirValue = old('ongkir', $transaksi->ongkir);
+                                    $ongkirFormatted = $ongkirValue ? number_format($ongkirValue, 0, ',', '.') : '';
+                                @endphp
+                                <input type="text" 
+                                       name="ongkir_display" 
+                                       id="ongkir_display" 
+                                       class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('ongkir') border-red-500 ring-2 ring-red-200 @enderror" 
+                                       value="{{ $ongkirFormatted }}" 
+                                       placeholder="0">
+                                <input type="hidden" name="ongkir" id="ongkir" value="{{ $ongkirValue }}">
+                            </div>
                             @error('ongkir')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -256,26 +262,38 @@
                                                 <!-- Harga Satuan -->
                                                 <div class="space-y-1">
                                                     <label class="block text-xs font-medium text-gray-700">Harga Satuan <span class="text-red-500">*</span></label>
-                                                    <input type="number" 
-                                                           step="0.01"
-                                                           name="details[{{ $index }}][harga_satuan]" 
-                                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                           value="{{ old("details.$index.harga_satuan", $detail['harga_satuan'] ?? 0) }}" 
-                                                           required 
-                                                           min="0">
+                                                    <div class="relative">
+                                                        <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                                                        @php
+                                                            $hargaSatuanValue = old("details.$index.harga_satuan", $detail['harga_satuan'] ?? 0);
+                                                            $hargaSatuanFormatted = $hargaSatuanValue ? number_format($hargaSatuanValue, 0, ',', '.') : '';
+                                                        @endphp
+                                                        <input type="text" 
+                                                               name="details[{{ $index }}][harga_satuan_display]" 
+                                                               class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                                                               value="{{ $hargaSatuanFormatted }}" 
+                                                               placeholder="0">
+                                                        <input type="hidden" name="details[{{ $index }}][harga_satuan]" value="{{ $hargaSatuanValue }}">
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <!-- Diskon Item -->
                                             <div class="space-y-1">
                                                 <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
-                                                <input type="number" 
-                                                       step="0.01"
-                                                       name="details[{{ $index }}][diskon]" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                       value="{{ old("details.$index.diskon", $detail['diskon'] ?? 0) }}"
-                                                       value="{{ old("details.$index.diskon", $detail['diskon'] ?? 0) }}"
-                                                       min="0">
+                                                <div class="relative">
+                                                    <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                                                    @php
+                                                        $diskonValue = old("details.$index.discount", $detail['discount'] ?? 0);
+                                                        $diskonFormatted = $diskonValue ? number_format($diskonValue, 0, ',', '.') : '';
+                                                    @endphp
+                                                    <input type="text" 
+                                                           name="details[{{ $index }}][discount_display]" 
+                                                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                                                           value="{{ $diskonFormatted }}" 
+                                                           placeholder="0">
+                                                    <input type="hidden" name="details[{{ $index }}][discount]" value="{{ $diskonValue }}">
+                                                </div>
                                             </div>
 
                                             <!-- Keterangan Item -->
@@ -333,25 +351,36 @@
                                                 <!-- Harga Satuan -->
                                                 <div class="space-y-1">
                                                     <label class="block text-xs font-medium text-gray-700">Harga Satuan <span class="text-red-500">*</span></label>
-                                                    <input type="number" 
-                                                           step="0.01"
-                                                           name="details[{{ $index }}][harga_satuan]" 
-                                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                           value="{{ $detail->harga_satuan }}" 
-                                                           required 
-                                                           min="0">
+                                                    <div class="relative">
+                                                        <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                                                        @php
+                                                            $hargaSatuanFormatted = $detail->harga_satuan ? number_format($detail->harga_satuan, 0, ',', '.') : '';
+                                                        @endphp
+                                                        <input type="text" 
+                                                               name="details[{{ $index }}][harga_satuan_display]" 
+                                                               class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                                                               value="{{ $hargaSatuanFormatted }}" 
+                                                               placeholder="0">
+                                                        <input type="hidden" name="details[{{ $index }}][harga_satuan]" value="{{ $detail->harga_satuan }}">
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <!-- Diskon Item -->
                                             <div class="space-y-1">
                                                 <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
-                                                <input type="number" 
-                                                       step="0.01"
-                                                       name="details[{{ $index }}][diskon]" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                       value="{{ $detail->diskon ?? 0 }}" 
-                                                       min="0">
+                                                <div class="relative">
+                                                    <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                                                    @php
+                                                        $diskonFormatted = ($detail->discount ?? 0) ? number_format($detail->discount, 0, ',', '.') : '';
+                                                    @endphp
+                                                    <input type="text" 
+                                                           name="details[{{ $index }}][discount_display]" 
+                                                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                                                           value="{{ $diskonFormatted }}" 
+                                                           placeholder="0">
+                                                    <input type="hidden" name="details[{{ $index }}][discount]" value="{{ $detail->discount ?? 0 }}">
+                                                </div>
                                             </div>
 
                                             <!-- Keterangan Item -->
@@ -391,6 +420,62 @@
 
 <script>
 let detailIndex = {{ old('details') ? count(old('details')) : $transaksi->details->count() }};
+
+// Format number with dots as thousand separators
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// Remove dots and convert to number
+function unformatNumber(str) {
+    return str.replace(/\./g, '');
+}
+
+// Setup price input formatting
+function setupPriceInput(displayInput, hiddenInput) {
+    displayInput.addEventListener('input', function(e) {
+        let value = e.target.value;
+        
+        // Remove all non-digit characters
+        value = value.replace(/[^\d]/g, '');
+        
+        // Update hidden field with raw number
+        hiddenInput.value = value;
+        
+        // Format display with dots
+        if (value) {
+            e.target.value = formatNumber(value);
+        } else {
+            e.target.value = '';
+        }
+    });
+
+    // Handle keypress for price inputs (only allow numbers)
+    displayInput.addEventListener('keypress', function(e) {
+        // Allow only numbers
+        if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+}
+
+// Initialize existing price inputs
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup ongkir formatting
+    const ongkirDisplay = document.getElementById('ongkir_display');
+    const ongkirHidden = document.getElementById('ongkir');
+    if (ongkirDisplay && ongkirHidden) {
+        setupPriceInput(ongkirDisplay, ongkirHidden);
+    }
+
+    // Setup existing detail price inputs
+    document.querySelectorAll('.price-input').forEach(function(displayInput) {
+        const hiddenInput = displayInput.nextElementSibling;
+        if (hiddenInput && hiddenInput.type === 'hidden') {
+            setupPriceInput(displayInput, hiddenInput);
+        }
+    });
+});
 
 document.getElementById('add-detail-row').addEventListener('click', function() {
     const container = document.getElementById('transaction-details-container');
@@ -436,25 +521,28 @@ document.getElementById('add-detail-row').addEventListener('click', function() {
                 <!-- Harga Satuan -->
                 <div class="space-y-1">
                     <label class="block text-xs font-medium text-gray-700">Harga Satuan <span class="text-red-500">*</span></label>
-                    <input type="number" 
-                           step="0.01"
-                           name="details[${detailIndex}][harga_satuan]" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                           value="0" 
-                           required 
-                           min="0">
+                    <div class="relative">
+                        <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                        <input type="text" 
+                               name="details[${detailIndex}][harga_satuan_display]" 
+                               class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                               placeholder="0">
+                        <input type="hidden" name="details[${detailIndex}][harga_satuan]" value="0">
+                    </div>
                 </div>
             </div>
 
             <!-- Diskon Item -->
             <div class="space-y-1">
                 <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
-                <input type="number" 
-                       step="0.01"
-                       name="details[${detailIndex}][diskon]" 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                       value="0" 
-                       min="0">
+                <div class="relative">
+                    <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                    <input type="text" 
+                           name="details[${detailIndex}][discount_display]" 
+                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                           placeholder="0">
+                    <input type="hidden" name="details[${detailIndex}][discount]" value="0">
+                </div>
             </div>
 
             <!-- Keterangan Item -->
@@ -469,6 +557,16 @@ document.getElementById('add-detail-row').addEventListener('click', function() {
     `;
     
     container.appendChild(newRow);
+    
+    // Setup price formatting for new inputs
+    const newPriceInputs = newRow.querySelectorAll('.price-input');
+    newPriceInputs.forEach(function(displayInput) {
+        const hiddenInput = displayInput.nextElementSibling;
+        if (hiddenInput && hiddenInput.type === 'hidden') {
+            setupPriceInput(displayInput, hiddenInput);
+        }
+    });
+    
     detailIndex++;
     updateItemNumbers();
     attachRemoveListeners();
@@ -496,5 +594,19 @@ function attachRemoveListeners() {
 
 // Initial setup
 attachRemoveListeners();
+
+// Add custom CSS to remove any unwanted outlines
+const style = document.createElement('style');
+style.textContent = `
+    .price-input:focus,
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgb(59 130 246 / 0.5) !important;
+    }
+`;
+document.head.appendChild(style);
 </script>
 @endsection

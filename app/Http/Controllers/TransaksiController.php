@@ -21,7 +21,7 @@ class TransaksiController extends Controller
      */
     public function index()
     {
-        $transaksis = Transaksi::with('user')->orderBy( 'tanggal', 'desc')->get();
+        $transaksis = Transaksi::with('user')->orderBy('tanggal', 'desc')->get();
         return view('transaksi.index', compact('transaksis'));
     }
 
@@ -51,7 +51,7 @@ class TransaksiController extends Controller
             'details.*.barang_id' => 'required|exists:barangs,id',
             'details.*.qty' => 'required|numeric|min:0.01',
             'details.*.harga_satuan' => 'required|numeric|min:0',
-        ], );
+        ], []);
 
         DB::beginTransaction();
         try {
@@ -226,8 +226,10 @@ class TransaksiController extends Controller
 
             $file = $request->file('file');
             Log::info('🚀 MULAI IMPORT', ['filename' => $file->getClientOriginalName()]);
+            
             set_time_limit(300);
             ini_set('memory_limit', '512M');
+            
             Excel::import(new TransaksiImport, $file);
 
             DB::commit();
@@ -240,13 +242,39 @@ class TransaksiController extends Controller
                 'detail' => $detailCount
             ]);
 
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "🎉 IMPORT SELESAI! {$transaksiCount} transaksi dan {$detailCount} detail barang telah diimport.",
+                    'data' => [
+                        'transaksi_count' => $transaksiCount,
+                        'detail_count' => $detailCount
+                    ]
+                ]);
+            }
+
             return redirect()->back()->with(
                 'success',
                 "🎉 IMPORT SELESAI! {$transaksiCount} transaksi dan {$detailCount} detail barang telah diimport."
             );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('❌ IMPORT GAGAL: ' . $e->getMessage());
+            Log::error('❌ IMPORT GAGAL: ' . $e->getMessage(), [
+                'file' => $file->getClientOriginalName() ?? 'unknown',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Import gagal: ' . $e->getMessage(),
+                    'error' => $e->getMessage()
+                ], 422);
+            }
+
             return redirect()->back()
                 ->withErrors(['file' => 'Error: ' . $e->getMessage()])
                 ->withInput();

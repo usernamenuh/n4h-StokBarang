@@ -58,7 +58,9 @@
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-600">Total Transaksi</h3>
-                    <i class="fas fa-receipt text-blue-500"></i>
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-alt text-blue-600 text-sm"></i>
+                    </div>
                 </div>
                 <div class="text-2xl font-bold text-gray-900">{{ number_format($transaksis->count(), 0, ',', '.') }}</div>
                 <p class="text-xs text-gray-500">Transaksi tercatat</p>
@@ -67,7 +69,9 @@
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-600">Total Penjualan</h3>
-                    <i class="fas fa-chart-line text-green-500"></i>
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-green-600 text-sm"></i>
+                    </div>
                 </div>
                 <div class="text-2xl font-bold text-gray-900">Rp {{ number_format($transaksis->sum('total'), 0, ',', '.') }}</div>
                 <p class="text-xs text-gray-500">Nilai penjualan</p>
@@ -76,7 +80,9 @@
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-600">Rata-rata Transaksi</h3>
-                    <i class="fas fa-calculator text-orange-500"></i>
+                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-calculator text-orange-600 text-sm"></i>
+                    </div>
                 </div>
                 <div class="text-2xl font-bold text-gray-900">Rp {{ $transaksis->count() > 0 ? number_format($transaksis->avg('total'), 0, ',', '.') : '0' }}</div>
                 <p class="text-xs text-gray-500">Per transaksi</p>
@@ -85,7 +91,9 @@
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-600">Customer Unik</h3>
-                    <i class="fas fa-users text-purple-500"></i>
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-purple-600 text-sm"></i>
+                    </div>
                 </div>
                 <div class="text-2xl font-bold text-gray-900">{{ $transaksis->pluck('customer')->unique()->count() }}</div>
                 <p class="text-xs text-gray-500">Customer aktif</p>
@@ -472,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Import form handling
+    // Import form handling with proper AJAX
     const importForm = document.getElementById('importForm');
     const progressContainer = document.getElementById('progressContainer');
     const progressBar = document.getElementById('progressBar');
@@ -498,15 +506,21 @@ document.addEventListener('DOMContentLoaded', function() {
             progressText.textContent = Math.round(progress) + '%';
         }, 200);
 
-        // Submit form
+        // Submit form with proper headers for AJAX
         fetch(this.action, {
             method: 'POST',
             body: formData,
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             clearInterval(progressInterval);
             progressBar.style.width = '100%';
@@ -514,7 +528,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             setTimeout(() => {
                 if (data.success) {
-                    // Show success message
                     showNotification('success', data.message || 'Import berhasil!');
                     closeImportModal();
                     // Reload page to show new data
@@ -527,6 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             clearInterval(progressInterval);
+            console.error('Import error:', error);
             showNotification('error', 'Terjadi kesalahan saat import!');
             resetImportForm();
         });
