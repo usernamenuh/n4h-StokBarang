@@ -62,23 +62,6 @@ class LaporanController extends Controller
         // Ambil periode sekarang (misal: tahun-bulan)
         $periode = date('Y-m');
 
-        // Hapus data lama untuk periode ini (opsional, agar tidak dobel)
-        ParetoAnalisis::where('periode', $periode)->delete();
-
-        // Simpan hasil analisis ke tabel pareto_analises
-        foreach ($analisis as $item) {
-            ParetoAnalisis::create([
-                'barang_id'      => $item->barang_id,
-                'nama_barang'    => $item->nama_barang,
-                'total_qty'      => $item->total_qty,
-                'total_nilai'    => $item->total_nilai,
-                'persentase'     => $item->persentase,
-                'kategori'       => $item->kategori,
-                'stok_saat_ini'  => $item->stok_saat_ini,
-                'periode'        => $periode,
-            ]);
-        }
-
         return view('laporan.pareto', compact('analisis', 'totalNilaiSemua'));
     }
 

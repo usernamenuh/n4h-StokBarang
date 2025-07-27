@@ -21,7 +21,7 @@ class TransaksiController extends Controller
      */
     public function index()
     {
-        $transaksis = Transaksi::with('user')->orderBy('tanggal', 'desc')->paginate(10);
+        $transaksis = Transaksi::with('user')->orderBy( 'tanggal', 'desc')->get();
         return view('transaksi.index', compact('transaksis'));
     }
 
@@ -46,12 +46,12 @@ class TransaksiController extends Controller
             'customer' => 'required|string|max:255',
             'ongkir' => 'nullable|numeric|min:0',
             'keterangan' => 'nullable|string|max:1000',
-            'jum_print' => 'nullable|integer|min:0', // tambahkan validasi jum_print
+            'jum_print' => 'nullable|integer|min:0',
             'details' => 'required|array|min:1',
             'details.*.barang_id' => 'required|exists:barangs,id',
             'details.*.qty' => 'required|numeric|min:0.01',
             'details.*.harga_satuan' => 'required|numeric|min:0',
-        ]);
+        ], );
 
         DB::beginTransaction();
         try {
@@ -65,7 +65,7 @@ class TransaksiController extends Controller
                 'total' => 0,
                 'keterangan' => $request->keterangan,
                 'user_id' => Auth::id(),
-                'jum_print' => $request->jum_print ?? 0, // <-- tambahkan ini
+                'jum_print' => $request->jum_print ?? 0,
             ]);
 
             $totalSubtotal = 0;
@@ -74,7 +74,7 @@ class TransaksiController extends Controller
             foreach ($request->details as $detail) {
                 $barang = Barang::find($detail['barang_id']);
                 $itemSubtotal = $detail['qty'] * $detail['harga_satuan'];
-                // Jika ada diskon per item, tambahkan di sini
+                $itemDiscount = $detail['discount'] ?? 0;
 
                 TransaksiDetail::create([
                     'transaksi_id' => $transaksi->id,
@@ -83,10 +83,13 @@ class TransaksiController extends Controller
                     'nama_barang' => $barang->nama,
                     'qty' => $detail['qty'],
                     'harga_satuan' => $detail['harga_satuan'],
-                    'subtotal' => $itemSubtotal,
+                    'discount' => $itemDiscount,
+                    'subtotal' => $itemSubtotal - $itemDiscount,
+                    'keterangan' => $detail['keterangan'] ?? null,
                 ]);
 
                 $totalSubtotal += $itemSubtotal;
+                $totalDiskon += $itemDiscount;
             }
 
             $transaksi->update([
@@ -130,20 +133,16 @@ class TransaksiController extends Controller
     {
         $request->validate([
             'tanggal' => 'required|date',
-            'nomor' => [
-                'required',
-                'string',
-                'max:50',
-                Rule::unique('transaksis')->ignore($transaksi->id),
-            ],
+            'nomor' => 'required|string|max:50|unique:transaksis,nomor,' . $transaksi->id,
             'customer' => 'required|string|max:255',
             'ongkir' => 'nullable|numeric|min:0',
             'keterangan' => 'nullable|string|max:1000',
+            'jum_print' => 'nullable|integer|min:0',
             'details' => 'required|array|min:1',
             'details.*.barang_id' => 'required|exists:barangs,id',
             'details.*.qty' => 'required|numeric|min:0.01',
             'details.*.harga_satuan' => 'required|numeric|min:0',
-        ]);
+        ], []);
 
         DB::beginTransaction();
         try {
@@ -155,6 +154,7 @@ class TransaksiController extends Controller
             foreach ($request->details as $detail) {
                 $barang = Barang::find($detail['barang_id']);
                 $itemSubtotal = $detail['qty'] * $detail['harga_satuan'];
+                $itemDiscount = $detail['discount'] ?? 0;
 
                 TransaksiDetail::create([
                     'transaksi_id' => $transaksi->id,
@@ -163,10 +163,13 @@ class TransaksiController extends Controller
                     'nama_barang' => $barang->nama,
                     'qty' => $detail['qty'],
                     'harga_satuan' => $detail['harga_satuan'],
-                    'subtotal' => $itemSubtotal,
+                    'discount' => $itemDiscount,
+                    'subtotal' => $itemSubtotal - $itemDiscount,
+                    'keterangan' => $detail['keterangan'] ?? null,
                 ]);
 
                 $totalSubtotal += $itemSubtotal;
+                $totalDiskon += $itemDiscount;
             }
 
             $transaksi->update([
@@ -179,8 +182,7 @@ class TransaksiController extends Controller
                 'total' => $totalSubtotal - $totalDiskon + ($request->ongkir ?? 0),
                 'keterangan' => $request->keterangan,
                 'user_id' => Auth::id(),
-                'jum_print' => $request->jum_print,         // <-- tambahkan ini
-                'tgl_input' => $request->tgl_input,         // <-- tambahkan ini (jika ada di form)
+                'jum_print' => $request->jum_print ?? 0,
             ]);
 
             DB::commit();

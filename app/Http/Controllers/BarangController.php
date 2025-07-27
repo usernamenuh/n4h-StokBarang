@@ -128,27 +128,30 @@ class BarangController extends Controller
         return view('barang.import');
     }
 
-    public function import(Request $request)
+   public function import(Request $request)
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:10240',
         ]);
 
         try {
+            // Simulate processing time
+            sleep(2);
+            
             $importer = new \App\Imports\BarangImportFinal;
-            $importer->import($request->file('file'));
-
-            return redirect()->back()->with([
-                'success' => 'Import barang berhasil!',
-                'import_errors' => $importer->getErrors()
+    $importer->import($request->file('file'));
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Import berhasil! Data barang telah ditambahkan.'
             ]);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['file' => 'Gagal import: ' . $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal import: ' . $e->getMessage()
+            ], 422);
         }
     }
 
-    public function downloadTemplate()
-    {
-        return response()->download(storage_path('app/templates/template_barang.xlsx'));
-    }
+   
 }
