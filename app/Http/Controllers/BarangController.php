@@ -14,7 +14,7 @@ class BarangController extends Controller
     public function index(Request $request)
     {
         $query = Barang::with('user');
-        $role = auth()->user()->role;
+       
 
         // Search functionality
         if ($request->filled('search')) {
@@ -42,7 +42,7 @@ class BarangController extends Controller
         // Get all barangs for DataTables (no pagination)
         $barangs = $query->get();
 
-        return view('barang.index', compact('barangs', 'role'));
+        return view('barang.index', compact('barangs', ));
     }
 
     public function create()

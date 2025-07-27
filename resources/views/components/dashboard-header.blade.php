@@ -9,7 +9,7 @@
 @if($showBanner)
 <!-- Banner -->
 <div id="welcome-banner" class="sticky top-0 z-40 flex flex-row items-center justify-center px-4 text-center text-sm font-medium transition-all duration-300" style="height: 3rem; background: linear-gradient(90deg, #dcfce7 0%, #fce7f3 100%);">
-    <span class="text-gray-800 font-medium">🎉 New Features coming soon!</span>
+    <span class="text-gray-800 font-medium">🎉 Manajemen stok barang!</span>
     <button type="button" onclick="closeBanner()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors">
         <i class="fas fa-times text-xs"></i>
     </button>
@@ -28,7 +28,13 @@
                     <i class="fas fa-calendar text-gray-400 text-sm"></i>
                     <span class="text-sm text-gray-600">{{ date('M d, Y') }} - {{ date('M d, Y', strtotime('+20 days')) }}</span>
                 </div>
+                               @php
+    $user = auth()->user();
+@endphp
                 <!-- Import Dropdown -->
+                @if($user->role !== 'owner')
+                    
+               
                 <div class="relative">
                     <button onclick="toggleImportDropdown()" class="bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors flex items-center space-x-2">
                         <span>Import</span>
@@ -48,6 +54,7 @@
                         </div>
                     </div>
                 </div>
+                 @endif
                 <!-- Profile Dropdown -->
                 <div class="relative">
                     <button onclick="toggleProfileDropdown()" class="flex items-center space-x-2 bg-white border border-gray-300 rounded-md px-3 py-2 hover:bg-gray-50 transition-colors">
