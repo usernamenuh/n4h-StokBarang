@@ -77,7 +77,7 @@
                             <input type="text" 
                                    name="kode" 
                                    id="kode" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('kode') border-red-500 ring-2 ring-red-200 @enderror" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('kode') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('kode') }}" 
                                    placeholder="Masukkan kode barang"
                                    required>
@@ -99,7 +99,7 @@
                             <input type="text" 
                                    name="nama" 
                                    id="nama" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('nama') border-red-500 ring-2 ring-red-200 @enderror" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('nama') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('nama') }}" 
                                    placeholder="Masukkan nama barang"
                                    required>
@@ -122,7 +122,7 @@
                                    step="0.01" 
                                    name="does_pcs" 
                                    id="does_pcs" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('does_pcs') border-red-500 ring-2 ring-red-200 @enderror" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('does_pcs') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('does_pcs', 1) }}" 
                                    min="0.01"
                                    placeholder="1.00"
@@ -151,7 +151,7 @@
                             <input type="text" 
                                    name="golongan" 
                                    id="golongan" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('golongan') border-red-500 ring-2 ring-red-200 @enderror" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('golongan') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('golongan') }}" 
                                    placeholder="Masukkan golongan barang"
                                    required>
@@ -171,18 +171,18 @@
                                 Harga Beli <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 font-medium">Rp</span>
-                                </div>
-                                <input type="number" 
-                                       step="0.01" 
-                                       name="hbeli" 
-                                       id="hbeli" 
-                                       class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('hbeli') border-red-500 ring-2 ring-red-200 @enderror" 
-                                       value="{{ old('hbeli', 0) }}" 
-                                       min="0"
-                                       placeholder="0"
-                                       required>
+                                <span class="absolute left-3 top-3 text-gray-500">Rp</span>
+                                @php
+                                    $hbeliValue = old('hbeli', 0);
+                                    $hbeliFormatted = $hbeliValue ? number_format($hbeliValue, 0, ',', '.') : '';
+                                @endphp
+                                <input type="text" 
+                                       name="hbeli_display" 
+                                       id="hbeli_display" 
+                                       class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('hbeli') border-red-500 ring-2 ring-red-200 @enderror" 
+                                       value="{{ $hbeliFormatted }}" 
+                                       placeholder="0">
+                                <input type="hidden" name="hbeli" id="hbeli" value="{{ $hbeliValue }}">
                             </div>
                             @error('hbeli')
                                 <p class="mt-2 text-sm text-red-600 flex items-center">
@@ -201,7 +201,7 @@
                             </label>
                             <select name="user_id" 
                                     id="user_id" 
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('user_id') border-red-500 ring-2 ring-red-200 @enderror">
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('user_id') border-red-500 ring-2 ring-red-200 @enderror">
                                 <option value="">Pilih User</option>
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
@@ -228,7 +228,7 @@
                         <textarea name="keterangan" 
                                   id="keterangan" 
                                   rows="4" 
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('keterangan') border-red-500 ring-2 ring-red-200 @enderror"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('keterangan') border-red-500 ring-2 ring-red-200 @enderror"
                                   placeholder="Masukkan keterangan tambahan (opsional)">{{ old('keterangan') }}</textarea>
                         @error('keterangan')
                             <p class="mt-2 text-sm text-red-600 flex items-center">
@@ -261,23 +261,66 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Auto format kode barang
-    const kodeInput = document.getElementById('kode');
-    kodeInput.addEventListener('input', function() {
-        let value = this.value.toUpperCase();
-        if (!value.startsWith('BRG-') && value.length > 0) {
-            this.value = 'BRG-' + value.replace(/^BRG-/, '');
+// Format number with dots as thousand separators
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// Remove dots and convert to number
+function unformatNumber(str) {
+    return str.replace(/\./g, '');
+}
+
+// Setup price input formatting
+function setupPriceInput(displayInput, hiddenInput) {
+    displayInput.addEventListener('input', function(e) {
+        let value = e.target.value;
+        
+        // Remove all non-digit characters
+        value = value.replace(/[^\d]/g, '');
+        
+        // Update hidden field with raw number
+        hiddenInput.value = value;
+        
+        // Format display with dots
+        if (value) {
+            e.target.value = formatNumber(value);
+        } else {
+            e.target.value = '';
         }
     });
-    
-    // Format harga input
-    const hargaInput = document.getElementById('hbeli');
-    hargaInput.addEventListener('input', function() {
-        // Remove non-numeric characters except decimal point
-        let value = this.value.replace(/[^\d.]/g, '');
-        this.value = value;
+
+    // Handle keypress for price inputs (only allow numbers)
+    displayInput.addEventListener('keypress', function(e) {
+        // Allow only numbers
+        if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+        }
     });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto format kode barang
+    
+    // Setup harga beli formatting
+    const hbeliDisplay = document.getElementById('hbeli_display');
+    const hbeliHidden = document.getElementById('hbeli');
+    if (hbeliDisplay && hbeliHidden) {
+        setupPriceInput(hbeliDisplay, hbeliHidden);
+    }
+
+    // Add custom CSS to remove any unwanted outlines
+    const style = document.createElement('style');
+    style.textContent = `
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgb(59 130 246 / 0.5) !important;
+        }
+    `;
+    document.head.appendChild(style);
 });
 </script>
 @endsection

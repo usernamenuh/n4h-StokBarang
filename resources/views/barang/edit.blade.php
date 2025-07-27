@@ -112,7 +112,7 @@
                         <input type="text" 
                                name="kode" 
                                id="kode" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-200 @error('kode') border-red-500 @enderror" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('kode') border-red-500 @enderror" 
                                value="{{ old('kode', $barang->kode) }}" 
                                placeholder="Masukkan kode barang"
                                required>
@@ -129,7 +129,7 @@
                         <input type="text" 
                                name="nama" 
                                id="nama" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-200 @error('nama') border-red-500 @enderror" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('nama') border-red-500 @enderror" 
                                value="{{ old('nama', $barang->nama) }}" 
                                placeholder="Masukkan nama barang"
                                required>
@@ -143,12 +143,16 @@
                         <label for="does_pcs" class="block text-sm font-medium text-gray-700 mb-2">
                             Does Pcs (Konversi Unit) <span class="text-red-500">*</span>
                         </label>
+                        @php
+                            $doesPcsValue = old('does_pcs', $barang->does_pcs);
+                            $doesPcsDisplay = ($doesPcsValue == 0) ? '' : $doesPcsValue;
+                        @endphp
                         <input type="number" 
                                name="does_pcs" 
                                id="does_pcs" 
                                step="0.01"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-200 @error('does_pcs') border-red-500 @enderror" 
-                               value="{{ old('does_pcs', $barang->does_pcs == 0 ? '' : $barang->does_pcs) }}" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('does_pcs') border-red-500 @enderror" 
+                               value="{{ $doesPcsDisplay }}" 
                                min="0"
                                placeholder="Masukkan nilai konversi"
                                required>
@@ -166,7 +170,7 @@
                         <input type="text" 
                                name="golongan" 
                                id="golongan" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-200 @error('golongan') border-red-500 @enderror" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('golongan') border-red-500 @enderror" 
                                value="{{ old('golongan', $barang->golongan) }}" 
                                placeholder="Masukkan golongan barang"
                                required>
@@ -182,14 +186,18 @@
                         </label>
                         <div class="relative">
                             <span class="absolute left-3 top-3 text-gray-500">Rp</span>
+                            @php
+                                $hbeliValue = old('hbeli', $barang->hbeli);
+                                $hbeliFormatted = $hbeliValue ? number_format($hbeliValue, 0, ',', '.') : '';
+                            @endphp
                             <input type="text" 
                                    name="hbeli_display" 
                                    id="hbeli_display" 
-                                   class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-200 @error('hbeli') border-red-500 @enderror" 
-                                   value="{{ old('hbeli', number_format($barang->hbeli, 0, ',', '.')) }}" 
+                                   class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('hbeli') border-red-500 @enderror" 
+                                   value="{{ $hbeliFormatted }}" 
                                    placeholder="0"
                                    required>
-                            <input type="hidden" name="hbeli" id="hbeli" value="{{ old('hbeli', $barang->hbeli) }}">
+                            <input type="hidden" name="hbeli" id="hbeli" value="{{ $hbeliValue }}">
                         </div>
                         @error('hbeli')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -203,7 +211,7 @@
                         </label>
                         <select name="user_id" 
                                 id="user_id" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-200 @error('user_id') border-red-500 @enderror">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('user_id') border-red-500 @enderror">
                             <option value="">Pilih User</option>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}" {{ old('user_id', $barang->user_id) == $user->id ? 'selected' : '' }}>
@@ -225,7 +233,7 @@
                     <textarea name="keterangan" 
                               id="keterangan" 
                               rows="4" 
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-200 @error('keterangan') border-red-500 @enderror" 
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('keterangan') border-red-500 @enderror" 
                               placeholder="Masukkan keterangan tambahan (opsional)">{{ old('keterangan', $barang->keterangan) }}</textarea>
                     @error('keterangan')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -255,30 +263,26 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const hbeliDisplay = document.getElementById('hbeli_display');
-    const hbeliHidden = document.getElementById('hbeli');
-    const doesPcs = document.getElementById('does_pcs');
+// Format number with dots as thousand separators
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
 
-    // Format number with dots as thousand separators
-    function formatNumber(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
+// Remove dots and convert to number
+function unformatNumber(str) {
+    return str.replace(/\./g, '');
+}
 
-    // Remove dots and convert to number
-    function unformatNumber(str) {
-        return str.replace(/\./g, '');
-    }
-
-    // Handle harga beli formatting
-    hbeliDisplay.addEventListener('input', function(e) {
+// Setup price input formatting
+function setupPriceInput(displayInput, hiddenInput) {
+    displayInput.addEventListener('input', function(e) {
         let value = e.target.value;
         
-        // Remove all non-digit characters except dots
+        // Remove all non-digit characters
         value = value.replace(/[^\d]/g, '');
         
         // Update hidden field with raw number
-        hbeliHidden.value = value;
+        hiddenInput.value = value;
         
         // Format display with dots
         if (value) {
@@ -287,6 +291,25 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.value = '';
         }
     });
+
+    // Handle keypress for price inputs (only allow numbers)
+    displayInput.addEventListener('keypress', function(e) {
+        // Allow only numbers
+        if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const hbeliDisplay = document.getElementById('hbeli_display');
+    const hbeliHidden = document.getElementById('hbeli');
+    const doesPcs = document.getElementById('does_pcs');
+
+    // Setup harga beli formatting
+    if (hbeliDisplay && hbeliHidden) {
+        setupPriceInput(hbeliDisplay, hbeliHidden);
+    }
 
     // Handle does_pcs to not show zero
     doesPcs.addEventListener('focus', function(e) {
@@ -310,6 +333,19 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
     });
+
+    // Add custom CSS to remove any unwanted outlines
+    const style = document.createElement('style');
+    style.textContent = `
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgb(147 51 234 / 0.5) !important;
+        }
+    `;
+    document.head.appendChild(style);
 });
 </script>
 @endsection

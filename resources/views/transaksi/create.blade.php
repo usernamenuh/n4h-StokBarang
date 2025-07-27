@@ -74,7 +74,7 @@
                             <input type="date" 
                                    name="tanggal" 
                                    id="tanggal" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('tanggal') border-red-500 ring-2 ring-red-200 @enderror" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('tanggal') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('tanggal', date('Y-m-d')) }}" 
                                    required>
                             @error('tanggal')
@@ -90,7 +90,7 @@
                             <input type="text" 
                                    name="nomor" 
                                    id="nomor" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('nomor') border-red-500 ring-2 ring-red-200 @enderror" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('nomor') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('nomor') }}" 
                                    placeholder="Masukkan nomor transaksi"
                                    required>
@@ -107,7 +107,7 @@
                             <input type="text" 
                                    name="customer" 
                                    id="customer" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('customer') border-red-500 ring-2 ring-red-200 @enderror" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('customer') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('customer') }}" 
                                    placeholder="Nama customer"
                                    required>
@@ -121,14 +121,20 @@
                             <label for="ongkir" class="block text-sm font-semibold text-gray-700">
                                 Ongkos Kirim
                             </label>
-                            <input type="number" 
-                                   step="0.01"
-                                   name="ongkir" 
-                                   id="ongkir" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('ongkir') border-red-500 ring-2 ring-red-200 @enderror" 
-                                   value="{{ old('ongkir', 0) }}" 
-                                   min="0"
-                                   placeholder="0">
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-gray-500">Rp</span>
+                                @php
+                                    $ongkirValue = old('ongkir', 0);
+                                    $ongkirFormatted = $ongkirValue ? number_format($ongkirValue, 0, ',', '.') : '';
+                                @endphp
+                                <input type="text" 
+                                       name="ongkir_display" 
+                                       id="ongkir_display" 
+                                       class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('ongkir') border-red-500 ring-2 ring-red-200 @enderror" 
+                                       value="{{ $ongkirFormatted }}" 
+                                       placeholder="0">
+                                <input type="hidden" name="ongkir" id="ongkir" value="{{ $ongkirValue }}">
+                            </div>
                             @error('ongkir')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -142,7 +148,7 @@
                             <input type="number" 
                                    name="jum_print" 
                                    id="jum_print" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('jum_print') border-red-500 ring-2 ring-red-200 @enderror" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('jum_print') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('jum_print', 0) }}" 
                                    min="0"
                                    placeholder="0">
@@ -159,7 +165,7 @@
                             <textarea name="keterangan" 
                                       id="keterangan" 
                                       rows="3" 
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('keterangan') border-red-500 ring-2 ring-red-200 @enderror"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('keterangan') border-red-500 ring-2 ring-red-200 @enderror"
                                       placeholder="Keterangan tambahan...">{{ old('keterangan') }}</textarea>
                             @error('keterangan')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -208,7 +214,7 @@
                                             <div class="space-y-1">
                                                 <label class="block text-xs font-medium text-gray-700">Barang <span class="text-red-500">*</span></label>
                                                 <select name="details[{{ $index }}][barang_id]" 
-                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm" 
                                                         required>
                                                     <option value="">Pilih Barang</option>
                                                     @foreach($barangs as $barang)
@@ -226,7 +232,7 @@
                                                     <input type="number" 
                                                            step="0.01"
                                                            name="details[{{ $index }}][qty]" 
-                                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm" 
                                                            value="{{ old("details.$index.qty", $detail['qty'] ?? 1) }}" 
                                                            required 
                                                            min="0.01">
@@ -235,25 +241,38 @@
                                                 <!-- Harga Satuan -->
                                                 <div class="space-y-1">
                                                     <label class="block text-xs font-medium text-gray-700">Harga Satuan <span class="text-red-500">*</span></label>
-                                                    <input type="number" 
-                                                           step="0.01"
-                                                           name="details[{{ $index }}][harga_satuan]" 
-                                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                           value="{{ old("details.$index.harga_satuan", $detail['harga_satuan'] ?? 0) }}" 
-                                                           required 
-                                                           min="0">
+                                                    <div class="relative">
+                                                        <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                                                        @php
+                                                            $hargaSatuanValue = old("details.$index.harga_satuan", $detail['harga_satuan'] ?? 0);
+                                                            $hargaSatuanFormatted = $hargaSatuanValue ? number_format($hargaSatuanValue, 0, ',', '.') : '';
+                                                        @endphp
+                                                        <input type="text" 
+                                                               name="details[{{ $index }}][harga_satuan_display]" 
+                                                               class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                                                               value="{{ $hargaSatuanFormatted }}" 
+                                                               placeholder="0">
+                                                        <input type="hidden" name="details[{{ $index }}][harga_satuan]" value="{{ $hargaSatuanValue }}">
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <!-- Diskon Item -->
                                             <div class="space-y-1">
                                                 <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
-                                                <input type="number" 
-                                                       step="0.01"
-                                                       name="details[{{ $index }}][discount]" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                       value="{{ old("details.$index.discount", $detail['discount'] ?? 0) }}" 
-                                                       min="0">
+                                                <div class="relative">
+                                                    <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                                                    @php
+                                                        $diskonValue = old("details.$index.discount", $detail['discount'] ?? 0);
+                                                        $diskonFormatted = $diskonValue ? number_format($diskonValue, 0, ',', '.') : '';
+                                                    @endphp
+                                                    <input type="text" 
+                                                           name="details[{{ $index }}][discount_display]" 
+                                                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                                                           value="{{ $diskonFormatted }}" 
+                                                           placeholder="0">
+                                                    <input type="hidden" name="details[{{ $index }}][discount]" value="{{ $diskonValue }}">
+                                                </div>
                                             </div>
 
                                             <!-- Keterangan Item -->
@@ -261,7 +280,7 @@
                                                 <label class="block text-xs font-medium text-gray-700">Keterangan Item</label>
                                                 <textarea name="details[{{ $index }}][keterangan]" 
                                                           rows="2" 
-                                                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm"
                                                           placeholder="Keterangan item...">{{ old("details.$index.keterangan", $detail['keterangan'] ?? '') }}</textarea>
                                             </div>
                                         </div>
@@ -283,7 +302,7 @@
                                         <div class="space-y-1">
                                             <label class="block text-xs font-medium text-gray-700">Barang <span class="text-red-500">*</span></label>
                                             <select name="details[0][barang_id]" 
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm" 
                                                     required>
                                                 <option value="">Pilih Barang</option>
                                                 @foreach($barangs as $barang)
@@ -299,7 +318,7 @@
                                                 <input type="number" 
                                                        step="0.01"
                                                        name="details[0][qty]" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm" 
                                                        value="1" 
                                                        required 
                                                        min="0.01">
@@ -308,25 +327,28 @@
                                             <!-- Harga Satuan -->
                                             <div class="space-y-1">
                                                 <label class="block text-xs font-medium text-gray-700">Harga Satuan <span class="text-red-500">*</span></label>
-                                                <input type="number" 
-                                                       step="0.01"
-                                                       name="details[0][harga_satuan]" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                       value="0" 
-                                                       required 
-                                                       min="0">
+                                                <div class="relative">
+                                                    <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                                                    <input type="text" 
+                                                           name="details[0][harga_satuan_display]" 
+                                                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                                                           placeholder="0">
+                                                    <input type="hidden" name="details[0][harga_satuan]" value="0">
+                                                </div>
                                             </div>
                                         </div>
 
                                         <!-- Diskon Item -->
                                         <div class="space-y-1">
                                             <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
-                                            <input type="number" 
-                                                   step="0.01"
-                                                   name="details[0][discount]" 
-                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                   value="0" 
-                                                   min="0">
+                                            <div class="relative">
+                                                <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                                                <input type="text" 
+                                                       name="details[0][discount_display]" 
+                                                       class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                                                       placeholder="0">
+                                                <input type="hidden" name="details[0][discount]" value="0">
+                                            </div>
                                         </div>
 
                                         <!-- Keterangan Item -->
@@ -334,7 +356,7 @@
                                             <label class="block text-xs font-medium text-gray-700">Keterangan Item</label>
                                             <textarea name="details[0][keterangan]" 
                                                       rows="2" 
-                                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm"
                                                       placeholder="Keterangan item..."></textarea>
                                         </div>
                                     </div>
@@ -366,6 +388,62 @@
 <script>
 let detailIndex = {{ old('details') ? count(old('details')) : 1 }};
 
+// Format number with dots as thousand separators
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// Remove dots and convert to number
+function unformatNumber(str) {
+    return str.replace(/\./g, '');
+}
+
+// Setup price input formatting
+function setupPriceInput(displayInput, hiddenInput) {
+    displayInput.addEventListener('input', function(e) {
+        let value = e.target.value;
+        
+        // Remove all non-digit characters
+        value = value.replace(/[^\d]/g, '');
+        
+        // Update hidden field with raw number
+        hiddenInput.value = value;
+        
+        // Format display with dots
+        if (value) {
+            e.target.value = formatNumber(value);
+        } else {
+            e.target.value = '';
+        }
+    });
+
+    // Handle keypress for price inputs (only allow numbers)
+    displayInput.addEventListener('keypress', function(e) {
+        // Allow only numbers
+        if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+}
+
+// Initialize existing price inputs
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup ongkir formatting
+    const ongkirDisplay = document.getElementById('ongkir_display');
+    const ongkirHidden = document.getElementById('ongkir');
+    if (ongkirDisplay && ongkirHidden) {
+        setupPriceInput(ongkirDisplay, ongkirHidden);
+    }
+
+    // Setup existing detail price inputs
+    document.querySelectorAll('.price-input').forEach(function(displayInput) {
+        const hiddenInput = displayInput.nextElementSibling;
+        if (hiddenInput && hiddenInput.type === 'hidden') {
+            setupPriceInput(displayInput, hiddenInput);
+        }
+    });
+});
+
 document.getElementById('add-detail-row').addEventListener('click', function() {
     const container = document.getElementById('transaction-details-container');
     const newRow = document.createElement('div');
@@ -385,7 +463,7 @@ document.getElementById('add-detail-row').addEventListener('click', function() {
             <div class="space-y-1">
                 <label class="block text-xs font-medium text-gray-700">Barang <span class="text-red-500">*</span></label>
                 <select name="details[${detailIndex}][barang_id]" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm" 
                         required>
                     <option value="">Pilih Barang</option>
                     @foreach($barangs as $barang)
@@ -401,7 +479,7 @@ document.getElementById('add-detail-row').addEventListener('click', function() {
                     <input type="number" 
                            step="0.01"
                            name="details[${detailIndex}][qty]" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm" 
                            value="1" 
                            required 
                            min="0.01">
@@ -410,25 +488,28 @@ document.getElementById('add-detail-row').addEventListener('click', function() {
                 <!-- Harga Satuan -->
                 <div class="space-y-1">
                     <label class="block text-xs font-medium text-gray-700">Harga Satuan <span class="text-red-500">*</span></label>
-                    <input type="number" 
-                           step="0.01"
-                           name="details[${detailIndex}][harga_satuan]" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                           value="0" 
-                           required 
-                           min="0">
+                    <div class="relative">
+                        <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                        <input type="text" 
+                               name="details[${detailIndex}][harga_satuan_display]" 
+                               class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                               placeholder="0">
+                        <input type="hidden" name="details[${detailIndex}][harga_satuan]" value="0">
+                    </div>
                 </div>
             </div>
 
             <!-- Diskon Item -->
             <div class="space-y-1">
                 <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
-                <input type="number" 
-                       step="0.01"
-                       name="details[${detailIndex}][discount]" 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                       value="0" 
-                       min="0">
+                <div class="relative">
+                    <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                    <input type="text" 
+                           name="details[${detailIndex}][discount_display]" 
+                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                           placeholder="0">
+                    <input type="hidden" name="details[${detailIndex}][discount]" value="0">
+                </div>
             </div>
 
             <!-- Keterangan Item -->
@@ -436,13 +517,23 @@ document.getElementById('add-detail-row').addEventListener('click', function() {
                 <label class="block text-xs font-medium text-gray-700">Keterangan Item</label>
                 <textarea name="details[${detailIndex}][keterangan]" 
                           rows="2" 
-                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm"
                           placeholder="Keterangan item..."></textarea>
             </div>
         </div>
     `;
     
     container.appendChild(newRow);
+    
+    // Setup price formatting for new inputs
+    const newPriceInputs = newRow.querySelectorAll('.price-input');
+    newPriceInputs.forEach(function(displayInput) {
+        const hiddenInput = displayInput.nextElementSibling;
+        if (hiddenInput && hiddenInput.type === 'hidden') {
+            setupPriceInput(displayInput, hiddenInput);
+        }
+    });
+    
     detailIndex++;
     updateItemNumbers();
     attachRemoveListeners();
@@ -470,5 +561,20 @@ function attachRemoveListeners() {
 
 // Initial setup
 attachRemoveListeners();
+
+// Add custom CSS to remove any unwanted outlines
+const style = document.createElement('style');
+style.textContent = `
+    .price-input:focus,
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgb(59 130 246 / 0.5) !important;
+    }
+`;
+document.head.appendChild(style);
 </script>
 @endsection
