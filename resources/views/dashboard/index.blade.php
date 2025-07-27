@@ -14,53 +14,54 @@
     />
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-2 sm:px-2 lg:px-8 py-2">
+    <div class="max-w-7xl mx-auto px-2 lg:px-8 ">
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-sm font-medium text-gray-600">Total Revenue</h3>
-                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-rupiah-sign text-green-600 text-sm"></i>
-                    </div>
-                </div>
-                <div class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
-                <p class="text-xs text-gray-500">Total nilai stok</p>
-            </div>
-            
-            <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-sm font-medium text-gray-600">Total Barang</h3>
-                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-boxes text-blue-600 text-sm"></i>
-                    </div>
-                </div>
-                <div class="text-2xl font-bold text-gray-900">{{ number_format($totalBarang, 0, ',', '.') }}</div>
-                <p class="text-xs text-gray-500">Item terdaftar</p>
-            </div>
-            
-            <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-sm font-medium text-gray-600">Transaksi</h3>
-                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-exchange-alt text-purple-600 text-sm"></i>
-                    </div>
-                </div>
-                <div class="text-2xl font-bold text-gray-900">{{ number_format($totalTransaksi, 0, ',', '.') }}</div>
-                <p class="text-xs text-gray-500">Transaksi tercatat</p>
-            </div>
-            
-            <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-sm font-medium text-gray-600">Stok Menipis</h3>
-                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-orange-600 text-sm"></i>
-                    </div>
-                </div>
-                <div class="text-2xl font-bold text-gray-900">{{ number_format($stokMenipis, 0, ',', '.') }}</div>
-                <p class="text-xs text-gray-500">Perlu restock</p>
+    <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-gray-600">Total Revenue</h3>
+            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-rupiah-sign text-green-600 text-sm"></i>
             </div>
         </div>
+        <div class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
+        <p class="text-xs text-gray-500">Total nilai stok</p>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-gray-600">Total Barang</h3>
+            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-boxes text-blue-600 text-sm"></i>
+            </div>
+        </div>
+        <div class="text-2xl font-bold text-gray-900">{{ number_format($totalBarang, 0, ',', '.') }}</div>
+        <p class="text-xs text-gray-500">Item terdaftar</p>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-gray-600">Transaksi</h3>
+            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-exchange-alt text-purple-600 text-sm"></i>
+            </div>
+        </div>
+        <div class="text-2xl font-bold text-gray-900">{{ number_format($totalTransaksi, 0, ',', '.') }}</div>
+        <p class="text-xs text-gray-500">Transaksi tercatat</p>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-gray-600">Stok Menipis</h3>
+            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-exclamation-triangle text-orange-600 text-sm"></i>
+            </div>
+        </div>
+        <div class="text-2xl font-bold text-gray-900">{{ number_format($stokMenipis, 0, ',', '.') }}</div>
+        <p class="text-xs text-gray-500">Perlu restock</p>
+    </div>
+</div>
+
 
         <!-- Charts Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

@@ -195,9 +195,11 @@
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     User Input</th>
+                                   
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Aksi</th>
+                                   
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -274,6 +276,7 @@
                                             </div>
                                         </div>
                                     </td>
+                                    
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="relative inline-block text-left">
                                             <button type="button"
@@ -299,6 +302,7 @@
                                                         </svg>
                                                         Lihat Detail
                                                     </a>
+                                                    @if ($user->role !== 'owner') 
                                                     <a href="{{ route('barang.edit', $barang->id) }}"
                                                         class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
                                                         <svg class="w-4 h-4 mr-3 text-yellow-500" fill="none"
@@ -324,6 +328,7 @@
                                             </div>
                                         </div>
                                     </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
