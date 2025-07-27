@@ -402,21 +402,22 @@
                     </p>
                 </div>
             </div>
-            <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-                <form id="deleteForm" method="POST" class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" 
-                            class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:col-start-2 sm:text-sm transition-colors">
-                        Hapus
-                    </button>
-                </form>
-                <button type="button" 
-                        onclick="closeDeleteModal()"
-                        class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:col-start-1 sm:text-sm transition-colors">
-                    Batal
-                </button>
-            </div>
+            <div class="mt-6 grid grid-cols-2 gap-3">
+    <form id="deleteForm" method="POST">
+        @csrf
+        @method('DELETE')
+        <button type="submit" 
+                class="w-full inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+            Hapus
+        </button>
+    </form>
+    <button type="button" 
+            onclick="closeDeleteModal()"
+            class="w-full inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+        Batal
+    </button>
+</div>
+
         </div>
     </div>
 </div>

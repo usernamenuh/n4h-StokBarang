@@ -14,7 +14,7 @@
     />
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+    <div class="max-w-7xl mx-auto px-2 sm:px-2 lg:px-8 py-2">
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">

@@ -28,10 +28,26 @@
                     <i class="fas fa-calendar text-gray-400 text-sm"></i>
                     <span class="text-sm text-gray-600">{{ date('M d, Y') }} - {{ date('M d, Y', strtotime('+20 days')) }}</span>
                 </div>
-                <!-- Download Button -->
-                <button class="bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors">
-                    import
-                </button>
+                <!-- Import Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleImportDropdown()" class="bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors flex items-center space-x-2">
+                        <span>Import</span>
+                    </button>
+                    
+                    <!-- Import Dropdown Menu -->
+                    <div id="importDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 hidden z-50">
+                        <div class="py-1">
+                            <a href="{{ route('barang.index') }}#import" onclick="openImportModal('barang')" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-boxes mr-3 text-blue-500"></i>
+                                Import Barang
+                            </a>
+                            <a href="{{ route('transaksi.index') }}#import" onclick="openImportModal('transaksi')" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-exchange-alt mr-3 text-purple-500"></i>
+                                Import Transaksi
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <!-- Profile Dropdown -->
                 <div class="relative">
                     <button onclick="toggleProfileDropdown()" class="flex items-center space-x-2 bg-white border border-gray-300 rounded-md px-3 py-2 hover:bg-gray-50 transition-colors">
@@ -93,13 +109,42 @@
         dropdown.classList.toggle('hidden');
     }
 
+    // Import dropdown functionality
+    function toggleImportDropdown() {
+        const dropdown = document.getElementById('importDropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Function to handle import modal opening
+    function openImportModal(type) {
+        // Close the dropdown first
+        document.getElementById('importDropdown').classList.add('hidden');
+        
+        // Redirect to appropriate page or trigger modal
+        if (type === 'barang') {
+            window.location.href = "{{ route('barang.index') }}";
+            // You can add logic to auto-open import modal here
+        } else if (type === 'transaksi') {
+            window.location.href = "{{ route('transaksi.index') }}";
+            // You can add logic to auto-open import modal here
+        }
+    }
+
     // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('profileDropdown');
-        const button = event.target.closest('[onclick="toggleProfileDropdown()"]');
+        const profileDropdown = document.getElementById('profileDropdown');
+        const importDropdown = document.getElementById('importDropdown');
+        const profileButton = event.target.closest('[onclick="toggleProfileDropdown()"]');
+        const importButton = event.target.closest('[onclick="toggleImportDropdown()"]');
         
-        if (!button && !dropdown.contains(event.target)) {
-            dropdown.classList.add('hidden');
+        // Close profile dropdown
+        if (!profileButton && !profileDropdown.contains(event.target)) {
+            profileDropdown.classList.add('hidden');
+        }
+        
+        // Close import dropdown
+        if (!importButton && !importDropdown.contains(event.target)) {
+            importDropdown.classList.add('hidden');
         }
     });
 

@@ -135,7 +135,7 @@ class BarangImportFinal implements ToArray, WithHeadingRow
                 $data = [
                     'kode' => $kode,
                     'nama' => $nama,
-                    'does_pcs' => $doesPcs,
+                    'does_pcs' => 100,
                     'golongan' => trim($row['golongan'] ?? 'GENERAL'),
                     'hbeli' => $hbeli,
                     'user_id' => $userId,

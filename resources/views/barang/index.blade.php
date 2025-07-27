@@ -58,7 +58,9 @@
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-600">Total Barang</h3>
-                    <i class="fas fa-boxes text-blue-500"></i>
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-boxes text-blue-600 text-sm"></i>
+                    </div>
                 </div>
                 <div class="text-2xl font-bold text-gray-900">{{ number_format($barangs->count(), 0, ',', '.') }}</div>
                 <p class="text-xs text-gray-500">Item terdaftar</p>
@@ -67,7 +69,9 @@
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-600">Stok Menipis</h3>
-                    <i class="fas fa-exclamation-triangle text-orange-500"></i>
+                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-orange-600 text-sm"></i>
+                    </div>
                 </div>
                 <div class="text-2xl font-bold text-gray-900">{{ number_format($barangs->where('does_pcs', '<', 10)->count(), 0, ',', '.') }}</div>
                 <p class="text-xs text-gray-500">Perlu restock</p>
@@ -76,7 +80,9 @@
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-600">Nilai Inventori</h3>
-                    <i class="fas fa-rupiah-sign text-green-500"></i>
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-rupiah-sign text-green-600 text-sm"></i>
+                    </div>
                 </div>
                 <div class="text-2xl font-bold text-gray-900">Rp {{ number_format($barangs->sum('hbeli'), 0, ',', '.') }}</div>
                 <p class="text-xs text-gray-500">Total nilai stok</p>
@@ -85,7 +91,9 @@
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-600">Kategori</h3>
-                    <i class="fas fa-tags text-purple-500"></i>
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-tags text-purple-600 text-sm"></i>
+                    </div>
                 </div>
                 <div class="text-2xl font-bold text-gray-900">{{ $barangs->pluck('golongan')->unique()->count() }}</div>
                 <p class="text-xs text-gray-500">Kategori aktif</p>
