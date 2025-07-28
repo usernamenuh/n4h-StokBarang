@@ -54,14 +54,30 @@ class BarangController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode' => 'required|unique:barangs,kode',
-            'nama' => 'required',
-            'does_pcs' => 'required|numeric|min:0',
-            'golongan' => 'required',
-            'hbeli' => 'required|numeric|min:0',
-            'user_id' => 'nullable|exists:users,id',
-            'keterangan' => 'nullable|string'
-        ]);
+    'kode' => 'required|unique:barangs,kode',
+    'nama' => 'required|string|max:255',
+    'does_pcs' => 'required|numeric|min:1',
+    'golongan' => 'required|string|max:255',
+    'hbeli' => 'required|numeric|min:0',
+    'user_id' => 'nullable|exists:users,id',
+    'keterangan' => 'nullable|string|max:1000',
+], [
+    'kode.required' => 'Kode barang wajib diisi.',
+    'kode.unique' => 'Kode barang sudah digunakan.',
+    'nama.required' => 'Nama barang wajib diisi.',
+    'nama.max' => 'Nama barang maksimal 255 karakter.',
+    'does_pcs.required' => 'Nilai konversi unit wajib diisi.',
+    'does_pcs.numeric' => 'Nilai konversi unit harus berupa angka.',
+    'does_pcs.min' => 'Minimal nilai konversi adalah 1.',
+    'golongan.required' => 'Golongan/Kategori wajib diisi.',
+    'golongan.max' => 'Golongan maksimal 255 karakter.',
+    'hbeli.required' => 'Harga beli wajib diisi.',
+    'hbeli.numeric' => 'Harga beli harus berupa angka.',
+    'hbeli.min' => 'Harga beli tidak boleh negatif.',
+    'user_id.exists' => 'User yang dipilih tidak valid.',
+    'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
+]);
+
 
         Barang::create([
             'kode' => $request->kode,
@@ -90,20 +106,38 @@ class BarangController extends Controller
 
     public function update(Request $request, Barang $barang)
     {
-        $request->validate([
-            'kode' => [
-                'required',
-                Rule::unique('barangs')->where(function ($query) use ($request) {
-                    return $query->where('nama', $request->nama);
-                })->ignore($barang->id),
-            ],
-            'nama' => 'required',
-            'does_pcs' => 'required|numeric|min:0',
-            'golongan' => 'required',
-            'hbeli' => 'required|numeric|min:0',
-            'user_id' => 'nullable|exists:users,id',
-            'keterangan' => 'nullable|string'
-        ]);
+      
+
+$request->validate([
+    'kode' => [
+        'required',
+        Rule::unique('barangs')->where(function ($query) use ($request) {
+            return $query->where('nama', $request->nama);
+        })->ignore($barang->id),
+    ],
+    'nama' => 'required|string|max:255',
+    'does_pcs' => 'required|numeric|min:1',
+    'golongan' => 'required|string|max:255',
+    'hbeli' => 'required|numeric|min:0',
+    'user_id' => 'nullable|exists:users,id',
+    'keterangan' => 'nullable|string|max:1000',
+], [
+    'kode.required' => 'Kode barang wajib diisi.',
+    'kode.unique' => 'Kode barang dengan nama tersebut sudah ada.',
+    'nama.required' => 'Nama barang wajib diisi.',
+    'nama.max' => 'Nama barang maksimal 255 karakter.',
+    'does_pcs.required' => 'Nilai konversi unit wajib diisi.',
+    'does_pcs.numeric' => 'Nilai konversi unit harus berupa angka.',
+    'does_pcs.min' => 'Minimal nilai konversi adalah 1.',
+    'golongan.required' => 'Golongan/Kategori wajib diisi.',
+    'golongan.max' => 'Golongan maksimal 255 karakter.',
+    'hbeli.required' => 'Harga beli wajib diisi.',
+    'hbeli.numeric' => 'Harga beli harus berupa angka.',
+    'hbeli.min' => 'Harga beli tidak boleh negatif.',
+    'user_id.exists' => 'User yang dipilih tidak valid.',
+    'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
+]);
+
 
         $barang->update([
             'kode' => $request->kode,

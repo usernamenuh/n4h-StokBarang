@@ -51,7 +51,31 @@ class TransaksiController extends Controller
             'details.*.barang_id' => 'required|exists:barangs,id',
             'details.*.qty' => 'required|numeric|min:0.01',
             'details.*.harga_satuan' => 'required|numeric|min:0',
-        ], []);
+        ], [
+    'tanggal.required' => 'Tanggal transaksi wajib diisi.',
+    'tanggal.date' => 'Format tanggal tidak valid.',
+    'nomor.required' => 'Nomor transaksi wajib diisi.',
+    'nomor.max' => 'Nomor transaksi maksimal 50 karakter.',
+    'nomor.unique' => 'Nomor transaksi sudah digunakan.',
+    'customer.required' => 'Nama customer wajib diisi.',
+    'customer.max' => 'Nama customer maksimal 255 karakter.',
+    'ongkir.numeric' => 'Ongkir harus berupa angka.',
+    'ongkir.min' => 'Ongkir minimal 0.',
+    'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
+    'jum_print.integer' => 'Jumlah cetak harus berupa angka bulat.',
+    'jum_print.min' => 'Jumlah cetak minimal 0.',
+    'details.required' => 'Detail transaksi wajib diisi.',
+    'details.array' => 'Format detail transaksi tidak valid.',
+    'details.min' => 'Minimal harus ada 1 barang dalam transaksi.',
+    'details.*.barang_id.required' => 'Barang wajib dipilih.',
+    'details.*.barang_id.exists' => 'Barang yang dipilih tidak ditemukan.',
+    'details.*.qty.required' => 'Jumlah barang wajib diisi.',
+    'details.*.qty.numeric' => 'Jumlah barang harus berupa angka.',
+    'details.*.qty.min' => 'Jumlah barang minimal 0.01.',
+    'details.*.harga_satuan.required' => 'Harga satuan wajib diisi.',
+    'details.*.harga_satuan.numeric' => 'Harga satuan harus berupa angka.',
+    'details.*.harga_satuan.min' => 'Harga satuan minimal 0.',
+]);
 
         DB::beginTransaction();
         try {
@@ -132,17 +156,42 @@ class TransaksiController extends Controller
     public function update(Request $request, Transaksi $transaksi)
     {
         $request->validate([
-            'tanggal' => 'required|date',
-            'nomor' => 'required|string|max:50|unique:transaksis,nomor,' . $transaksi->id,
-            'customer' => 'required|string|max:255',
-            'ongkir' => 'nullable|numeric|min:0',
-            'keterangan' => 'nullable|string|max:1000',
-            'jum_print' => 'nullable|integer|min:0',
-            'details' => 'required|array|min:1',
-            'details.*.barang_id' => 'required|exists:barangs,id',
-            'details.*.qty' => 'required|numeric|min:0.01',
-            'details.*.harga_satuan' => 'required|numeric|min:0',
-        ], []);
+    'tanggal' => 'required|date',
+    'nomor' => 'required|string|max:50|unique:transaksis,nomor,' . $transaksi->id,
+    'customer' => 'required|string|max:255',
+    'ongkir' => 'nullable|numeric|min:0',
+    'keterangan' => 'nullable|string|max:1000',
+    'jum_print' => 'nullable|integer|min:0',
+    'details' => 'required|array|min:1',
+    'details.*.barang_id' => 'required|exists:barangs,id',
+    'details.*.qty' => 'required|numeric|min:0.01',
+    'details.*.harga_satuan' => 'required|numeric|min:0',
+], [
+    'tanggal.required' => 'Tanggal wajib diisi.',
+    'tanggal.date' => 'Format tanggal tidak valid.',
+    'nomor.required' => 'Nomor transaksi wajib diisi.',
+    'nomor.max' => 'Nomor transaksi maksimal 50 karakter.',
+    'nomor.unique' => 'Nomor transaksi sudah digunakan.',
+    'customer.required' => 'Nama customer wajib diisi.',
+    'customer.max' => 'Nama customer maksimal 255 karakter.',
+    'ongkir.numeric' => 'Ongkir harus berupa angka.',
+    'ongkir.min' => 'Ongkir minimal 0.',
+    'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
+    'jum_print.integer' => 'Jumlah print harus berupa bilangan bulat.',
+    'jum_print.min' => 'Jumlah print minimal 0.',
+    'details.required' => 'Detail transaksi wajib diisi.',
+    'details.array' => 'Format detail transaksi tidak valid.',
+    'details.min' => 'Minimal harus ada satu barang.',
+    'details.*.barang_id.required' => 'Barang wajib dipilih.',
+    'details.*.barang_id.exists' => 'Barang tidak ditemukan di database.',
+    'details.*.qty.required' => 'Jumlah barang wajib diisi.',
+    'details.*.qty.numeric' => 'Jumlah barang harus berupa angka.',
+    'details.*.qty.min' => 'Jumlah barang minimal 0.01.',
+    'details.*.harga_satuan.required' => 'Harga satuan wajib diisi.',
+    'details.*.harga_satuan.numeric' => 'Harga satuan harus berupa angka.',
+    'details.*.harga_satuan.min' => 'Harga satuan minimal 0.',
+]);
+
 
         DB::beginTransaction();
         try {

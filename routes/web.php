@@ -20,15 +20,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::controller(BarangController::class)->group(function () {
-        Route::get('/barang', 'index')->name('barang.index');
-        Route::get('/barang/{barang}', 'show')->name('barang.show');
 
         Route::middleware('role:admin_gudang')->group(function () {
-            Route::get('/barang/create', 'create')->name('barang.create');
-            Route::post('/barang', 'store')->name('barang.store');
-            Route::get('/barang/{barang}/edit', 'edit')->name('barang.edit');
-            Route::put('/barang/{barang}', 'update')->name('barang.update');
-            Route::delete('/barang/{barang}', 'destroy')->name('barang.destroy');
+
             Route::get('/barang/import', 'showImportForm')->name('barang.import.form');
             Route::post('/barang/import', 'import')->name('barang.import');
             Route::get('/barang/template', 'downloadTemplate')->name('barang.template');
@@ -47,7 +41,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('transaksi', TransaksiController::class);
-
+ Route::resource('barang', BarangController::class);
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('/pareto', [LaporanController::class, 'analisisPareto'])->name('pareto');
         Route::get('/pareto/export', [LaporanController::class, 'exportPareto'])->name('pareto.export');

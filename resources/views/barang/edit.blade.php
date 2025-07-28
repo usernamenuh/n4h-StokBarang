@@ -53,24 +53,7 @@
             </div>
         @endif
 
-        @if ($errors->any())
-            <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg" role="alert">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <ul class="list-disc list-inside">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        @endif
+       
 
         <!-- Form Card -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -124,7 +107,7 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('kode') border-red-500 @enderror" 
                                    value="{{ old('kode', $barang->kode) }}" 
                                    placeholder="Masukkan kode barang"
-                                   required>
+                                   >
                             @error('kode')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -141,7 +124,7 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('nama') border-red-500 @enderror" 
                                    value="{{ old('nama', $barang->nama) }}" 
                                    placeholder="Masukkan nama barang"
-                                   required>
+                                   >
                             @error('nama')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -154,7 +137,8 @@
                             </label>
                             @php
                                 $doesPcsValue = old('does_pcs', $barang->does_pcs);
-                                $doesPcsDisplay = ($doesPcsValue == 0) ? '' : $doesPcsValue;
+                                $doesPcsDisplay = ($doesPcsValue == 0) ? '' : rtrim(rtrim($doesPcsValue, '0'), '.');
+
                             @endphp
                             <input type="number" 
                                    name="does_pcs" 
@@ -164,7 +148,7 @@
                                    value="{{ $doesPcsDisplay }}" 
                                    min="0"
                                    placeholder="Masukkan nilai konversi"
-                                   required>
+                                   >
                             <p class="mt-1 text-xs text-gray-500">Nilai konversi unit (contoh: 1 dus = 12 pcs)</p>
                             @error('does_pcs')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -182,7 +166,7 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('golongan') border-red-500 @enderror" 
                                    value="{{ old('golongan', $barang->golongan) }}" 
                                    placeholder="Masukkan golongan barang"
-                                   required>
+                                   >
                             @error('golongan')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -205,7 +189,7 @@
                                        class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:outline-none transition-colors duration-200 @error('hbeli') border-red-500 @enderror" 
                                        value="{{ $hbeliFormatted }}" 
                                        placeholder="0"
-                                       required>
+                                       >
                                 <input type="hidden" name="hbeli" id="hbeli" value="{{ $hbeliValue }}">
                             </div>
                             @error('hbeli')

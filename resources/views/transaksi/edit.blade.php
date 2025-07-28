@@ -97,7 +97,7 @@
                                    id="tanggal" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('tanggal') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('tanggal', $transaksi->tanggal) }}" 
-                                   required>
+                                   >
                             @error('tanggal')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -114,7 +114,7 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('nomor') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('nomor', $transaksi->nomor) }}" 
                                    placeholder="Masukkan nomor transaksi"
-                                   required>
+                                   >
                             @error('nomor')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -131,7 +131,7 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 @error('customer') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('customer', $transaksi->customer) }}" 
                                    placeholder="Nama customer"
-                                   required>
+                                   >
                             @error('customer')
                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -236,7 +236,7 @@
                                                 <label class="block text-xs font-medium text-gray-700">Barang <span class="text-red-500">*</span></label>
                                                 <select name="details[{{ $index }}][barang_id]" 
                                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                        required>
+                                                        >
                                                     <option value="">Pilih Barang</option>
                                                     @foreach($barangs as $barang)
                                                         <option value="{{ $barang->id }}" {{ (old("details.$index.barang_id", $detail['barang_id'] ?? '') == $barang->id) ? 'selected' : '' }}>
@@ -255,7 +255,7 @@
                                                            name="details[{{ $index }}][qty]" 
                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
                                                            value="{{ old("details.$index.qty", $detail['qty'] ?? 1) }}" 
-                                                           required 
+                                                            
                                                            min="0.01">
                                                 </div>
 
@@ -325,7 +325,7 @@
                                                 <label class="block text-xs font-medium text-gray-700">Barang <span class="text-red-500">*</span></label>
                                                 <select name="details[{{ $index }}][barang_id]" 
                                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                        required>
+                                                        >
                                                     <option value="">Pilih Barang</option>
                                                     @foreach($barangs as $barang)
                                                         <option value="{{ $barang->id }}" {{ ($detail->barang_id == $barang->id) ? 'selected' : '' }}>
@@ -344,7 +344,7 @@
                                                            name="details[{{ $index }}][qty]" 
                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
                                                            value="{{ $detail->qty }}" 
-                                                           required 
+                                                            
                                                            min="0.01">
                                                 </div>
 
@@ -497,7 +497,7 @@ document.getElementById('add-detail-row').addEventListener('click', function() {
                 <label class="block text-xs font-medium text-gray-700">Barang <span class="text-red-500">*</span></label>
                 <select name="details[${detailIndex}][barang_id]" 
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                        required>
+                        >
                     <option value="">Pilih Barang</option>
                     @foreach($barangs as $barang)
                         <option value="{{ $barang->id }}">{{ $barang->nama }} ({{ $barang->kode }})</option>
@@ -514,7 +514,7 @@ document.getElementById('add-detail-row').addEventListener('click', function() {
                            name="details[${detailIndex}][qty]" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
                            value="1" 
-                           required 
+                            
                            min="0.01">
                 </div>
 

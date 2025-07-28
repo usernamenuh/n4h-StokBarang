@@ -61,7 +61,8 @@
             </div>
             
             <!-- Register form -->
-            <form method="POST" action="{{ route('register') }}" class="space-y-3 relative z-10" onsubmit="showLoading(event)">
+          <form method="POST" action="{{ route('register') }}" class="space-y-3 relative z-10" onsubmit="showLoading(event)" novalidate>
+
                 @csrf
                 
                 <div class="space-y-3">

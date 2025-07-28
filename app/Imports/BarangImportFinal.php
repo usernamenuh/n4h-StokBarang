@@ -7,9 +7,9 @@ use App\Models\User;
 use Maatwebsite\Excel\Concerns\ToArray;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\Importable;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class BarangImportFinal implements ToArray, WithHeadingRow
 {
@@ -19,67 +19,84 @@ class BarangImportFinal implements ToArray, WithHeadingRow
     private $successCount = 0;
     private $createdUsers = 0;
     private $errors = [];
+    private $importFailedRows = [];
+    private $importSuccessRows = [];
 
     public function array(array $rows)
     {
         $this->rowCount = count($rows);
-        
-        Log::info("=== FINAL IMPORT START ===");
-        Log::info("Processing {$this->rowCount} rows");
-        
+
+        Log::info("=== IMPORT BARANG DIMULAI ===");
+        Log::info("Memproses {$this->rowCount} baris data");
+
+        DB::beginTransaction();
+
         try {
-            // Step 1: Create users
-            $this->createUsersWithUniqueEmails($rows);
-            
-            // Step 2: Import barang dengan parsing yang sudah diperbaiki
+            // Langkah 1: Buat user jika belum ada
+            $this->buatUserDenganEmailUnik($rows);
+
+            // Langkah 2: Import data barang
             $this->importBarang($rows);
-            
+
+            DB::commit();
+            Log::info("=== IMPORT BERHASIL ===");
         } catch (\Exception $e) {
-            Log::error("Import error: " . $e->getMessage());
-            $this->errors[] = "Critical error: " . $e->getMessage();
+            DB::rollBack();
+            Log::error("Import gagal: " . $e->getMessage());
+            $this->errors[] = "Error kritis: " . $e->getMessage();
+            Log::info("=== IMPORT GAGAL ===");
         }
-        
-        Log::info("=== IMPORT COMPLETED ===");
-        Log::info("Users created: {$this->createdUsers}, Barang imported: {$this->successCount}, Errors: " . count($this->errors));
-        
+
+        Log::info("Hasil - User dibuat: {$this->createdUsers}, Barang diimpor: {$this->successCount}, Error: " . count($this->errors));
+
         return [
-            'processed' => $this->rowCount,
-            'success_count' => $this->successCount,
-            'users_created' => $this->createdUsers,
-            'errors' => $this->errors
+            'total_data' => $this->rowCount,
+            'berhasil' => $this->successCount,
+            'user_dibuat' => $this->createdUsers,
+            'errors' => $this->errors,
+            'baris_gagal' => $this->importFailedRows,
+            'baris_berhasil' => $this->importSuccessRows
         ];
     }
 
-    private function createUsersWithUniqueEmails(array $rows)
+    private function buatUserDenganEmailUnik(array $rows)
     {
         $userIds = array_unique(array_filter(array_column($rows, 'user_id')));
-        $existingUserNames = User::whereIn('name', $userIds)->pluck('name')->toArray();
-        $newUsers = array_diff($userIds, $existingUserNames);
         
+        if (empty($userIds)) {
+            throw new \Exception("Tidak ditemukan nilai user_id yang valid dalam file import");
+        }
+
+        $existingUsers = User::whereIn('name', $userIds)->pluck('name')->toArray();
+        $newUsers = array_diff($userIds, $existingUsers);
+
         foreach ($newUsers as $userId) {
             try {
-                $baseEmail = strtolower($userId);
+                if (empty(trim($userId))) {
+                    throw new \Exception("Nilai user_id kosong ditemukan");
+                }
+
+                $baseEmail = strtolower(preg_replace('/[^a-z0-9]/i', '', $userId));
                 $email = $baseEmail . '@example.com';
                 $counter = 1;
-                
+
                 while (User::where('email', $email)->exists()) {
                     $email = $baseEmail . $counter . '@example.com';
                     $counter++;
                 }
-                
+
                 User::create([
                     'name' => $userId,
                     'email' => $email,
                     'password' => Hash::make('password123'),
                     'email_verified_at' => now(),
                 ]);
-                
+
                 $this->createdUsers++;
-                Log::info("Created user: {$userId} with email: {$email}");
-                
+                Log::info("Berhasil membuat user: {$userId} dengan email: {$email}");
             } catch (\Exception $e) {
-                Log::error("Failed to create user {$userId}: " . $e->getMessage());
-                $this->errors[] = "Failed to create user: {$userId}";
+                Log::error("Gagal membuat user {$userId}: " . $e->getMessage());
+                $this->errors[] = "Gagal membuat user: {$userId} - " . $e->getMessage();
             }
         }
     }
@@ -88,153 +105,177 @@ class BarangImportFinal implements ToArray, WithHeadingRow
     {
         $users = User::pluck('id', 'name')->toArray();
         $existingCodes = Barang::pluck('id', 'kode')->toArray();
-        
+
         $insertData = [];
-        
+        $updateCount = 0;
+
         foreach ($rows as $index => $row) {
+            $rowNumber = $index + 2; // +2 karena baris Excel dimulai dari 1 dan header adalah baris 1
+            $errorPrefix = "Baris {$rowNumber}:";
+
             try {
+                // Validasi dan bersihkan input
                 $kode = trim($row['kode'] ?? '');
                 $nama = trim($row['nama'] ?? '');
                 $userIdFromExcel = trim($row['user_id'] ?? '');
-                
-                // Validate required fields
+
+                // Validasi field wajib
                 if (empty($kode)) {
-                    $this->errors[] = "Row " . ($index + 2) . ": Missing kode";
-                    continue;
+                    throw new \Exception("Kolom kode harus diisi");
                 }
-                
+
                 if (empty($nama)) {
-                    $this->errors[] = "Row " . ($index + 2) . ": Missing nama";
-                    continue;
+                    throw new \Exception("Kolom nama harus diisi");
                 }
-                
+
                 if (empty($userIdFromExcel)) {
-                    $this->errors[] = "Row " . ($index + 2) . ": Missing user_id";
-                    continue;
+                    throw new \Exception("Kolom user_id harus diisi");
                 }
-                
-                // Get user ID
-                $userId = $users[$userIdFromExcel] ?? null;
-                if (!$userId) {
-                    $this->errors[] = "Row " . ($index + 2) . ": User '{$userIdFromExcel}' not found";
-                    continue;
+
+                // Validasi user ada
+                if (!isset($users[$userIdFromExcel])) {
+                    throw new \Exception("User '{$userIdFromExcel}' tidak ditemukan di database");
                 }
-                
-                // FIXED: Parse values dengan method yang tepat berdasarkan debug
-                $rawDoesPcs = $row['does_pcs'] ?? 1;
-                $rawHbeli = $row['hbeli'] ?? 0;
-                
-                // For does_pcs: direct cast works fine (1.00 -> 1.0)
-                $doesPcs = (float) $rawDoesPcs;
-                
-                // For hbeli: use fixed currency parser
-                $hbeli = $this->parseIndonesianCurrency($rawHbeli);
-                
-                Log::info("Row " . ($index + 2) . " - does_pcs: {$rawDoesPcs} -> {$doesPcs}, hbeli: {$rawHbeli} -> {$hbeli}");
-                
-                $data = [
+
+                $userId = $users[$userIdFromExcel];
+
+                // Parse nilai numerik
+                $doesPcs = $this->parseNumericValue($row['does_pcs'] ?? 1, 'does_pcs');
+                $hbeli = $this->parseRupiahToInteger($row['hbeli'] ?? 0);
+
+                if ($hbeli < 0) {
+                    throw new \Exception("Nilai hbeli tidak boleh negatif");
+                }
+
+                $barangData = [
                     'kode' => $kode,
                     'nama' => $nama,
-                    'does_pcs' => 100, // jika data ingin sesuai dengan excel ganti jadi $doesPcs
+                    'does_pcs' => $doesPcs,
                     'golongan' => trim($row['golongan'] ?? 'GENERAL'),
-                    'hbeli' => $hbeli,
+                    'hbeli' => $hbeli, // Disimpan sebagai integer (contoh: 50000 untuk Rp50.000)
                     'user_id' => $userId,
                     'keterangan' => trim($row['keterangan'] ?? ''),
+                    'updated_at' => now(),
                 ];
-                
+
                 if (isset($existingCodes[$kode])) {
-                    // Update existing
-                    Barang::where('kode', $kode)->update([
-                        'nama' => $data['nama'],
-                        'does_pcs' => $data['does_pcs'],
-                        'golongan' => $data['golongan'],
-                        'hbeli' => $data['hbeli'],
-                        'user_id' => $data['user_id'],
-                        'keterangan' => $data['keterangan'],
-                        'updated_at' => now(),
-                    ]);
+                    // Update data yang sudah ada
+                    Barang::where('kode', $kode)->update($barangData);
+                    $updateCount++;
+                    $this->importSuccessRows[] = "Baris {$rowNumber}: Berhasil update barang dengan kode {$kode}";
                 } else {
-                    // Insert new
-                    $data['created_at'] = now();
-                    $data['updated_at'] = now();
-                    $insertData[] = $data;
+                    // Siapkan data baru
+                    $barangData['created_at'] = now();
+                    $insertData[] = $barangData;
+                    $this->importSuccessRows[] = "Baris {$rowNumber}: Berhasil siapkan barang baru dengan kode {$kode}";
                 }
-                
+
             } catch (\Exception $e) {
-                Log::error("Error processing row " . ($index + 2) . ": " . $e->getMessage());
-                $this->errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
+                $errorMsg = "{$errorPrefix} " . $e->getMessage();
+                Log::error($errorMsg);
+                $this->errors[] = $errorMsg;
+                $this->importFailedRows[] = [
+                    'baris' => $rowNumber,
+                    'error' => $e->getMessage(),
+                    'data' => $row
+                ];
             }
         }
-        
-        // Bulk insert new records
+
+        // Insert data baru sekaligus
         if (!empty($insertData)) {
             try {
-                Barang::insert($insertData);
-                $this->successCount = count($insertData);
-                Log::info("Inserted {$this->successCount} barang records");
+                $chunks = array_chunk($insertData, 100); // Proses per 100 data untuk import besar
+                foreach ($chunks as $chunk) {
+                    Barang::insert($chunk);
+                    $this->successCount += count($chunk);
+                }
+                Log::info("Berhasil menyimpan {$this->successCount} data barang baru");
             } catch (\Exception $e) {
-                Log::error("Bulk insert failed: " . $e->getMessage());
-                $this->errors[] = "Bulk insert failed: " . $e->getMessage();
+                throw new \Exception("Gagal insert data: " . $e->getMessage());
             }
         }
-    }
 
-    public function getRowCount(): int { return $this->rowCount; }
-    public function getSuccessCount(): int { return $this->successCount; }
-    public function getCreatedUsersCount(): int { return $this->createdUsers; }
-    public function getErrors(): array { return $this->errors; }
+        Log::info("Berhasil update {$updateCount} data barang yang sudah ada");
+        $this->successCount += $updateCount;
+    }
 
     /**
-     * FIXED: Parse Indonesian currency format correctly
-     * Handles: "60,500.00", "2,900,000.00", "139,500.00" etc.
+     * Konversi nilai Rupiah dari Excel ke integer
+     * Contoh: "Rp50.000,00" => 50000
+     *          "75.000" => 75000
+     *          "100,500.25" => 100500
      */
-    private function parseIndonesianCurrency($value)
+    private function parseRupiahToInteger($value): int
     {
-        // If already numeric and no comma, return as is
-        if (is_numeric($value) && !str_contains((string)$value, ',')) {
-            return floatval($value);
+        // Jika sudah integer, langsung return
+        if (is_int($value)) {
+            return $value;
         }
-        
-        // Convert to string for processing
-        $value = (string) $value;
-        $value = trim($value);
-        
-        // If empty, return 0
-        if (empty($value)) {
+
+        // Jika sudah float, konversi ke integer
+        if (is_float($value)) {
+            return (int) round($value);
+        }
+
+        $value = trim((string) $value);
+
+        // Handle nilai kosong
+        if ($value === '') {
             return 0;
         }
-        
-        // Remove any currency symbols
-        $value = str_replace(['Rp', 'Rp.', '$', '€', '¥', ' '], '', $value);
-        $value = trim($value);
-        
-        // Handle Indonesian format: "2,900,000.00" or "60,500.00"
-        if (str_contains($value, ',')) {
-            // Check if there's a decimal point
-            if (str_contains($value, '.')) {
-                // Format: "2,900,000.00" 
-                // Split by decimal point
-                $parts = explode('.', $value);
-                $decimalPart = array_pop($parts); // Get last part as decimal
-                $integerPart = implode('', $parts); // Join remaining parts
-                
-                // Remove all commas from integer part
-                $integerPart = str_replace(',', '', $integerPart);
-                
-                // Reconstruct the number
-                $value = $integerPart . '.' . $decimalPart;
+
+        // Hapus semua karakter non-digit kecuali koma dan titik
+        $value = preg_replace('/[^0-9,.]/', '', $value);
+
+        // Handle format Indonesia (1.500,00) dan internasional (1,500.00)
+        if (strpos($value, ',') !== false && strpos($value, '.') !== false) {
+            // Jika koma ada sebelum titik, artinya titik sebagai ribuan (1.234,56)
+            if (strpos($value, ',') > strpos($value, '.')) {
+                $value = str_replace('.', '', $value);
+                $value = str_replace(',', '.', $value);
             } else {
-                // Format: "2,900,000" (no decimal)
+                // Jika koma ada setelah titik, artinya koma sebagai ribuan (1,234.56)
                 $value = str_replace(',', '', $value);
             }
+        } else {
+            // Ganti koma dengan titik untuk desimal
+            $value = str_replace(',', '.', $value);
         }
-        
-        // Final cleanup: remove any remaining non-numeric characters except decimal point and minus
-        $value = preg_replace('/[^\d.-]/', '', $value);
-        
-        // Convert to float
-        $result = is_numeric($value) ? floatval($value) : 0;
-        
-        return $result;
+
+        // Konversi ke float lalu ke integer (bulatkan)
+        $floatValue = (float) $value;
+        return (int) round($floatValue);
     }
+
+    private function parseNumericValue($value, $fieldName)
+    {
+        if (is_numeric($value)) {
+            return floatval($value);
+        }
+
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return $fieldName === 'hbeli' ? 0 : 1; // Nilai default
+        }
+
+        // Hanya ambil bagian numerik
+        $value = preg_replace('/[^0-9,.]/', '', $value);
+        $value = str_replace(',', '.', $value);
+
+        if (!is_numeric($value)) {
+            throw new \Exception("Nilai numerik tidak valid untuk {$fieldName}: '{$value}'");
+        }
+
+        return floatval($value);
+    }
+
+    // Method untuk mendapatkan hasil import
+    public function getTotalData(): int { return $this->rowCount; }
+    public function getJumlahBerhasil(): int { return $this->successCount; }
+    public function getJumlahUserDibuat(): int { return $this->createdUsers; }
+    public function getDaftarError(): array { return $this->errors; }
+    public function getBarisGagal(): array { return $this->importFailedRows; }
+    public function getBarisBerhasil(): array { return $this->importSuccessRows; }
 }

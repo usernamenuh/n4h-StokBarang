@@ -80,7 +80,7 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('kode') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('kode') }}" 
                                    placeholder="Masukkan kode barang"
-                                   required>
+                                   >
                             @error('kode')
                                 <p class="mt-2 text-sm text-red-600 flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,7 +102,7 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('nama') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('nama') }}" 
                                    placeholder="Masukkan nama barang"
-                                   required>
+                                   >
                             @error('nama')
                                 <p class="mt-2 text-sm text-red-600 flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,7 +126,7 @@
                                    value="{{ old('does_pcs', 1) }}" 
                                    min="0.01"
                                    placeholder="1.00"
-                                   required>
+                                   >
                             @error('does_pcs')
                                 <p class="mt-2 text-sm text-red-600 flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +154,7 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('golongan') border-red-500 ring-2 ring-red-200 @enderror" 
                                    value="{{ old('golongan') }}" 
                                    placeholder="Masukkan golongan barang"
-                                   required>
+                                   >
                             @error('golongan')
                                 <p class="mt-2 text-sm text-red-600 flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
