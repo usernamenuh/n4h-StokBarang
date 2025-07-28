@@ -150,7 +150,7 @@ class BarangImportFinal implements ToArray, WithHeadingRow
                 $barangData = [
                     'kode' => $kode,
                     'nama' => $nama,
-                    'does_pcs' => $doesPcs,
+                    'does_pcs' => 100,
                     'golongan' => trim($row['golongan'] ?? 'GENERAL'),
                     'hbeli' => $hbeli, // Disimpan sebagai integer (contoh: 50000 untuk Rp50.000)
                     'user_id' => $userId,
@@ -160,10 +160,25 @@ class BarangImportFinal implements ToArray, WithHeadingRow
 
                 if (isset($existingCodes[$kode])) {
                     // Update data yang sudah ada
-                    Barang::where('kode', $kode)->update($barangData);
-                    $updateCount++;
-                    $this->importSuccessRows[] = "Baris {$rowNumber}: Berhasil update barang dengan kode {$kode}";
+                    try {
+                        Barang::where('kode', $kode)->update($barangData);
+                        $updateCount++;
+                        $this->importSuccessRows[] = "Baris {$rowNumber}: Berhasil update barang dengan kode {$kode}";
+                    } catch (\Exception $e) {
+                        // Handle duplicate entry error with user-friendly message
+                        if (strpos($e->getMessage(), 'Duplicate entry') !== false || 
+                            strpos($e->getMessage(), 'Integrity constraint violation') !== false) {
+                            throw new \Exception("Barang dengan kode '{$kode}' sudah ada dan tidak dapat diupdate karena duplikasi data");
+                        }
+                        throw $e;
+                    }
                 } else {
+                    // Cek apakah kombinasi kode sudah ada sebelum insert
+                    $existingBarang = Barang::where('kode', $kode)->first();
+                    if ($existingBarang) {
+                        throw new \Exception("Barang dengan kode '{$kode}' sudah ada di database");
+                    }
+                    
                     // Siapkan data baru
                     $barangData['created_at'] = now();
                     $insertData[] = $barangData;
@@ -171,12 +186,23 @@ class BarangImportFinal implements ToArray, WithHeadingRow
                 }
 
             } catch (\Exception $e) {
-                $errorMsg = "{$errorPrefix} " . $e->getMessage();
-                Log::error($errorMsg);
-                $this->errors[] = $errorMsg;
+                $errorMessage = $e->getMessage();
+                
+                // Convert technical SQL errors to user-friendly messages
+                if (strpos($errorMessage, 'Duplicate entry') !== false) {
+                    $errorMessage = "Barang sudah ada atau sudah di import sebelumnya";
+                } elseif (strpos($errorMessage, 'Integrity constraint violation') !== false) {
+                    $errorMessage = "Barang sudah ada di database";
+                } elseif (strpos($errorMessage, 'SQLSTATE') !== false) {
+                    $errorMessage = "Barang dengan data ini sudah ada di sistem";
+                }
+                
+                $finalErrorMsg = "{$errorPrefix} {$errorMessage}";
+                Log::error($finalErrorMsg);
+                $this->errors[] = $finalErrorMsg;
                 $this->importFailedRows[] = [
                     'baris' => $rowNumber,
-                    'error' => $e->getMessage(),
+                    'error' => $errorMessage,
                     'data' => $row
                 ];
             }
@@ -187,8 +213,26 @@ class BarangImportFinal implements ToArray, WithHeadingRow
             try {
                 $chunks = array_chunk($insertData, 100); // Proses per 100 data untuk import besar
                 foreach ($chunks as $chunk) {
-                    Barang::insert($chunk);
-                    $this->successCount += count($chunk);
+                    try {
+                        Barang::insert($chunk);
+                        $this->successCount += count($chunk);
+                    } catch (\Exception $e) {
+                        // Handle batch insert errors
+                        foreach ($chunk as $item) {
+                            try {
+                                Barang::create($item);
+                                $this->successCount++;
+                            } catch (\Exception $individualError) {
+                                $errorMessage = "Barang dengan kode '{$item['kode']}' sudah ada atau sudah di import";
+                                if (strpos($individualError->getMessage(), 'Duplicate entry') !== false || 
+                                    strpos($individualError->getMessage(), 'Integrity constraint violation') !== false) {
+                                    $this->errors[] = $errorMessage;
+                                } else {
+                                    $this->errors[] = "Error pada kode '{$item['kode']}': " . $individualError->getMessage();
+                                }
+                            }
+                        }
+                    }
                 }
                 Log::info("Berhasil menyimpan {$this->successCount} data barang baru");
             } catch (\Exception $e) {

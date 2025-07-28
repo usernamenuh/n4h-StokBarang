@@ -479,7 +479,7 @@
     </div>
 
     <!-- Import Results Modal -->
-    <div id="importResultsModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+   <div id="importResultsModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20">
             <div class="fixed inset-0 transition-opacity bg-black bg-opacity-60 backdrop-blur-sm"
                 onclick="closeImportResultsModal()"></div>
@@ -508,7 +508,7 @@
                 </div>
 
                 <!-- Modal Content -->
-                <div class="bg-white rounded-b-2xl p-8 max-h-96 overflow-y-auto">
+                <div class="bg-white rounded-b-2xl p-8">
                     <!-- Summary Stats -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <div class="bg-blue-50 rounded-lg p-4 text-center">
@@ -543,19 +543,22 @@
                         </nav>
                     </div>
 
-                    <!-- Success Tab Content -->
-                    <div id="successTabContent" class="space-y-3">
-                        <h4 class="font-semibold text-green-800 mb-3">Data yang Berhasil Diimpor:</h4>
-                        <div id="successList" class="space-y-2 max-h-48 overflow-y-auto">
-                            <!-- Success items will be populated here -->
+                    <!-- Content Container with fixed height and hidden scrollbar -->
+                    <div class="h-80 overflow-hidden">
+                        <!-- Success Tab Content -->
+                        <div id="successTabContent" class="space-y-3 h-full">
+                            <h4 class="font-semibold text-green-800 mb-3">Data yang Berhasil Diimpor:</h4>
+                            <div id="successList" class="space-y-2 h-64 overflow-y-auto pr-4" style="scrollbar-width: none; -ms-overflow-style: none;">
+                                <!-- Success items will be populated here -->
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Failed Tab Content -->
-                    <div id="failedTabContent" class="space-y-3 hidden">
-                        <h4 class="font-semibold text-red-800 mb-3">Data yang Gagal Diimpor:</h4>
-                        <div id="failedList" class="space-y-2 max-h-48 overflow-y-auto">
-                            <!-- Failed items will be populated here -->
+                        <!-- Failed Tab Content -->
+                        <div id="failedTabContent" class="space-y-3 hidden h-full">
+                            <h4 class="font-semibold text-red-800 mb-3">Data yang Gagal Diimpor:</h4>
+                            <div id="failedList" class="space-y-2 h-64 overflow-y-auto pr-4" style="scrollbar-width: none; -ms-overflow-style: none;">
+                                <!-- Failed items will be populated here -->
+                            </div>
                         </div>
                     </div>
 
@@ -616,7 +619,20 @@
             </div>
         </div>
     </div>
-
+  <style>
+        /* Hide scrollbar for webkit browsers */
+        #successList::-webkit-scrollbar,
+        #failedList::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Hide scrollbar for Firefox */
+        #successList,
+        #failedList {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+    </style>
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
