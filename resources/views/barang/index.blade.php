@@ -478,6 +478,103 @@
         </div>
     </div>
 
+    <!-- Import Results Modal -->
+    <div id="importResultsModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20">
+            <div class="fixed inset-0 transition-opacity bg-black bg-opacity-60 backdrop-blur-sm"
+                onclick="closeImportResultsModal()"></div>
+
+            <!-- Modal Container -->
+            <div class="relative w-full max-w-4xl mx-auto">
+                <!-- Modal Header -->
+                <div class="bg-gray-900 rounded-t-2xl px-6 py-4 text-white">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-bar text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold">Hasil Import Data Barang</h3>
+                                <p class="text-sm text-gray-300">Detail transaksi import yang telah diproses</p>
+                            </div>
+                        </div>
+                        <button onclick="closeImportResultsModal()" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Content -->
+                <div class="bg-white rounded-b-2xl p-8 max-h-96 overflow-y-auto">
+                    <!-- Summary Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-blue-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="totalDataCount">0</div>
+                            <div class="text-sm text-blue-800">Total Data</div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-green-600" id="successCount">0</div>
+                            <div class="text-sm text-green-800">Berhasil</div>
+                        </div>
+                        <div class="bg-red-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-red-600" id="failedCount">0</div>
+                            <div class="text-sm text-red-800">Gagal</div>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-purple-600" id="userCreatedCount">0</div>
+                            <div class="text-sm text-purple-800">User Dibuat</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex space-x-8">
+                            <button onclick="showTab('success')" id="successTab"
+                                class="py-2 px-1 border-b-2 border-green-500 font-medium text-sm text-green-600">
+                                Data Berhasil
+                            </button>
+                            <button onclick="showTab('failed')" id="failedTab"
+                                class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                Data Gagal
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Success Tab Content -->
+                    <div id="successTabContent" class="space-y-3">
+                        <h4 class="font-semibold text-green-800 mb-3">Data yang Berhasil Diimpor:</h4>
+                        <div id="successList" class="space-y-2 max-h-48 overflow-y-auto">
+                            <!-- Success items will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Failed Tab Content -->
+                    <div id="failedTabContent" class="space-y-3 hidden">
+                        <h4 class="font-semibold text-red-800 mb-3">Data yang Gagal Diimpor:</h4>
+                        <div id="failedList" class="space-y-2 max-h-48 overflow-y-auto">
+                            <!-- Failed items will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                        <button onclick="closeImportResultsModal()"
+                            class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                            Tutup
+                        </button>
+                        <button onclick="reloadPage()"
+                            class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            Refresh Halaman
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Modal -->
     <div id="deleteModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
@@ -623,16 +720,8 @@
                             progressText.textContent = '100%';
 
                             setTimeout(() => {
-                                if (data.success) {
-                                    // Show success message
-                                    showNotification('success', data.message || 'Import berhasil!');
-                                    closeImportModal();
-                                    // Reload page to show new data
-                                    setTimeout(() => location.reload(), 1000);
-                                } else {
-                                    showNotification('error', data.message || 'Import gagal!');
-                                    resetImportForm();
-                                }
+                                closeImportModal();
+                                showImportResults(data);
                             }, 500);
                         })
                         .catch(error => {
@@ -664,7 +753,7 @@
 
                 importButton.disabled = false;
                 importButton.innerHTML =
-                    '<svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>Import Data';
+                    '<svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>Import Data Barang';
                 progressContainer.classList.add('hidden');
                 fileInfo.classList.add('hidden');
                 uploadArea.classList.remove('hidden');
@@ -679,6 +768,98 @@
                 fileInfo.classList.add('hidden');
                 uploadArea.classList.remove('hidden');
                 fileInput.value = '';
+            }
+
+            // Import Results Modal Functions
+            function showImportResults(response) {
+                const data = response.data;
+                
+                // Update summary stats
+                document.getElementById('totalDataCount').textContent = data.total_data || 0;
+                document.getElementById('successCount').textContent = data.berhasil || 0;
+                document.getElementById('failedCount').textContent = data.gagal || 0;
+                document.getElementById('userCreatedCount').textContent = data.user_dibuat || 0;
+
+                // Populate success list
+                const successList = document.getElementById('successList');
+                successList.innerHTML = '';
+                if (data.baris_berhasil && data.baris_berhasil.length > 0) {
+                    data.baris_berhasil.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'p-3 bg-green-50 border border-green-200 rounded-lg text-sm';
+                        div.innerHTML = `
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="text-green-800">${item}</span>
+                            </div>
+                        `;
+                        successList.appendChild(div);
+                    });
+                } else {
+                    successList.innerHTML = '<p class="text-gray-500 text-center py-4">Tidak ada data yang berhasil diimpor</p>';
+                }
+
+                // Populate failed list
+                const failedList = document.getElementById('failedList');
+                failedList.innerHTML = '';
+                if (data.errors && data.errors.length > 0) {
+                    data.errors.forEach(error => {
+                        const div = document.createElement('div');
+                        div.className = 'p-3 bg-red-50 border border-red-200 rounded-lg text-sm';
+                        div.innerHTML = `
+                            <div class="flex items-start">
+                                <svg class="w-4 h-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                <span class="text-red-800">${error}</span>
+                            </div>
+                        `;
+                        failedList.appendChild(div);
+                    });
+                } else {
+                    failedList.innerHTML = '<p class="text-gray-500 text-center py-4">Tidak ada data yang gagal diimpor</p>';
+                }
+
+                // Show the results modal
+                document.getElementById('importResultsModal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+
+                // Show success message
+                if (response.success) {
+                    showNotification('success', response.message || 'Import berhasil diproses!');
+                } else {
+                    showNotification('error', response.message || 'Import gagal!');
+                }
+            }
+
+            function closeImportResultsModal() {
+                document.getElementById('importResultsModal').classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+
+            function showTab(tabName) {
+                // Hide all tab contents
+                document.getElementById('successTabContent').classList.add('hidden');
+                document.getElementById('failedTabContent').classList.add('hidden');
+
+                // Remove active classes from all tabs
+                document.getElementById('successTab').className = 'py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300';
+                document.getElementById('failedTab').className = 'py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300';
+
+                // Show selected tab content and activate tab
+                if (tabName === 'success') {
+                    document.getElementById('successTabContent').classList.remove('hidden');
+                    document.getElementById('successTab').className = 'py-2 px-1 border-b-2 border-green-500 font-medium text-sm text-green-600';
+                } else if (tabName === 'failed') {
+                    document.getElementById('failedTabContent').classList.remove('hidden');
+                    document.getElementById('failedTab').className = 'py-2 px-1 border-b-2 border-red-500 font-medium text-sm text-red-600';
+                }
+            }
+
+            function reloadPage() {
+                location.reload();
             }
 
             // Dropdown functions
@@ -753,21 +934,9 @@
                 if (event.key === 'Escape') {
                     closeDeleteModal();
                     closeImportModal();
+                    closeImportResultsModal();
                 }
             });
-
-            // Import modal functions
-
-            function openImportModal() {
-                document.getElementById('importModal').classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeImportModal() {
-                document.getElementById('importModal').classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                resetImportForm();
-            }
         </script>
     @endpush
 @endsection

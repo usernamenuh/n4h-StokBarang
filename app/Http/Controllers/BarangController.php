@@ -173,16 +173,37 @@ $request->validate([
             sleep(2);
             
             $importer = new \App\Imports\BarangImportFinal;
-    $importer->import($request->file('file'));
+            $result = $importer->import($request->file('file'));
+            
+            // Get detailed results from importer
+            $importResults = [
+                'total_data' => $importer->getTotalData(),
+                'berhasil' => $importer->getJumlahBerhasil(),
+                'user_dibuat' => $importer->getJumlahUserDibuat(),
+                'gagal' => count($importer->getDaftarError()),
+                'errors' => $importer->getDaftarError(),
+                'baris_gagal' => $importer->getBarisGagal(),
+                'baris_berhasil' => $importer->getBarisBerhasil()
+            ];
             
             return response()->json([
                 'success' => true,
-                'message' => 'Import berhasil! Data barang telah ditambahkan.'
+                'message' => 'Import selesai diproses!',
+                'data' => $importResults
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal import: ' . $e->getMessage()
+                'message' => 'Gagal import: ' . $e->getMessage(),
+                'data' => [
+                    'total_data' => 0,
+                    'berhasil' => 0,
+                    'user_dibuat' => 0,
+                    'gagal' => 1,
+                    'errors' => [$e->getMessage()],
+                    'baris_gagal' => [],
+                    'baris_berhasil' => []
+                ]
             ], 422);
         }
     }
