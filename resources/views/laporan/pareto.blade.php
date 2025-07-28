@@ -172,7 +172,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <div class="flex items-center">
                                         <i class="fas fa-rupiah-sign text-gray-400 mr-2"></i>
-                                       Rp {{ number_format($item->total_nilai / 1000, 0, ',', '.') }}
+                                       Rp {{ number_format($item->total_nilai , 0, ',', '.') }}
 
                                     </div>
                                 </td>
