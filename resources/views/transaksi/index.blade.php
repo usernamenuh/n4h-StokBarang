@@ -123,7 +123,7 @@
 
                         @if ($user->role !== 'owner')
                             <button onclick="openImportModal()"
-                                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm text-sm">
+                                class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm text-sm">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -131,7 +131,6 @@
                                 Import Excel
                             </button>
                         @endif
-
                     @endif
                 </div>
 
@@ -164,7 +163,7 @@
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">
-                            <i class="fas fa-receipt mr-2 text-blue-500"></i>
+                            <i class="fas fa-receipt mr-2 text-purple-500"></i>
                             Daftar Transaksi
                         </h3>
                         <div class="text-sm text-gray-500">
@@ -287,27 +286,29 @@
                                                         </svg>
                                                         Lihat Detail
                                                     </a>
-                                                    <a href="{{ route('transaksi.edit', $transaksi->id) }}"
-                                                        class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
-                                                        <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                        </svg>
-                                                        Edit
-                                                    </a>
-                                                    <button
-                                                        onclick="openDeleteModal('{{ $transaksi->id }}', '{{ $transaksi->nomor }}')"
-                                                        class="flex items-center w-full px-3 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors">
-                                                        <svg class="w-4 h-4 mr-2 text-red-500" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                        </svg>
-                                                        Hapus
-                                                    </button>
+                                                    @if (!isset($role) || $role != 'owner')
+                                                        <a href="{{ route('transaksi.edit', $transaksi->id) }}"
+                                                            class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                                            <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                            </svg>
+                                                            Edit
+                                                        </a>
+                                                        <button
+                                                            onclick="openDeleteModal('{{ $transaksi->id }}', '{{ $transaksi->nomor }}')"
+                                                            class="flex items-center w-full px-3 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors">
+                                                            <svg class="w-4 h-4 mr-2 text-red-500" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                            Hapus
+                                                        </button>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -463,6 +464,106 @@
         </div>
     </div>
 
+    <!-- Import Results Modal for Transaksi -->
+    <div id="importResultsModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20">
+            <div class="fixed inset-0 transition-opacity bg-black bg-opacity-60 backdrop-blur-sm"
+                onclick="closeImportResultsModal()"></div>
+
+            <!-- Modal Container -->
+            <div class="relative w-full max-w-4xl mx-auto">
+                <!-- Modal Header -->
+                <div class="bg-gray-900 rounded-t-2xl px-6 py-4 text-white">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-bar text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold">Hasil Import Data Transaksi</h3>
+                                <p class="text-sm text-gray-300">Detail transaksi import yang telah diproses</p>
+                            </div>
+                        </div>
+                        <button onclick="closeImportResultsModal()" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Content -->
+                <div class="bg-white rounded-b-2xl p-8">
+                    <!-- Summary Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-blue-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="totalTransaksiCount">0</div>
+                            <div class="text-sm text-blue-800">Total Transaksi</div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-green-600" id="totalDetailCount">0</div>
+                            <div class="text-sm text-green-800">Total Detail</div>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-purple-600" id="successCount">0</div>
+                            <div class="text-sm text-purple-800">Berhasil</div>
+                        </div>
+                        <div class="bg-red-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-red-600" id="failedCount">0</div>
+                            <div class="text-sm text-red-800">Gagal</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex space-x-8">
+                            <button onclick="showTab('success')" id="successTab"
+                                class="py-2 px-1 border-b-2 border-purple-500 font-medium text-sm text-purple-600">
+                                Data Berhasil
+                            </button>
+                            <button onclick="showTab('failed')" id="failedTab"
+                                class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                Data Gagal
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Content Container with fixed height and hidden scrollbar -->
+                    <div class="h-80 overflow-hidden">
+                        <!-- Success Tab Content -->
+                        <div id="successTabContent" class="space-y-3 h-full">
+                            <h4 class="font-semibold text-purple-800 mb-3">Data yang Berhasil Diimpor:</h4>
+                            <div id="successList" class="space-y-2 h-64 overflow-y-auto pr-4" style="scrollbar-width: none; -ms-overflow-style: none;">
+                                <!-- Success items will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Failed Tab Content -->
+                        <div id="failedTabContent" class="space-y-3 hidden h-full">
+                            <h4 class="font-semibold text-red-800 mb-3">Data yang Gagal Diimpor:</h4>
+                            <div id="failedList" class="space-y-2 h-64 overflow-y-auto pr-4" style="scrollbar-width: none; -ms-overflow-style: none;">
+                                <!-- Failed items will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                        <button onclick="closeImportResultsModal()"
+                            class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                            Tutup
+                        </button>
+                        <button onclick="reloadPage()"
+                            class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                            Refresh Halaman
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Modal -->
     <div id="deleteModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
@@ -503,218 +604,318 @@
         </div>
     </div>
 
-    @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Auto hide alerts
-                setTimeout(function() {
-                    const alerts = document.querySelectorAll('#alert-success, #alert-danger');
-                    alerts.forEach(alert => {
-                        if (alert) {
-                            alert.style.opacity = '0';
-                            alert.style.transform = 'translateY(-10px)';
-                            setTimeout(() => alert.remove(), 300);
-                        }
-                    });
-                }, 5000);
+<style>
+    /* Hide scrollbar for webkit browsers */
+    #successList::-webkit-scrollbar,
+    #failedList::-webkit-scrollbar {
+        display: none;
+    }
+    
+    /* Hide scrollbar for Firefox */
+    #successList,
+    #failedList {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+</style>
 
-                // Search functionality
-                const searchInput = document.getElementById('searchInput');
-                const customerFilter = document.getElementById('customerFilter');
-                const tableRows = document.querySelectorAll('#transaksi-table tbody tr');
-
-                function filterTable() {
-                    const searchTerm = searchInput.value.toLowerCase();
-                    const selectedCustomer = customerFilter.value.toLowerCase();
-
-                    tableRows.forEach(row => {
-                        if (row.cells.length === 1) return; // Skip empty state row
-
-                        const nomor = row.cells[1].textContent.toLowerCase();
-                        const customer = row.cells[2].textContent.toLowerCase();
-
-                        const matchesSearch = nomor.includes(searchTerm) || customer.includes(searchTerm);
-                        const matchesCustomer = selectedCustomer === '' || customer.includes(selectedCustomer);
-
-                        if (matchesSearch && matchesCustomer) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
-                }
-
-                searchInput.addEventListener('input', filterTable);
-                customerFilter.addEventListener('change', filterTable);
-
-                // File input handling
-                const fileInput = document.getElementById('fileInput');
-                const fileInfo = document.getElementById('fileInfo');
-                const fileName = document.getElementById('fileName');
-                const uploadArea = document.getElementById('uploadArea');
-
-                fileInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        fileName.textContent = file.name;
-                        fileInfo.classList.remove('hidden');
-                        uploadArea.classList.add('hidden');
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto hide alerts
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('#alert-success, #alert-danger');
+                alerts.forEach(alert => {
+                    if (alert) {
+                        alert.style.opacity = '0';
+                        alert.style.transform = 'translateY(-10px)';
+                        setTimeout(() => alert.remove(), 300);
                     }
                 });
+            }, 5000);
 
-                // Import form handling
-                const importForm = document.getElementById('importForm');
-                const progressContainer = document.getElementById('progressContainer');
-                const progressBar = document.getElementById('progressBar');
-                const progressText = document.getElementById('progressText');
-                const importButton = document.getElementById('importButton');
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            const customerFilter = document.getElementById('customerFilter');
+            const tableRows = document.querySelectorAll('#transaksi-table tbody tr');
 
-                importForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedCustomer = customerFilter.value.toLowerCase();
 
-                    const formData = new FormData(this);
+                tableRows.forEach(row => {
+                    if (row.cells.length === 1) return; // Skip empty state row
 
-                    // Show progress
-                    progressContainer.classList.remove('hidden');
-                    importButton.disabled = true;
-                    importButton.innerHTML =
-                        '<svg class="w-4 h-4 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Mengimpor...';
+                    const nomor = row.cells[1].textContent.toLowerCase();
+                    const customer = row.cells[2].textContent.toLowerCase();
 
-                    // Simulate progress
-                    let progress = 0;
-                    const progressInterval = setInterval(() => {
-                        progress += Math.random() * 30;
-                        if (progress > 90) progress = 90;
-                        progressBar.style.width = progress + '%';
-                        progressText.textContent = Math.round(progress) + '%';
-                    }, 200);
+                    const matchesSearch = nomor.includes(searchTerm) || customer.includes(searchTerm);
+                    const matchesCustomer = selectedCustomer === '' || customer.includes(selectedCustomer);
 
-                    // Submit form
-                    fetch(this.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content'),
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            clearInterval(progressInterval);
-                            progressBar.style.width = '100%';
-                            progressText.textContent = '100%';
-
-                            setTimeout(() => {
-                                if (data.success) {
-                                    showNotification('success', data.message || 'Import berhasil!');
-                                    closeImportModal();
-                                    // Reload page to show new data
-                                    setTimeout(() => location.reload(), 1000);
-                                } else {
-                                    showNotification('error', data.message || 'Import gagal!');
-                                    resetImportForm();
-                                }
-                            }, 500);
-                        })
-                        .catch(error => {
-                            clearInterval(progressInterval);
-                            console.error('Import error:', error);
-                            showNotification('error', 'Terjadi kesalahan saat import!');
-                            resetImportForm();
-                        });
+                    if (matchesSearch && matchesCustomer) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
                 });
+            }
+
+            searchInput.addEventListener('input', filterTable);
+            customerFilter.addEventListener('change', filterTable);
+
+            // File input handling
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const uploadArea = document.getElementById('uploadArea');
+
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    fileName.textContent = file.name;
+                    fileInfo.classList.remove('hidden');
+                    uploadArea.classList.add('hidden');
+                }
             });
 
-            // Modal functions
-            function openImportModal() {
-                document.getElementById('importModal').classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
+            // Import form handling
+            const importForm = document.getElementById('importForm');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const importButton = document.getElementById('importButton');
 
-            function closeImportModal() {
-                document.getElementById('importModal').classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                resetImportForm();
-            }
+            importForm.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-            function resetImportForm() {
-                const importButton = document.getElementById('importButton');
-                const progressContainer = document.getElementById('progressContainer');
-                const fileInfo = document.getElementById('fileInfo');
-                const uploadArea = document.getElementById('uploadArea');
-                const fileInput = document.getElementById('fileInput');
+                const formData = new FormData(this);
 
-                importButton.disabled = false;
+                // Show progress
+                progressContainer.classList.remove('hidden');
+                importButton.disabled = true;
                 importButton.innerHTML =
-                    '<svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>Import Data Transaksi';
-                progressContainer.classList.add('hidden');
-                fileInfo.classList.add('hidden');
-                uploadArea.classList.remove('hidden');
-                fileInput.value = '';
-            }
+                    '<svg class="w-4 h-4 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Mengimpor...';
 
-            function clearFile() {
-                const fileInfo = document.getElementById('fileInfo');
-                const uploadArea = document.getElementById('uploadArea');
-                const fileInput = document.getElementById('fileInput');
+                // Simulate progress
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 30;
+                    if (progress > 90) progress = 90;
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = Math.round(progress) + '%';
+                }, 200);
 
-                fileInfo.classList.add('hidden');
-                uploadArea.classList.remove('hidden');
-                fileInput.value = '';
-            }
+                // Submit form
+                fetch(this.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        clearInterval(progressInterval);
+                        progressBar.style.width = '100%';
+                        progressText.textContent = '100%';
 
-            // Dropdown functions
-            function toggleDropdown(dropdownId) {
-                const dropdown = document.getElementById(dropdownId);
-                const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
-
-                // Close all other dropdowns
-                allDropdowns.forEach(d => {
-                    if (d.id !== dropdownId) {
-                        d.classList.add('hidden');
-                    }
-                });
-
-                // Toggle current dropdown
-                dropdown.classList.toggle('hidden');
-            }
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!event.target.closest('[onclick*="toggleDropdown"]')) {
-                    document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
-                        d.classList.add('hidden');
+                        setTimeout(() => {
+                            closeImportModal();
+                            showImportResults(data);
+                        }, 500);
+                    })
+                    .catch(error => {
+                        clearInterval(progressInterval);
+                        console.error('Import error:', error);
+                        showNotification('error', 'Terjadi kesalahan saat import!');
+                        resetImportForm();
                     });
+            });
+        });
+
+        // Modal functions
+        function openImportModal() {
+            document.getElementById('importModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            resetImportForm();
+        }
+
+        function resetImportForm() {
+            const importButton = document.getElementById('importButton');
+            const progressContainer = document.getElementById('progressContainer');
+            const fileInfo = document.getElementById('fileInfo');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            importButton.disabled = false;
+            importButton.innerHTML =
+                '<svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>Import Data Transaksi';
+            progressContainer.classList.add('hidden');
+            fileInfo.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+            fileInput.value = '';
+        }
+
+        function clearFile() {
+            const fileInfo = document.getElementById('fileInfo');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            fileInfo.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+            fileInput.value = '';
+        }
+
+        // Import Results Modal Functions for Transaksi
+        function showImportResults(response) {
+            const data = response.data;
+            
+            // Update summary stats
+            document.getElementById('totalTransaksiCount').textContent = data.total_transaksi || 0;
+            document.getElementById('totalDetailCount').textContent = data.total_detail || 0;
+            document.getElementById('successCount').textContent = data.berhasil || 0;
+            document.getElementById('failedCount').textContent = data.gagal || 0;
+
+            // Populate success list
+            const successList = document.getElementById('successList');
+            successList.innerHTML = '';
+            if (data.baris_berhasil && data.baris_berhasil.length > 0) {
+                data.baris_berhasil.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'p-3 bg-purple-50 border border-purple-200 rounded-lg text-sm';
+                    div.innerHTML = `
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-purple-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-purple-800">${item}</span>
+                        </div>
+                    `;
+                    successList.appendChild(div);
+                });
+            } else {
+                successList.innerHTML = '<p class="text-gray-500 text-center py-4">Tidak ada data yang berhasil diimpor</p>';
+            }
+
+            // Populate failed list
+            const failedList = document.getElementById('failedList');
+            failedList.innerHTML = '';
+            if (data.errors && data.errors.length > 0) {
+                data.errors.forEach(error => {
+                    const div = document.createElement('div');
+                    div.className = 'p-3 bg-red-50 border border-red-200 rounded-lg text-sm';
+                    div.innerHTML = `
+                        <div class="flex items-start">
+                            <svg class="w-4 h-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            <span class="text-red-800">${error}</span>
+                        </div>
+                    `;
+                    failedList.appendChild(div);
+                });
+            } else {
+                failedList.innerHTML = '<p class="text-gray-500 text-center py-4">Tidak ada data yang gagal diimpor</p>';
+            }
+
+            // Show the results modal
+            document.getElementById('importResultsModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Show success message
+            if (response.success) {
+                showNotification('success', response.message || 'Import berhasil diproses!');
+            } else {
+                showNotification('error', response.message || 'Import gagal!');
+            }
+        }
+
+        function closeImportResultsModal() {
+            document.getElementById('importResultsModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.getElementById('successTabContent').classList.add('hidden');
+            document.getElementById('failedTabContent').classList.add('hidden');
+
+            // Remove active classes from all tabs
+            document.getElementById('successTab').className = 'py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300';
+            document.getElementById('failedTab').className = 'py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300';
+
+            // Show selected tab content and activate tab
+            if (tabName === 'success') {
+                document.getElementById('successTabContent').classList.remove('hidden');
+                document.getElementById('successTab').className = 'py-2 px-1 border-b-2 border-purple-500 font-medium text-sm text-purple-600';
+            } else if (tabName === 'failed') {
+                document.getElementById('failedTabContent').classList.remove('hidden');
+                document.getElementById('failedTab').className = 'py-2 px-1 border-b-2 border-red-500 font-medium text-sm text-red-600';
+            }
+        }
+
+        function reloadPage() {
+            location.reload();
+        }
+
+        // Dropdown functions
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
+
+            // Close all other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.add('hidden');
                 }
             });
 
-            // Delete modal functions
-            function openDeleteModal(id, name) {
-                document.getElementById('deleteItemName').textContent = name;
-                document.getElementById('deleteForm').action = `/transaksi/${id}`;
-                document.getElementById('deleteModal').classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
+            // Toggle current dropdown
+            dropdown.classList.toggle('hidden');
+        }
 
-            function closeDeleteModal() {
-                document.getElementById('deleteModal').classList.add('hidden');
-                document.body.style.overflow = 'auto';
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('[onclick*="toggleDropdown"]')) {
+                document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
+                    d.classList.add('hidden');
+                });
             }
+        });
 
-            // Notification function
-            function showNotification(type, message) {
-                const notification = document.createElement('div');
-                notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 ${
+        // Delete modal functions
+        function openDeleteModal(id, name) {
+            document.getElementById('deleteItemName').textContent = name;
+            document.getElementById('deleteForm').action = `/transaksi/${id}`;
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Notification function
+        function showNotification(type, message) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 ${
         type === 'success' ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-800'
     }`;
 
-                notification.innerHTML = `
+            notification.innerHTML = `
         <div class="flex items-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 ${type === 'success' 
@@ -726,23 +927,24 @@
         </div>
     `;
 
-                document.body.appendChild(notification);
+            document.body.appendChild(notification);
 
-                // Auto remove after 5 seconds
-                setTimeout(() => {
-                    notification.style.opacity = '0';
-                    notification.style.transform = 'translateX(100%)';
-                    setTimeout(() => notification.remove(), 300);
-                }, 5000);
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeDeleteModal();
+                closeImportModal();
+                closeImportResultsModal();
             }
-
-            // Close modal with Escape key
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape') {
-                    closeDeleteModal();
-                    closeImportModal();
-                }
-            });
-        </script>
-    @endpush
+        });
+    </script>
+@endpush
 @endsection

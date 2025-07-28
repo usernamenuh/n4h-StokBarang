@@ -179,13 +179,13 @@
                                     No</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Kode Barang</th>
+                                    Kode</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Nama Barang</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Does Pcs</th>
+                                    Pcs</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Golongan</th>

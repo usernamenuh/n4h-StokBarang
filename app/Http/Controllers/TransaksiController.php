@@ -52,30 +52,30 @@ class TransaksiController extends Controller
             'details.*.qty' => 'required|numeric|min:0.01',
             'details.*.harga_satuan' => 'required|numeric|min:0',
         ], [
-    'tanggal.required' => 'Tanggal transaksi wajib diisi.',
-    'tanggal.date' => 'Format tanggal tidak valid.',
-    'nomor.required' => 'Nomor transaksi wajib diisi.',
-    'nomor.max' => 'Nomor transaksi maksimal 50 karakter.',
-    'nomor.unique' => 'Nomor transaksi sudah digunakan.',
-    'customer.required' => 'Nama customer wajib diisi.',
-    'customer.max' => 'Nama customer maksimal 255 karakter.',
-    'ongkir.numeric' => 'Ongkir harus berupa angka.',
-    'ongkir.min' => 'Ongkir minimal 0.',
-    'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
-    'jum_print.integer' => 'Jumlah cetak harus berupa angka bulat.',
-    'jum_print.min' => 'Jumlah cetak minimal 0.',
-    'details.required' => 'Detail transaksi wajib diisi.',
-    'details.array' => 'Format detail transaksi tidak valid.',
-    'details.min' => 'Minimal harus ada 1 barang dalam transaksi.',
-    'details.*.barang_id.required' => 'Barang wajib dipilih.',
-    'details.*.barang_id.exists' => 'Barang yang dipilih tidak ditemukan.',
-    'details.*.qty.required' => 'Jumlah barang wajib diisi.',
-    'details.*.qty.numeric' => 'Jumlah barang harus berupa angka.',
-    'details.*.qty.min' => 'Jumlah barang minimal 0.01.',
-    'details.*.harga_satuan.required' => 'Harga satuan wajib diisi.',
-    'details.*.harga_satuan.numeric' => 'Harga satuan harus berupa angka.',
-    'details.*.harga_satuan.min' => 'Harga satuan minimal 0.',
-]);
+            'tanggal.required' => 'Tanggal transaksi wajib diisi.',
+            'tanggal.date' => 'Format tanggal tidak valid.',
+            'nomor.required' => 'Nomor transaksi wajib diisi.',
+            'nomor.max' => 'Nomor transaksi maksimal 50 karakter.',
+            'nomor.unique' => 'Nomor transaksi sudah digunakan.',
+            'customer.required' => 'Nama customer wajib diisi.',
+            'customer.max' => 'Nama customer maksimal 255 karakter.',
+            'ongkir.numeric' => 'Ongkir harus berupa angka.',
+            'ongkir.min' => 'Ongkir minimal 0.',
+            'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
+            'jum_print.integer' => 'Jumlah cetak harus berupa angka bulat.',
+            'jum_print.min' => 'Jumlah cetak minimal 0.',
+            'details.required' => 'Detail transaksi wajib diisi.',
+            'details.array' => 'Format detail transaksi tidak valid.',
+            'details.min' => 'Minimal harus ada 1 barang dalam transaksi.',
+            'details.*.barang_id.required' => 'Barang wajib dipilih.',
+            'details.*.barang_id.exists' => 'Barang yang dipilih tidak ditemukan.',
+            'details.*.qty.required' => 'Jumlah barang wajib diisi.',
+            'details.*.qty.numeric' => 'Jumlah barang harus berupa angka.',
+            'details.*.qty.min' => 'Jumlah barang minimal 0.01.',
+            'details.*.harga_satuan.required' => 'Harga satuan wajib diisi.',
+            'details.*.harga_satuan.numeric' => 'Harga satuan harus berupa angka.',
+            'details.*.harga_satuan.min' => 'Harga satuan minimal 0.',
+        ]);
 
         DB::beginTransaction();
         try {
@@ -156,42 +156,41 @@ class TransaksiController extends Controller
     public function update(Request $request, Transaksi $transaksi)
     {
         $request->validate([
-    'tanggal' => 'required|date',
-    'nomor' => 'required|string|max:50|unique:transaksis,nomor,' . $transaksi->id,
-    'customer' => 'required|string|max:255',
-    'ongkir' => 'nullable|numeric|min:0',
-    'keterangan' => 'nullable|string|max:1000',
-    'jum_print' => 'nullable|integer|min:0',
-    'details' => 'required|array|min:1',
-    'details.*.barang_id' => 'required|exists:barangs,id',
-    'details.*.qty' => 'required|numeric|min:0.01',
-    'details.*.harga_satuan' => 'required|numeric|min:0',
-], [
-    'tanggal.required' => 'Tanggal wajib diisi.',
-    'tanggal.date' => 'Format tanggal tidak valid.',
-    'nomor.required' => 'Nomor transaksi wajib diisi.',
-    'nomor.max' => 'Nomor transaksi maksimal 50 karakter.',
-    'nomor.unique' => 'Nomor transaksi sudah digunakan.',
-    'customer.required' => 'Nama customer wajib diisi.',
-    'customer.max' => 'Nama customer maksimal 255 karakter.',
-    'ongkir.numeric' => 'Ongkir harus berupa angka.',
-    'ongkir.min' => 'Ongkir minimal 0.',
-    'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
-    'jum_print.integer' => 'Jumlah print harus berupa bilangan bulat.',
-    'jum_print.min' => 'Jumlah print minimal 0.',
-    'details.required' => 'Detail transaksi wajib diisi.',
-    'details.array' => 'Format detail transaksi tidak valid.',
-    'details.min' => 'Minimal harus ada satu barang.',
-    'details.*.barang_id.required' => 'Barang wajib dipilih.',
-    'details.*.barang_id.exists' => 'Barang tidak ditemukan di database.',
-    'details.*.qty.required' => 'Jumlah barang wajib diisi.',
-    'details.*.qty.numeric' => 'Jumlah barang harus berupa angka.',
-    'details.*.qty.min' => 'Jumlah barang minimal 0.01.',
-    'details.*.harga_satuan.required' => 'Harga satuan wajib diisi.',
-    'details.*.harga_satuan.numeric' => 'Harga satuan harus berupa angka.',
-    'details.*.harga_satuan.min' => 'Harga satuan minimal 0.',
-]);
-
+            'tanggal' => 'required|date',
+            'nomor' => 'required|string|max:50|unique:transaksis,nomor,' . $transaksi->id,
+            'customer' => 'required|string|max:255',
+            'ongkir' => 'nullable|numeric|min:0',
+            'keterangan' => 'nullable|string|max:1000',
+            'jum_print' => 'nullable|integer|min:0',
+            'details' => 'required|array|min:1',
+            'details.*.barang_id' => 'required|exists:barangs,id',
+            'details.*.qty' => 'required|numeric|min:0.01',
+            'details.*.harga_satuan' => 'required|numeric|min:0',
+        ], [
+            'tanggal.required' => 'Tanggal wajib diisi.',
+            'tanggal.date' => 'Format tanggal tidak valid.',
+            'nomor.required' => 'Nomor transaksi wajib diisi.',
+            'nomor.max' => 'Nomor transaksi maksimal 50 karakter.',
+            'nomor.unique' => 'Nomor transaksi sudah digunakan.',
+            'customer.required' => 'Nama customer wajib diisi.',
+            'customer.max' => 'Nama customer maksimal 255 karakter.',
+            'ongkir.numeric' => 'Ongkir harus berupa angka.',
+            'ongkir.min' => 'Ongkir minimal 0.',
+            'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
+            'jum_print.integer' => 'Jumlah print harus berupa bilangan bulat.',
+            'jum_print.min' => 'Jumlah print minimal 0.',
+            'details.required' => 'Detail transaksi wajib diisi.',
+            'details.array' => 'Format detail transaksi tidak valid.',
+            'details.min' => 'Minimal harus ada satu barang.',
+            'details.*.barang_id.required' => 'Barang wajib dipilih.',
+            'details.*.barang_id.exists' => 'Barang tidak ditemukan di database.',
+            'details.*.qty.required' => 'Jumlah barang wajib diisi.',
+            'details.*.qty.numeric' => 'Jumlah barang harus berupa angka.',
+            'details.*.qty.min' => 'Jumlah barang minimal 0.01.',
+            'details.*.harga_satuan.required' => 'Harga satuan wajib diisi.',
+            'details.*.harga_satuan.numeric' => 'Harga satuan harus berupa angka.',
+            'details.*.harga_satuan.min' => 'Harga satuan minimal 0.',
+        ]);
 
         DB::beginTransaction();
         try {
@@ -271,56 +270,67 @@ class TransaksiController extends Controller
         ]);
 
         try {
-            DB::beginTransaction();
-
             $file = $request->file('file');
-            Log::info('🚀 MULAI IMPORT', ['filename' => $file->getClientOriginalName()]);
+            Log::info('🚀 MULAI IMPORT TRANSAKSI', ['filename' => $file->getClientOriginalName()]);
             
             set_time_limit(300);
             ini_set('memory_limit', '512M');
             
-            Excel::import(new TransaksiImport, $file);
-
-            DB::commit();
-
-            $transaksiCount = Transaksi::count();
-            $detailCount = TransaksiDetail::count();
-
-            Log::info('✅ IMPORT SELESAI', [
-                'transaksi' => $transaksiCount,
-                'detail' => $detailCount
-            ]);
-
+            // Create importer instance
+            $importer = new TransaksiImport();
+            
+            // Get Excel data and pass to importer
+            $excelData = Excel::toArray($importer, $file)[0];
+            $collection = collect($excelData);
+            
+            // Process the import
+            $importer->collection($collection);
+            
+            // Get detailed results from importer
+            $importResults = [
+                'total_transaksi' => $importer->getTransaksiCount(),
+                'total_detail' => $importer->getDetailCount(),
+                'berhasil' => $importer->getSuccessCount(),
+                'gagal' => count($importer->getErrors()),
+                'errors' => $importer->getErrors(),
+                'baris_gagal' => $importer->getFailedRows(),
+                'baris_berhasil' => $importer->getSuccessRows()
+            ];
+            
+            Log::info('✅ IMPORT TRANSAKSI SELESAI', $importResults);
+            
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => "🎉 IMPORT SELESAI! {$transaksiCount} transaksi dan {$detailCount} detail barang telah diimport.",
-                    'data' => [
-                        'transaksi_count' => $transaksiCount,
-                        'detail_count' => $detailCount
-                    ]
+                    'message' => 'Import transaksi berhasil diproses!',
+                    'data' => $importResults
                 ]);
             }
 
-            return redirect()->back()->with(
-                'success',
-                "🎉 IMPORT SELESAI! {$transaksiCount} transaksi dan {$detailCount} detail barang telah diimport."
-            );
+            return redirect()->back()->with('success', 'Import transaksi berhasil diproses!');
+            
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('❌ IMPORT GAGAL: ' . $e->getMessage(), [
+            Log::error('❌ IMPORT TRANSAKSI GAGAL: ' . $e->getMessage(), [
                 'file' => $file->getClientOriginalName() ?? 'unknown',
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
+            
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Import gagal: ' . $e->getMessage(),
-                    'error' => $e->getMessage()
+                    'data' => [
+                        'total_transaksi' => 0,
+                        'total_detail' => 0,
+                        'berhasil' => 0,
+                        'gagal' => 1,
+                        'errors' => [$e->getMessage()],
+                        'baris_gagal' => [],
+                        'baris_berhasil' => []
+                    ]
                 ], 422);
             }
 
