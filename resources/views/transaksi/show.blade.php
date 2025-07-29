@@ -102,13 +102,6 @@
                     <!-- Ongkir & Print -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-gray-50 rounded-lg p-4">
-                            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Ongkos Kirim</h4>
-                            <p class="text-lg font-semibold text-purple-600">
-                                <i class="fas fa-truck mr-1"></i>
-                                Rp {{ number_format($transaksi->ongkir ?? 0, 0, '.', '.') }}
-                            </p>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-4">
                             <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Jumlah Print</h4>
                             <p class="text-lg font-semibold text-orange-600">
                                 <i class="fas fa-print mr-1"></i>
@@ -203,14 +196,6 @@
                                             <p class="text-sm font-medium text-gray-900">Rp {{ number_format($detail->harga_satuan ?? 0, 0, '.', '.') }}</p>
                                         </div>
                                     </div>
-
-                                    <!-- Diskon -->
-                                    @if($detail->diskon > 0)
-                                    <div>
-                                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Diskon Item</span>
-                                        <p class="text-sm font-medium text-orange-600">-Rp {{ number_format($detail->diskon, 0, '.', '.') }}</p>
-                                    </div>
-                                    @endif
 
                                     <!-- Keterangan Item -->
                                     @if($detail->keterangan)

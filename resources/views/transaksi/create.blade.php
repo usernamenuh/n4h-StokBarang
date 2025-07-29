@@ -116,29 +116,6 @@
                             @enderror
                         </div>
 
-                        <!-- Ongkos Kirim -->
-                        <div class="space-y-2">
-                            <label for="ongkir" class="block text-sm font-semibold text-gray-700">
-                                Ongkos Kirim
-                            </label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-3 text-gray-500">Rp</span>
-                                @php
-                                    $ongkirValue = old('ongkir', 0);
-                                    $ongkirFormatted = $ongkirValue ? number_format($ongkirValue, 0, ',', '.') : '';
-                                @endphp
-                                <input type="text" 
-                                       name="ongkir_display" 
-                                       id="ongkir_display" 
-                                       class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('ongkir') border-red-500 ring-2 ring-red-200 @enderror" 
-                                       value="{{ $ongkirFormatted }}" 
-                                       placeholder="0">
-                                <input type="hidden" name="ongkir" id="ongkir" value="{{ $ongkirValue }}">
-                            </div>
-                            @error('ongkir')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
 
                         <!-- Jumlah Print -->
                         <div class="space-y-2">
@@ -258,22 +235,6 @@
                                             </div>
 
                                             <!-- Diskon Item -->
-                                            <div class="space-y-1">
-                                                <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
-                                                <div class="relative">
-                                                    <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
-                                                    @php
-                                                        $diskonValue = old("details.$index.discount", $detail['discount'] ?? 0);
-                                                        $diskonFormatted = $diskonValue ? number_format($diskonValue, 0, ',', '.') : '';
-                                                    @endphp
-                                                    <input type="text" 
-                                                           name="details[{{ $index }}][discount_display]" 
-                                                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
-                                                           value="{{ $diskonFormatted }}" 
-                                                           placeholder="0">
-                                                    <input type="hidden" name="details[{{ $index }}][discount]" value="{{ $diskonValue }}">
-                                                </div>
-                                            </div>
 
                                             <!-- Keterangan Item -->
                                             <div class="space-y-1">
@@ -339,17 +300,6 @@
                                         </div>
 
                                         <!-- Diskon Item -->
-                                        <div class="space-y-1">
-                                            <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
-                                            <div class="relative">
-                                                <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
-                                                <input type="text" 
-                                                       name="details[0][discount_display]" 
-                                                       class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
-                                                       placeholder="0">
-                                                <input type="hidden" name="details[0][discount]" value="0">
-                                            </div>
-                                        </div>
 
                                         <!-- Keterangan Item -->
                                         <div class="space-y-1">

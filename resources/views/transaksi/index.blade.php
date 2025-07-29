@@ -190,12 +190,6 @@
                                     Subtotal</th>
                                 <th
                                     class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Diskon</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Ongkir</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Total</th>
                                 <th
                                     class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -225,18 +219,6 @@
                                         <div class="text-sm font-semibold text-blue-600">
                                             <i class="fas fa-rupiah-sign mr-1"></i>
                                             Rp {{ number_format($transaksi->subtotal, 0, '.', '.') }}
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <div class="text-sm font-semibold text-orange-600">
-                                            <i class="fas fa-percentage mr-1"></i>
-                                            Rp {{ number_format($transaksi->diskon, 0, '.', '.') }}
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <div class="text-sm font-semibold text-purple-600">
-                                            <i class="fas fa-truck mr-1"></i>
-                                            Rp {{ number_format($transaksi->ongkir, 0, '.', '.') }}
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
