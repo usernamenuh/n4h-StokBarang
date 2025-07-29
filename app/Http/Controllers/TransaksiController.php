@@ -204,7 +204,6 @@ class TransaksiController extends Controller
 
         DB::beginTransaction();
         try {
-            // Restore stock for old details before deleting them
             foreach ($transaksi->details as $oldDetail) {
                 $oldBarang = Barang::find($oldDetail->barang_id);
                 if ($oldBarang) {
@@ -220,7 +219,6 @@ class TransaksiController extends Controller
             foreach ($request->details as $detail) {
                 $barang = Barang::find($detail['barang_id']);
                 
-                // Validate stock availability for new quantities
                 if ($barang->does_pcs < $detail['qty']) {
                     DB::rollBack();
                     return redirect()->back()->withInput()->with('error', 'Stok barang ' . $barang->nama . ' tidak mencukupi. Stok tersedia: ' . $barang->does_pcs . ', Diminta: ' . $detail['qty']);
@@ -240,8 +238,6 @@ class TransaksiController extends Controller
                     'subtotal' => $itemSubtotal - $itemDiscount,
                     'keterangan' => $detail['keterangan'] ?? null,
                 ]);
-
-                // Decrease stock for new details
                 $barang->decrement('does_pcs', $detail['qty']);
 
                 $totalSubtotal += $itemSubtotal;
@@ -276,7 +272,6 @@ class TransaksiController extends Controller
     {
         DB::beginTransaction();
         try {
-            // Restore stock when deleting a transaction
             foreach ($transaksi->details as $detail) {
                 $barang = Barang::find($detail->barang_id);
                 if ($barang) {
@@ -304,7 +299,7 @@ class TransaksiController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv|max:10240',
         ]);
 
-        $importer = new TransaksiImport(); // Initialize importer here
+        $importer = new TransaksiImport(); 
         try {
             $file = $request->file('file');
             Log::info('🚀 MULAI IMPORT TRANSAKSI', ['filename' => $file->getClientOriginalName()]);
@@ -312,10 +307,8 @@ class TransaksiController extends Controller
             set_time_limit(300);
             ini_set('memory_limit', '512M');
             
-            // Use Excel::import directly to ensure correct Collection of Collections format
             Excel::import($importer, $file);
             
-            // Get detailed results from importer
             $importResults = [
                 'total_transaksi' => $importer->getTransaksiCount(),
                 'total_detail' => $importer->getDetailCount(),
@@ -328,7 +321,6 @@ class TransaksiController extends Controller
             
             Log::info('✅ IMPORT TRANSAKSI SELESAI', $importResults);
             
-            // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
@@ -346,30 +338,24 @@ class TransaksiController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             
-            // Prepare error data for JSON response
             $errors = [];
             $failedRows = [];
             $message = 'Import gagal: ' . $e->getMessage();
 
-            // If importer was instantiated and collected errors, use them
             if ($importer) {
                 $errors = $importer->getErrors();
                 $failedRows = $importer->getFailedRows();
                 if (empty($errors) && empty($failedRows)) {
-                    // Fallback if importer didn't catch specific errors but a general exception occurred
                     $errors[] = $e->getMessage();
                 }
             } else {
-                // This case should ideally not happen if file validation passes,
-                // but as a fallback for unexpected early errors.
                 $errors[] = $e->getMessage();
             }
 
-            // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $message, // Use the more specific message if available
+                    'message' => $message, 
                     'data' => [
                         'total_transaksi' => $importer->getTransaksiCount(),
                         'total_detail' => $importer->getDetailCount(),
@@ -379,7 +365,7 @@ class TransaksiController extends Controller
                         'baris_gagal' => $failedRows,
                         'baris_berhasil' => $importer->getSuccessRows()
                     ]
-                ], 422); // Use 422 Unprocessable Entity for validation/business logic errors
+                ], 422); 
             }
 
             return redirect()->back()

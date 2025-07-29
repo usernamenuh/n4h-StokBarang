@@ -18,9 +18,7 @@ class LaporanController extends Controller
      */
     private function getParetoData(Request $request)
     {
-        $sortBy = $request->query('sort_by', 'value'); // Default to 'value'
-
-        // Ambil data transaksi detail agregat
+        $sortBy = $request->query('sort_by', 'value'); 
         $analisis = DB::table('transaksi_details')
             ->join('transaksis', 'transaksi_details.transaksi_id', '=', 'transaksis.id') // Join dengan tabel transaksis
             ->selectRaw('transaksi_details.barang_id, transaksi_details.nama_barang, SUM(transaksi_details.qty) as total_qty, SUM(transaksi_details.subtotal) as total_nilai')
@@ -28,19 +26,15 @@ class LaporanController extends Controller
             ->orderByDesc($sortBy === 'quantity' ? 'total_qty' : 'total_nilai')
             ->get();
 
-        // Tentukan basis total untuk perhitungan persentase
         $totalSumOfBasis = $sortBy === 'quantity' ? $analisis->sum('total_qty') : $analisis->sum('total_nilai');
         $akumulasi = 0;
 
         foreach ($analisis as $item) {
-            // Tentukan nilai basis untuk item saat ini
             $itemBasis = $sortBy === 'quantity' ? $item->total_qty : $item->total_nilai;
 
-            // Hitung persentase
             $persentase = $totalSumOfBasis > 0 ? ($itemBasis / $totalSumOfBasis) * 100 : 0;
             $akumulasi += $persentase;
 
-            // Tentukan kategori
             if ($akumulasi <= 80) {
                 $kategori = 'A';
             } elseif ($akumulasi <= 95) {
@@ -52,12 +46,11 @@ class LaporanController extends Controller
             $item->persentase = round($persentase, 2);
             $item->kategori = $kategori;
 
-            // Ambil stok saat ini dari tabel barangs
             $barang = Barang::where('id', $item->barang_id)->first();
             $item->stok_saat_ini = $barang ? $barang->does_pcs : 0;
         }
 
-        return [$analisis, $totalSumOfBasis]; // Return totalSumOfBasis instead of totalNilaiSemua
+        return [$analisis, $totalSumOfBasis];
     }
 
     /**
@@ -66,10 +59,7 @@ class LaporanController extends Controller
     public function analisisPareto(Request $request)
     {
         [$analisis, $totalSumOfBasis] = $this->getParetoData($request);
-
-        // Ambil periode sekarang (misal: tahun-bulan)
         $periode = $request->query('periode', date('Y-m'));
-
         return view('laporan.pareto', compact('analisis', 'totalSumOfBasis'));
     }
 
@@ -78,7 +68,7 @@ class LaporanController extends Controller
      */
     public function exportPareto(Request $request)
     {
-        $sortBy = $request->query('sort_by', 'value'); // Default to 'value'
+        $sortBy = $request->query('sort_by', 'value'); 
 
         $analisis = DB::table('transaksi_details')
             ->join('transaksis', 'transaksi_details.transaksi_id', '=', 'transaksis.id') // Join dengan tabel transaksis
