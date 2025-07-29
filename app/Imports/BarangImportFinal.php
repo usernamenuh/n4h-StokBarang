@@ -150,7 +150,7 @@ class BarangImportFinal implements ToArray, WithHeadingRow
                 $barangData = [
                     'kode' => $kode,
                     'nama' => $nama,
-                    'does_pcs' => 100,
+                    'does_pcs' => 100, // Mengatur stok awal menjadi 100 saat import barang
                     'golongan' => trim($row['golongan'] ?? 'GENERAL'),
                     'hbeli' => $hbeli, // Disimpan sebagai integer (contoh: 50000 untuk Rp50.000)
                     'user_id' => $userId,

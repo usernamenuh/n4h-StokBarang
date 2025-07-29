@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ParetoExport;
 use Illuminate\Support\Facades\DB;
 use App\Models\ParetoAnalisis;
+use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
@@ -21,8 +22,9 @@ class LaporanController extends Controller
 
         // Ambil data transaksi detail agregat
         $analisis = DB::table('transaksi_details')
-            ->selectRaw('barang_id, nama_barang, SUM(qty) as total_qty, SUM(subtotal) as total_nilai')
-            ->groupBy('barang_id', 'nama_barang')
+            ->join('transaksis', 'transaksi_details.transaksi_id', '=', 'transaksis.id') // Join dengan tabel transaksis
+            ->selectRaw('transaksi_details.barang_id, transaksi_details.nama_barang, SUM(transaksi_details.qty) as total_qty, SUM(transaksi_details.subtotal) as total_nilai')
+            ->groupBy('transaksi_details.barang_id', 'transaksi_details.nama_barang')
             ->orderByDesc($sortBy === 'quantity' ? 'total_qty' : 'total_nilai')
             ->get();
 
@@ -66,7 +68,7 @@ class LaporanController extends Controller
         [$analisis, $totalSumOfBasis] = $this->getParetoData($request);
 
         // Ambil periode sekarang (misal: tahun-bulan)
-        $periode = date('Y-m');
+        $periode = $request->query('periode', date('Y-m'));
 
         return view('laporan.pareto', compact('analisis', 'totalSumOfBasis'));
     }
@@ -77,9 +79,11 @@ class LaporanController extends Controller
     public function exportPareto(Request $request)
     {
         $sortBy = $request->query('sort_by', 'value'); // Default to 'value'
+
         $analisis = DB::table('transaksi_details')
-            ->selectRaw('barang_id, nama_barang, SUM(qty) as total_qty, SUM(subtotal) as total_nilai')
-            ->groupBy('barang_id', 'nama_barang')
+            ->join('transaksis', 'transaksi_details.transaksi_id', '=', 'transaksis.id') // Join dengan tabel transaksis
+            ->selectRaw('transaksi_details.barang_id, transaksi_details.nama_barang, SUM(transaksi_details.qty) as total_qty, SUM(transaksi_details.subtotal) as total_nilai')
+            ->groupBy('transaksi_details.barang_id', 'transaksi_details.nama_barang')
             ->orderByDesc($sortBy === 'quantity' ? 'total_qty' : 'total_nilai')
             ->get();
 

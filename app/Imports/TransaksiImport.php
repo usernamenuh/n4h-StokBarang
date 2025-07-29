@@ -170,21 +170,31 @@ class TransaksiImport implements ToCollection
             throw new \Exception("Harga satuan tidak boleh negatif");
         }
 
-        // Cari barang
-        $barang = $this->findBarang($namaBarangExcel, $barangCache);
+        // Cari barang (menggunakan cache untuk pencarian awal)
+        $barangFromCache = $this->findBarang($namaBarangExcel, $barangCache);
 
-        if (!$barang) {
-            // Skip jika barang tidak ditemukan, jangan error
+        if (!$barangFromCache) {
             Log::warning("Barang tidak ditemukan, dilewati", ['nama' => $namaBarangExcel]);
             return;
         }
 
+        // Ambil ulang (re-fetch) barang dari database untuk memastikan nilai stok terbaru
+        $barang = Barang::find($barangFromCache->id);
+
+        if (!$barang) {
+            // Ini seharusnya tidak terjadi jika barangFromCache ditemukan, tapi sebagai pengaman
+            throw new \Exception("Barang dengan ID '{$barangFromCache->id}' tidak ditemukan di database saat update stok.");
+        }
+
+        // Validasi ketersediaan stok sebelum mengurangi
+        if ($barang->does_pcs < $qty) {
+            throw new \Exception("Stok barang '{$barang->nama}' tidak mencukupi. Stok tersedia: {$barang->does_pcs}, Diminta: {$qty}");
+        }
+
         $subtotalDetail = $qty * $hargaSatuan;
 
-        // Update stok barang
-        $stokLama = $barang->does_pcs;
-        $stokBaru = max($stokLama - $qty, 0);
-        Barang::where('id', $barang->id)->update(['does_pcs' => $stokBaru]);
+        // Kurangi stok barang menggunakan metode decrement untuk atomicity
+        $barang->decrement('does_pcs', $qty);
 
         // Simpan detail transaksi
         TransaksiDetail::create([

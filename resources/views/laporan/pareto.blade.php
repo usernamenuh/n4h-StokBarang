@@ -20,18 +20,7 @@
             </h3>
             
             <form method="GET" action="{{ route('laporan.pareto') }}" class="flex flex-wrap items-end gap-4">
-                <div class="flex-1 min-w-48">
-                    <label for="periode" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-calendar mr-2"></i>Periode
-                    </label>
-                    <input 
-                        type="month" 
-                        name="periode" 
-                        id="periode"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" 
-                        value="{{ request('periode', date('Y-m')) }}"
-                    >
-                </div>
+                
                 
                 <div class="flex-1 min-w-48">
                     <label for="sort_by" class="block text-sm font-medium text-gray-700 mb-2">
@@ -56,7 +45,7 @@
                     </button>
                     
                     <a 
-                        href="{{ route('laporan.pareto.export', ['periode' => request('periode'), 'sort_by' => request('sort_by')]) }}" 
+                        href="{{ route('laporan.pareto.export', ['sort_by' => request('sort_by')]) }}" 
                         class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center text-decoration-none"
                     >
                         <i class="fas fa-file-excel mr-2"></i>Export Excel
@@ -292,16 +281,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    // Auto-set current month if no period selected
-    document.addEventListener('DOMContentLoaded', function() {
-        const periodeInput = document.getElementById('periode');
-        if (!periodeInput.value) {
-            const now = new Date();
-            const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-            periodeInput.value = currentMonth;
-        }
-    });
-</script>
-@endsection
