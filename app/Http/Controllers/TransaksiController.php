@@ -97,6 +97,13 @@ class TransaksiController extends Controller
 
             foreach ($request->details as $detail) {
                 $barang = Barang::find($detail['barang_id']);
+                
+                // Validate stock availability
+                if ($barang->does_pcs < $detail['qty']) {
+                    DB::rollBack();
+                    return redirect()->back()->withInput()->with('error', 'Stok barang ' . $barang->nama . ' tidak mencukupi. Stok tersedia: ' . $barang->does_pcs . ', Diminta: ' . $detail['qty']);
+                }
+
                 $itemSubtotal = $detail['qty'] * $detail['harga_satuan'];
                 $itemDiscount = $detail['discount'] ?? 0;
 
@@ -111,6 +118,9 @@ class TransaksiController extends Controller
                     'subtotal' => $itemSubtotal - $itemDiscount,
                     'keterangan' => $detail['keterangan'] ?? null,
                 ]);
+
+                // Decrease stock
+                $barang->decrement('does_pcs', $detail['qty']);
 
                 $totalSubtotal += $itemSubtotal;
                 $totalDiskon += $itemDiscount;
@@ -194,6 +204,14 @@ class TransaksiController extends Controller
 
         DB::beginTransaction();
         try {
+            // Restore stock for old details before deleting them
+            foreach ($transaksi->details as $oldDetail) {
+                $oldBarang = Barang::find($oldDetail->barang_id);
+                if ($oldBarang) {
+                    $oldBarang->increment('does_pcs', $oldDetail->qty);
+                }
+            }
+
             $transaksi->details()->delete();
 
             $totalSubtotal = 0;
@@ -201,6 +219,13 @@ class TransaksiController extends Controller
 
             foreach ($request->details as $detail) {
                 $barang = Barang::find($detail['barang_id']);
+                
+                // Validate stock availability for new quantities
+                if ($barang->does_pcs < $detail['qty']) {
+                    DB::rollBack();
+                    return redirect()->back()->withInput()->with('error', 'Stok barang ' . $barang->nama . ' tidak mencukupi. Stok tersedia: ' . $barang->does_pcs . ', Diminta: ' . $detail['qty']);
+                }
+
                 $itemSubtotal = $detail['qty'] * $detail['harga_satuan'];
                 $itemDiscount = $detail['discount'] ?? 0;
 
@@ -215,6 +240,9 @@ class TransaksiController extends Controller
                     'subtotal' => $itemSubtotal - $itemDiscount,
                     'keterangan' => $detail['keterangan'] ?? null,
                 ]);
+
+                // Decrease stock for new details
+                $barang->decrement('does_pcs', $detail['qty']);
 
                 $totalSubtotal += $itemSubtotal;
                 $totalDiskon += $itemDiscount;
@@ -248,6 +276,13 @@ class TransaksiController extends Controller
     {
         DB::beginTransaction();
         try {
+            // Restore stock when deleting a transaction
+            foreach ($transaksi->details as $detail) {
+                $barang = Barang::find($detail->barang_id);
+                if ($barang) {
+                    $barang->increment('does_pcs', $detail->qty);
+                }
+            }
             $transaksi->details()->delete();
             $transaksi->delete();
             DB::commit();
