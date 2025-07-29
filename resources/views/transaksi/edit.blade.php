@@ -138,7 +138,43 @@
                         </div>
 
                         <!-- Ongkos Kirim -->
+                        <div class="space-y-2">
+                            <label for="ongkir" class="block text-sm font-semibold text-gray-700">
+                                Ongkos Kirim
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-gray-500">Rp</span>
+                                @php
+                                    $ongkirValue = old('ongkir', $transaksi->ongkir);
+                                    $ongkirFormatted = $ongkirValue ? number_format($ongkirValue, 0, ',', '.') : '';
+                                @endphp
+                                <input type="text" 
+                                       name="ongkir_display" 
+                                       id="ongkir_display" 
+                                       class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 @error('ongkir') border-red-500 ring-2 ring-red-200 @enderror" 
+                                       value="{{ $ongkirFormatted }}" 
+                                       placeholder="0">
+                                <input type="hidden" name="ongkir" id="ongkir" value="{{ $ongkirValue }}">
+                            </div>
+                            @error('ongkir')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
+                        <!-- Total Diskon Transaksi (Read-only) -->
+                        <div class="space-y-2">
+                            <label for="total_diskon_transaksi" class="block text-sm font-semibold text-gray-700">
+                                Total Diskon Transaksi
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-gray-500">Rp</span>
+                                <input type="text" 
+                                       id="total_diskon_transaksi" 
+                                       class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed text-gray-700" 
+                                       value="{{ number_format($transaksi->diskon, 0, ',', '.') }}" 
+                                       readonly>
+                            </div>
+                        </div>
 
                         <!-- Jumlah Print -->
                         <div class="space-y-2">
@@ -257,7 +293,22 @@
                                             </div>
 
                                             <!-- Diskon Item -->
-
+                                            <div class="space-y-1">
+                                                <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
+                                                <div class="relative">
+                                                    <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                                                    @php
+                                                        $diskonValue = old("details.$index.diskon", (float)($detail['diskon'] ?? 0));
+                                                        $diskonFormatted = $diskonValue ? number_format($diskonValue, 0, ',', '.') : '';
+                                                    @endphp
+                                                    <input type="text" 
+                                                           name="details[{{ $index }}][diskon_display]" 
+                                                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                                                           value="{{ $diskonFormatted }}" 
+                                                           placeholder="0">
+                                                    <input type="hidden" name="details[{{ $index }}][diskon]" value="{{ $diskonValue }}">
+                                                </div>
+                                            </div>
 
                                             <!-- Keterangan Item -->
                                             <div class="space-y-1">
@@ -330,6 +381,21 @@
                                             </div>
 
                                             <!-- Diskon Item -->
+                                            <div class="space-y-1">
+                                                <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
+                                                <div class="relative">
+                                                    <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                                                    @php
+                                                        $diskonFormatted = ((float)($detail->diskon ?? 0)) ? number_format((float)$detail->diskon, 0, ',', '.') : '';
+                                                    @endphp
+                                                    <input type="text" 
+                                                           name="details[{{ $index }}][diskon_display]" 
+                                                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                                                           value="{{ $diskonFormatted }}" 
+                                                           placeholder="0">
+                                                    <input type="hidden" name="details[{{ $index }}][diskon]" value="{{ (float)($detail->diskon ?? 0) }}">
+                                                </div>
+                                            </div>
 
                                             <!-- Keterangan Item -->
                                             <div class="space-y-1">
@@ -480,6 +546,17 @@ document.getElementById('add-detail-row').addEventListener('click', function() {
             </div>
 
             <!-- Diskon Item -->
+            <div class="space-y-1">
+                <label class="block text-xs font-medium text-gray-700">Diskon Item</label>
+                <div class="relative">
+                    <span class="absolute left-2 top-2 text-gray-500 text-xs">Rp</span>
+                    <input type="text" 
+                           name="details[${detailIndex}][diskon_display]" 
+                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-sm price-input" 
+                           placeholder="0">
+                    <input type="hidden" name="details[${detailIndex}][diskon]" value="0">
+                </div>
+            </div>
 
             <!-- Keterangan Item -->
             <div class="space-y-1">

@@ -102,6 +102,13 @@
                     <!-- Ongkir & Print -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Ongkos Kirim</h4>
+                            <p class="text-lg font-semibold text-purple-600">
+                                <i class="fas fa-truck mr-1"></i>
+                                Rp {{ number_format($transaksi->ongkir ?? 0, 0, '.', '.') }}
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
                             <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Jumlah Print</h4>
                             <p class="text-lg font-semibold text-orange-600">
                                 <i class="fas fa-print mr-1"></i>
@@ -173,7 +180,7 @@
                                 <div class="flex items-center justify-between mb-3">
                                     <h4 class="text-sm font-medium text-gray-700">Item #{{ $index + 1 }}</h4>
                                     <span class="text-sm font-semibold text-green-600">
-                                        Rp {{ number_format($detail->total_item ?? 0, 0, '.', '.') }}
+                                        Rp {{ number_format($detail->subtotal ?? 0, 0, '.', '.') }}
                                     </span>
                                 </div>
                                 
@@ -197,11 +204,19 @@
                                         </div>
                                     </div>
 
+                                    <!-- Diskon -->
+                                    @if(($detail->diskon ?? 0) > 0)
+                                    <div>
+                                        <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Diskon Item</span>
+                                        <p class="text-sm font-medium text-orange-600">-Rp {{ number_format($detail->diskon, 0, '.', '.') }}</p>
+                                    </div>
+                                    @endif
+
                                     <!-- Keterangan Item -->
                                     @if($detail->keterangan)
                                     <div>
                                         <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Keterangan</span>
-                                        <p class="text-sm text-gray-700">{{ $detail->keterangan_item }}</p>
+                                        <p class="text-sm text-gray-700">{{ $detail->keterangan }}</p>
                                     </div>
                                     @endif
                                 </div>
@@ -224,13 +239,19 @@
                                 <span class="font-medium text-gray-700">Subtotal:</span>
                                 <span class="font-semibold text-gray-900">Rp {{ number_format($transaksi->subtotal ?? 0, 0, '.', '.') }}</span>
                             </div>
+                            @if(($transaksi->diskon ?? 0) > 0)
+                            <div class="flex justify-between text-sm">
+                                <span class="font-medium text-gray-700">Diskon Transaksi:</span>
+                                <span class="font-semibold text-red-600">-Rp {{ number_format($transaksi->diskon, 0, '.', '.') }}</span>
+                            </div>
+                            @endif
                             <div class="flex justify-between text-sm">
                                 <span class="font-medium text-gray-700">Ongkir:</span>
                                 <span class="font-semibold text-gray-900">Rp {{ number_format($transaksi->ongkir ?? 0, 0, '.', '.') }}</span>
                             </div>
                             <div class="flex justify-between text-lg border-t border-blue-300 pt-2">
                                 <span class="font-bold text-gray-900">Total:</span>
-                                <span class="font-bold text-blue-600">Rp {{ number_format(($transaksi->subtotal ?? 0) + ($transaksi->ongkir ?? 0), 0, '.', '.') }}</span>
+                                <span class="font-bold text-blue-600">Rp {{ number_format(($transaksi->subtotal ?? 0) - ($transaksi->diskon ?? 0) + ($transaksi->ongkir ?? 0), 0, '.', '.') }}</span>
                             </div>
                         </div>
                     </div>

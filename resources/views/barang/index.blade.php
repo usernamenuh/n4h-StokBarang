@@ -153,6 +153,15 @@
                             <option value="{{ $kategori }}">{{ $kategori }}</option>
                         @endforeach
                     </select>
+
+                    <!-- Filter by Stock Level -->
+                    <select id="stockFilter"
+                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua Stok</option>
+                        <option value="low">Stok Rendah (&lt; 10)</option>
+                        <option value="medium">Stok Sedang (10-49)</option>
+                        <option value="high">Stok Banyak (&ge; 50)</option>
+                    </select>
                 </div>
             </div>
 
@@ -255,7 +264,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-semibold text-green-600">
                                             <i class="fas fa-rupiah-sign mr-1"></i>
-                                            Rp {{ number_format($barang->hbeli, 0, '.', '.') }}
+                                            {{ number_format($barang->hbeli, 0, '.', '.') }}
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -651,11 +660,13 @@
                 // Search functionality
                 const searchInput = document.getElementById('searchInput');
                 const categoryFilter = document.getElementById('categoryFilter');
+                const stockFilter = document.getElementById('stockFilter'); // New stock filter
                 const tableRows = document.querySelectorAll('#barang-table tbody tr');
 
                 function filterTable() {
                     const searchTerm = searchInput.value.toLowerCase();
                     const selectedCategory = categoryFilter.value.toLowerCase();
+                    const selectedStock = stockFilter.value; // Get selected stock filter value
 
                     tableRows.forEach(row => {
                         if (row.cells.length === 1) return; // Skip empty state row
@@ -663,11 +674,21 @@
                         const nama = row.cells[2].textContent.toLowerCase();
                         const kode = row.cells[1].textContent.toLowerCase();
                         const kategori = row.cells[4].textContent.toLowerCase();
+                        const stockPcs = parseInt(row.cells[3].querySelector('span').textContent.trim()); // Get stock value
 
                         const matchesSearch = nama.includes(searchTerm) || kode.includes(searchTerm);
                         const matchesCategory = selectedCategory === '' || kategori.includes(selectedCategory);
+                        
+                        let matchesStock = true;
+                        if (selectedStock === 'low') {
+                            matchesStock = stockPcs < 10;
+                        } else if (selectedStock === 'medium') {
+                            matchesStock = stockPcs >= 10 && stockPcs < 50;
+                        } else if (selectedStock === 'high') {
+                            matchesStock = stockPcs >= 50;
+                        }
 
-                        if (matchesSearch && matchesCategory) {
+                        if (matchesSearch && matchesCategory && matchesStock) {
                             row.style.display = '';
                         } else {
                             row.style.display = 'none';
@@ -677,6 +698,7 @@
 
                 searchInput.addEventListener('input', filterTable);
                 categoryFilter.addEventListener('change', filterTable);
+                stockFilter.addEventListener('change', filterTable); // Add event listener for stock filter
 
                 // File input handling
                 const fileInput = document.getElementById('fileInput');

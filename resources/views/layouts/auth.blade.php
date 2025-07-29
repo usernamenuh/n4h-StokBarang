@@ -554,7 +554,6 @@
     </main>
     
     <script>
-        // Enhanced 3D Tilt Effect
         function addTiltEffect() {
             const card = document.querySelector('.glass-card');
             if (!card) return;
@@ -567,7 +566,6 @@
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
                 
-                // Enhanced rotation range for more pronounced 3D effect
                 const rotateX = (y - centerY) / 30; // Increased from 50 to 30
                 const rotateY = (centerX - x) / 30; // Increased from 50 to 30
                 

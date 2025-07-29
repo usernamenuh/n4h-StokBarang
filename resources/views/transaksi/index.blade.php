@@ -218,13 +218,13 @@
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="text-sm font-semibold text-blue-600">
                                             <i class="fas fa-rupiah-sign mr-1"></i>
-                                            Rp {{ number_format($transaksi->subtotal, 0, '.', '.') }}
+                                            {{ number_format($transaksi->subtotal, 0, '.', '.') }}
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="text-sm font-bold text-green-600">
                                             <i class="fas fa-rupiah-sign mr-1"></i>
-                                            Rp {{ number_format($transaksi->total, 0, '.', '.') }}
+                                            {{ number_format($transaksi->total, 0, '.', '.') }}
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">

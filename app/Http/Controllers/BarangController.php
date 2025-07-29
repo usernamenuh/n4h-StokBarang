@@ -31,6 +31,21 @@ class BarangController extends Controller
             $query->where('golongan', $request->golongan);
         }
 
+        // Filter by stock level
+        if ($request->filled('stock_filter')) {
+            switch ($request->stock_filter) {
+                case 'low':
+                    $query->where('does_pcs', '<', 10);
+                    break;
+                case 'medium':
+                    $query->whereBetween('does_pcs', [10, 49]);
+                    break;
+                case 'high':
+                    $query->where('does_pcs', '>=', 50);
+                    break;
+            }
+        }
+
         // Filter by user
         if ($request->filled('user_filter')) {
             $query->where('user_id', $request->user_filter);
@@ -76,8 +91,6 @@ class BarangController extends Controller
             'user_id.exists' => 'User yang dipilih tidak valid.',
             'keterangan.max' => 'Keterangan maksimal 1000 karakter.',
         ]);
-
-
 
         Barang::create([
             'kode' => $request->kode,

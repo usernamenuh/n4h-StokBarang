@@ -51,6 +51,7 @@ class TransaksiController extends Controller
             'details.*.barang_id' => 'required|exists:barangs,id',
             'details.*.qty' => 'required|numeric|min:0.01',
             'details.*.harga_satuan' => 'required|numeric|min:0',
+            'details.*.diskon' => 'nullable|numeric|min:0',
         ], [
             'tanggal.required' => 'Tanggal transaksi wajib diisi.',
             'tanggal.date' => 'Format tanggal tidak valid.',
@@ -75,6 +76,8 @@ class TransaksiController extends Controller
             'details.*.harga_satuan.required' => 'Harga satuan wajib diisi.',
             'details.*.harga_satuan.numeric' => 'Harga satuan harus berupa angka.',
             'details.*.harga_satuan.min' => 'Harga satuan minimal 0.',
+            'details.*.diskon.numeric' => 'Diskon item harus berupa angka.',
+            'details.*.diskon.min' => 'Diskon item minimal 0.',
         ]);
 
         DB::beginTransaction();
@@ -105,7 +108,7 @@ class TransaksiController extends Controller
                 }
 
                 $itemSubtotal = $detail['qty'] * $detail['harga_satuan'];
-                $itemDiscount = $detail['discount'] ?? 0;
+                $itemdiskon = $detail['diskon'] ?? 0;
 
                 TransaksiDetail::create([
                     'transaksi_id' => $transaksi->id,
@@ -114,8 +117,8 @@ class TransaksiController extends Controller
                     'nama_barang' => $barang->nama,
                     'qty' => $detail['qty'],
                     'harga_satuan' => $detail['harga_satuan'],
-                    'discount' => $itemDiscount,
-                    'subtotal' => $itemSubtotal - $itemDiscount,
+                    'diskon' => $itemdiskon,
+                    'subtotal' => $itemSubtotal - $itemdiskon,
                     'keterangan' => $detail['keterangan'] ?? null,
                 ]);
 
@@ -123,7 +126,7 @@ class TransaksiController extends Controller
                 $barang->decrement('does_pcs', $detail['qty']);
 
                 $totalSubtotal += $itemSubtotal;
-                $totalDiskon += $itemDiscount;
+                $totalDiskon += $itemdiskon;
             }
 
             $transaksi->update([
@@ -176,6 +179,7 @@ class TransaksiController extends Controller
             'details.*.barang_id' => 'required|exists:barangs,id',
             'details.*.qty' => 'required|numeric|min:0.01',
             'details.*.harga_satuan' => 'required|numeric|min:0',
+            'details.*.diskon' => 'nullable|numeric|min:0',
         ], [
             'tanggal.required' => 'Tanggal wajib diisi.',
             'tanggal.date' => 'Format tanggal tidak valid.',
@@ -200,6 +204,8 @@ class TransaksiController extends Controller
             'details.*.harga_satuan.required' => 'Harga satuan wajib diisi.',
             'details.*.harga_satuan.numeric' => 'Harga satuan harus berupa angka.',
             'details.*.harga_satuan.min' => 'Harga satuan minimal 0.',
+            'details.*.diskon.numeric' => 'Diskon item harus berupa angka.',
+            'details.*.diskon.min' => 'Diskon item minimal 0.',
         ]);
 
         DB::beginTransaction();
@@ -225,7 +231,7 @@ class TransaksiController extends Controller
                 }
 
                 $itemSubtotal = $detail['qty'] * $detail['harga_satuan'];
-                $itemDiscount = $detail['discount'] ?? 0;
+                $itemdiskon = $detail['diskon'] ?? 0;
 
                 TransaksiDetail::create([
                     'transaksi_id' => $transaksi->id,
@@ -234,14 +240,14 @@ class TransaksiController extends Controller
                     'nama_barang' => $barang->nama,
                     'qty' => $detail['qty'],
                     'harga_satuan' => $detail['harga_satuan'],
-                    'discount' => $itemDiscount,
-                    'subtotal' => $itemSubtotal - $itemDiscount,
+                    'diskon' => $itemdiskon,
+                    'subtotal' => $itemSubtotal - $itemdiskon,
                     'keterangan' => $detail['keterangan'] ?? null,
                 ]);
                 $barang->decrement('does_pcs', $detail['qty']);
 
                 $totalSubtotal += $itemSubtotal;
-                $totalDiskon += $itemDiscount;
+                $totalDiskon += $itemdiskon;
             }
 
             $transaksi->update([
@@ -284,6 +290,7 @@ class TransaksiController extends Controller
             return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dihapus!');
         } catch (\Exception $e) {
             DB::rollBack();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             return redirect()->back()->with('error', 'Gagal menghapus transaksi: ' . $e->getMessage());
         }
     }
