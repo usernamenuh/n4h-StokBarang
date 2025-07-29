@@ -716,10 +716,17 @@
                         }
                     })
                     .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
+                        // Always try to parse JSON, even if response is not ok
+                        return response.json().then(json => {
+                            if (!response.ok) {
+                                // If response is not ok, throw the JSON data as an error
+                                const error = new Error(json.message || `HTTP error! status: ${response.status}`);
+                                error.data = json.data; // Attach the detailed data
+                                error.success = json.success; // Attach success status
+                                throw error;
+                            }
+                            return json; // If response is ok, return the JSON
+                        });
                     })
                     .then(data => {
                         clearInterval(progressInterval);
@@ -734,8 +741,15 @@
                     .catch(error => {
                         clearInterval(progressInterval);
                         console.error('Import error:', error);
-                        showNotification('error', 'Terjadi kesalahan saat import!');
-                        resetImportForm();
+                        
+                        // Check if the error has detailed data from the server
+                        if (error.data) {
+                            closeImportModal();
+                            showImportResults(error); // Pass the error object directly
+                        } else {
+                            showNotification('error', error.message || 'Terjadi kesalahan saat import!');
+                            resetImportForm();
+                        }
                     });
             });
         });
@@ -780,7 +794,8 @@
 
         // Import Results Modal Functions for Transaksi
         function showImportResults(response) {
-            const data = response.data;
+            // Access data from response.data if it's a success, or from response.data if it's an error object
+            const data = response.data || response; // Handle both success and error object structures
             
             // Update summary stats
             document.getElementById('totalTransaksiCount').textContent = data.total_transaksi || 0;
@@ -834,7 +849,7 @@
             document.getElementById('importResultsModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
 
-            // Show success message
+            // Show success/error notification based on the actual success status
             if (response.success) {
                 showNotification('success', response.message || 'Import berhasil diproses!');
             } else {

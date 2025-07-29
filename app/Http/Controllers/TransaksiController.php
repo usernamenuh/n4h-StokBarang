@@ -304,6 +304,7 @@ class TransaksiController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv|max:10240',
         ]);
 
+        $importer = new TransaksiImport(); // Initialize importer here
         try {
             $file = $request->file('file');
             Log::info('🚀 MULAI IMPORT TRANSAKSI', ['filename' => $file->getClientOriginalName()]);
@@ -311,15 +312,8 @@ class TransaksiController extends Controller
             set_time_limit(300);
             ini_set('memory_limit', '512M');
             
-            // Create importer instance
-            $importer = new TransaksiImport();
-            
-            // Get Excel data and pass to importer
-            $excelData = Excel::toArray($importer, $file)[0];
-            $collection = collect($excelData);
-            
-            // Process the import
-            $importer->collection($collection);
+            // Use Excel::import directly to ensure correct Collection of Collections format
+            Excel::import($importer, $file);
             
             // Get detailed results from importer
             $importResults = [
@@ -352,21 +346,40 @@ class TransaksiController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             
+            // Prepare error data for JSON response
+            $errors = [];
+            $failedRows = [];
+            $message = 'Import gagal: ' . $e->getMessage();
+
+            // If importer was instantiated and collected errors, use them
+            if ($importer) {
+                $errors = $importer->getErrors();
+                $failedRows = $importer->getFailedRows();
+                if (empty($errors) && empty($failedRows)) {
+                    // Fallback if importer didn't catch specific errors but a general exception occurred
+                    $errors[] = $e->getMessage();
+                }
+            } else {
+                // This case should ideally not happen if file validation passes,
+                // but as a fallback for unexpected early errors.
+                $errors[] = $e->getMessage();
+            }
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Import gagal: ' . $e->getMessage(),
+                    'message' => $message, // Use the more specific message if available
                     'data' => [
-                        'total_transaksi' => 0,
-                        'total_detail' => 0,
-                        'berhasil' => 0,
-                        'gagal' => 1,
-                        'errors' => [$e->getMessage()],
-                        'baris_gagal' => [],
-                        'baris_berhasil' => []
+                        'total_transaksi' => $importer->getTransaksiCount(),
+                        'total_detail' => $importer->getDetailCount(),
+                        'berhasil' => $importer->getSuccessCount(),
+                        'gagal' => count($errors), // Count of errors
+                        'errors' => $errors,
+                        'baris_gagal' => $failedRows,
+                        'baris_berhasil' => $importer->getSuccessRows()
                     ]
-                ], 422);
+                ], 422); // Use 422 Unprocessable Entity for validation/business logic errors
             }
 
             return redirect()->back()
