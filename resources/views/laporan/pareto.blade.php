@@ -33,6 +33,20 @@
                     >
                 </div>
                 
+                <div class="flex-1 min-w-48">
+                    <label for="sort_by" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-sort mr-2"></i>Urutkan Berdasarkan
+                    </label>
+                    <select 
+                        name="sort_by" 
+                        id="sort_by"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition-colors" 
+                    >
+                        <option value="value" {{ request('sort_by', 'value') == 'value' ? 'selected' : '' }}>Total Nilai</option>
+                        <option value="quantity" {{ request('sort_by') == 'quantity' ? 'selected' : '' }}>Total Kuantitas</option>
+                    </select>
+                </div>
+
                 <div class="flex gap-3">
                     <button 
                         type="submit"
@@ -42,7 +56,7 @@
                     </button>
                     
                     <a 
-                        href="{{ route('laporan.pareto.export', ['periode' => request('periode')]) }}" 
+                        href="{{ route('laporan.pareto.export', ['periode' => request('periode'), 'sort_by' => request('sort_by')]) }}" 
                         class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center text-decoration-none"
                     >
                         <i class="fas fa-file-excel mr-2"></i>Export Excel
@@ -73,7 +87,17 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-600">Kontribusi:</span>
-                        <span class="font-medium text-red-600">~80%</span>
+                        <span class="font-medium text-red-600">
+                            @php
+                                $totalA = 0;
+                                if (request('sort_by', 'value') == 'quantity') {
+                                    $totalA = $analisis->where('kategori', 'A')->sum('total_qty');
+                                } else {
+                                    $totalA = $analisis->where('kategori', 'A')->sum('total_nilai');
+                                }
+                                echo $totalSumOfBasis > 0 ? '~' . round(($totalA / $totalSumOfBasis) * 100) . '%' : '0%';
+                            @endphp
+                        </span>
                     </div>
                 </div>
             </div>
@@ -98,7 +122,17 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-600">Kontribusi:</span>
-                        <span class="font-medium text-yellow-600">~15%</span>
+                        <span class="font-medium text-yellow-600">
+                            @php
+                                $totalB = 0;
+                                if (request('sort_by', 'value') == 'quantity') {
+                                    $totalB = $analisis->where('kategori', 'B')->sum('total_qty');
+                                } else {
+                                    $totalB = $analisis->where('kategori', 'B')->sum('total_nilai');
+                                }
+                                echo $totalSumOfBasis > 0 ? '~' . round(($totalB / $totalSumOfBasis) * 100) . '%' : '0%';
+                            @endphp
+                        </span>
                     </div>
                 </div>
             </div>
@@ -123,7 +157,17 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-600">Kontribusi:</span>
-                        <span class="font-medium text-green-600">~5%</span>
+                        <span class="font-medium text-green-600">
+                            @php
+                                $totalC = 0;
+                                if (request('sort_by', 'value') == 'quantity') {
+                                    $totalC = $analisis->where('kategori', 'C')->sum('total_qty');
+                                } else {
+                                    $totalC = $analisis->where('kategori', 'C')->sum('total_nilai');
+                                }
+                                echo $totalSumOfBasis > 0 ? '~' . round(($totalC / $totalSumOfBasis) * 100) . '%' : '0%';
+                            @endphp
+                        </span>
                     </div>
                 </div>
             </div>
@@ -239,9 +283,9 @@
                 <div class="ml-3">
                     <h3 class="text-lg font-medium text-blue-900 mb-2">Tentang Analisis Pareto ABC</h3>
                     <div class="text-blue-800 space-y-2">
-                        <p><strong>Kategori A (80% nilai):</strong> Item dengan nilai tinggi yang memerlukan kontrol ketat dan perhatian khusus dalam manajemen inventori.</p>
-                        <p><strong>Kategori B (15% nilai):</strong> Item dengan nilai sedang yang memerlukan kontrol normal dengan review berkala.</p>
-                        <p><strong>Kategori C (5% nilai):</strong> Item dengan nilai rendah yang dapat dikelola dengan kontrol sederhana.</p>
+                        <p><strong>Kategori A (80% kontribusi):</strong> Item dengan kontribusi tinggi yang memerlukan kontrol ketat dan perhatian khusus dalam manajemen inventori.</p>
+                        <p><strong>Kategori B (15% kontribusi):</strong> Item dengan kontribusi sedang yang memerlukan kontrol normal dengan review berkala.</p>
+                        <p><strong>Kategori C (5% kontribusi):</strong> Item dengan kontribusi rendah yang dapat dikelola dengan kontrol sederhana.</p>
                     </div>
                 </div>
             </div>

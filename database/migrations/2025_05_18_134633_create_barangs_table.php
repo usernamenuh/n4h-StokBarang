@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('keterangan')->nullable();
             $table->timestamps();
 
-            $table->unique(['kode', 'nama']);
+            $table->index(['kode', 'nama']);
             $table->foreign('user_id')->references('id')->on('users');
         });
     }

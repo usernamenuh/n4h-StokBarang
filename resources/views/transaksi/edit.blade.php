@@ -254,7 +254,7 @@
                                                            step="0.01"
                                                            name="details[{{ $index }}][qty]" 
                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                           value="{{ old("details.$index.qty", $detail['qty'] ?? 1) }}" 
+                                                           value="{{ (float)(old("details.$index.qty", $detail['qty'] ?? 1)) == (int)(old("details.$index.qty", $detail['qty'] ?? 1)) ? (int)(old("details.$index.qty", $detail['qty'] ?? 1)) : old("details.$index.qty", $detail['qty'] ?? 1) }}" 
                                                            min="0.01">
                                                 </div>
 
@@ -342,7 +342,7 @@
                                                            step="0.01"
                                                            name="details[{{ $index }}][qty]" 
                                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                                           value="{{ $detail->qty }}" 
+                                                           value="{{ (float)$detail->qty == (int)$detail->qty ? (int)$detail->qty : $detail->qty }}" 
                                                             
                                                            min="0.01">
                                                 </div>
@@ -513,7 +513,6 @@ document.getElementById('add-detail-row').addEventListener('click', function() {
                            name="details[${detailIndex}][qty]" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
                            value="1" 
-                            
                            min="0.01">
                 </div>
 

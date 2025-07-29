@@ -15,21 +15,27 @@ class LaporanController extends Controller
     /**
      * Ambil data analisis Pareto (digunakan untuk view dan export)
      */
-    private function getParetoData()
+    private function getParetoData(Request $request)
     {
+        $sortBy = $request->query('sort_by', 'value'); // Default to 'value'
+
         // Ambil data transaksi detail agregat
         $analisis = DB::table('transaksi_details')
             ->selectRaw('barang_id, nama_barang, SUM(qty) as total_qty, SUM(subtotal) as total_nilai')
             ->groupBy('barang_id', 'nama_barang')
-            ->orderByDesc('total_nilai')
+            ->orderByDesc($sortBy === 'quantity' ? 'total_qty' : 'total_nilai')
             ->get();
 
-        $totalNilaiSemua = $analisis->sum('total_nilai');
+        // Tentukan basis total untuk perhitungan persentase
+        $totalSumOfBasis = $sortBy === 'quantity' ? $analisis->sum('total_qty') : $analisis->sum('total_nilai');
         $akumulasi = 0;
 
         foreach ($analisis as $item) {
+            // Tentukan nilai basis untuk item saat ini
+            $itemBasis = $sortBy === 'quantity' ? $item->total_qty : $item->total_nilai;
+
             // Hitung persentase
-            $persentase = $totalNilaiSemua > 0 ? ($item->total_nilai / $totalNilaiSemua) * 100 : 0;
+            $persentase = $totalSumOfBasis > 0 ? ($itemBasis / $totalSumOfBasis) * 100 : 0;
             $akumulasi += $persentase;
 
             // Tentukan kategori
@@ -49,38 +55,40 @@ class LaporanController extends Controller
             $item->stok_saat_ini = $barang ? $barang->does_pcs : 0;
         }
 
-        return [$analisis, $totalNilaiSemua];
+        return [$analisis, $totalSumOfBasis]; // Return totalSumOfBasis instead of totalNilaiSemua
     }
 
     /**
      * Tampilkan analisis Pareto di view
      */
-    public function analisisPareto()
+    public function analisisPareto(Request $request)
     {
-        [$analisis, $totalNilaiSemua] = $this->getParetoData();
+        [$analisis, $totalSumOfBasis] = $this->getParetoData($request);
 
         // Ambil periode sekarang (misal: tahun-bulan)
         $periode = date('Y-m');
 
-        return view('laporan.pareto', compact('analisis', 'totalNilaiSemua'));
+        return view('laporan.pareto', compact('analisis', 'totalSumOfBasis'));
     }
 
     /**
      * Export analisis Pareto ke Excel
      */
-    public function exportPareto()
+    public function exportPareto(Request $request)
     {
+        $sortBy = $request->query('sort_by', 'value'); // Default to 'value'
         $analisis = DB::table('transaksi_details')
             ->selectRaw('barang_id, nama_barang, SUM(qty) as total_qty, SUM(subtotal) as total_nilai')
             ->groupBy('barang_id', 'nama_barang')
-            ->orderByDesc('total_nilai')
+            ->orderByDesc($sortBy === 'quantity' ? 'total_qty' : 'total_nilai')
             ->get();
 
-        $totalNilaiSemua = $analisis->sum('total_nilai');
+        $totalSumOfBasis = $sortBy === 'quantity' ? $analisis->sum('total_qty') : $analisis->sum('total_nilai');
         $akumulasi = 0;
 
         foreach ($analisis as $item) {
-            $persentase = $totalNilaiSemua > 0 ? ($item->total_nilai / $totalNilaiSemua) * 100 : 0;
+            $itemBasis = $sortBy === 'quantity' ? $item->total_qty : $item->total_nilai;
+            $persentase = $totalSumOfBasis > 0 ? ($itemBasis / $totalSumOfBasis) * 100 : 0;
             $akumulasi += $persentase;
 
             if ($akumulasi <= 80) {
