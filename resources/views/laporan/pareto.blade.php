@@ -4,7 +4,7 @@
 <div class="min-h-screen bg-gray-50">
     <!-- Reusable Header Component -->
     <x-dashboard-header 
-        title="Analisis Pareto ABC" 
+        title="ABC Analisis" 
         subtitle="Klasifikasi barang berdasarkan nilai dan kontribusi penjualan"
         :showTabs="true"
         activeTab="analisis"
@@ -31,7 +31,6 @@
                         id="sort_by"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition-colors" 
                     >
-                        <option value="value" {{ request('sort_by', 'value') == 'value' ? 'selected' : '' }}>Total Nilai</option>
                         <option value="quantity" {{ request('sort_by') == 'quantity' ? 'selected' : '' }}>Total Kuantitas</option>
                     </select>
                 </div>
@@ -65,7 +64,7 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-gray-900">Kategori A</h3>
-                            <p class="text-sm text-gray-500">High Value</p>
+                            <p class="text-sm text-gray-500">High Value (≤80%)</p>
                         </div>
                     </div>
                 </div>
@@ -100,7 +99,7 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-gray-900">Kategori B</h3>
-                            <p class="text-sm text-gray-500">Medium Value</p>
+                            <p class="text-sm text-gray-500">Medium Value (81%-95%)</p>
                         </div>
                     </div>
                 </div>
@@ -135,7 +134,7 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-gray-900">Kategori C</h3>
-                            <p class="text-sm text-gray-500">Low Value</p>
+                            <p class="text-sm text-gray-500">Low Value (>95%)</p>
                         </div>
                     </div>
                 </div>
@@ -185,6 +184,8 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Qty</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Nilai</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Persentase</th>
+                            <!-- Menambahkan kolom kumulatif -->
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kumulatif (%)</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok Saat Ini</th>
                         </tr>
@@ -215,6 +216,15 @@
                                             <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $item->persentase }}%"></div>
                                         </div>
                                         <span class="font-medium">{{ $item->persentase }}%</span>
+                                    </div>
+                                </td>
+                                <!-- Menampilkan kolom persentase kumulatif -->
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div class="flex items-center">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2 mr-3">
+                                            <div class="bg-purple-600 h-2 rounded-full" style="width: {{ min($item->persentase_kumulatif, 100) }}%"></div>
+                                        </div>
+                                        <span class="font-medium text-purple-600">{{ $item->persentase_kumulatif }}%</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -249,7 +259,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-12">
+                                <td colspan="8" class="text-center py-12">
                                     <div class="flex flex-col items-center">
                                         <i class="fas fa-chart-bar text-6xl text-gray-300 mb-4"></i>
                                         <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada data</h3>
@@ -272,9 +282,10 @@
                 <div class="ml-3">
                     <h3 class="text-lg font-medium text-blue-900 mb-2">Tentang Analisis Pareto ABC</h3>
                     <div class="text-blue-800 space-y-2">
-                        <p><strong>Kategori A (80% kontribusi):</strong> Item dengan kontribusi tinggi yang memerlukan kontrol ketat dan perhatian khusus dalam manajemen inventori.</p>
-                        <p><strong>Kategori B (15% kontribusi):</strong> Item dengan kontribusi sedang yang memerlukan kontrol normal dengan review berkala.</p>
-                        <p><strong>Kategori C (5% kontribusi):</strong> Item dengan kontribusi rendah yang dapat dikelola dengan kontrol sederhana.</p>
+                        <p><strong>Kategori A (≤80% kumulatif):</strong> Item dengan kontribusi tinggi yang memerlukan kontrol ketat dan perhatian khusus dalam manajemen inventori.</p>
+                        <p><strong>Kategori B (81%-95% kumulatif):</strong> Item dengan kontribusi sedang yang memerlukan kontrol normal dengan review berkala.</p>
+                        <p><strong>Kategori C (>95% kumulatif):</strong> Item dengan kontribusi rendah yang dapat dikelola dengan kontrol sederhana.</p>
+                        <p class="mt-3 text-sm"><strong>Catatan:</strong> Klasifikasi berdasarkan persentase kumulatif sesuai dengan prinsip Pareto 80/20.</p>
                     </div>
                 </div>
             </div>

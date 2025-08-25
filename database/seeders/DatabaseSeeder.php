@@ -23,10 +23,10 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin_gudang',
         ]);
         User::factory()->create([
-            'name' => 'owner',
-            'email' => 'owner@gmail.com',
+            'name' => 'user',
+            'email' => 'user@gmail.com',
             'password' => Hash::make('123456789'),
-            'role' => 'owner',
+            'role' => 'user',
         ]);
     }
 }

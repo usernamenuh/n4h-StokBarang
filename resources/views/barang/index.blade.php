@@ -110,7 +110,7 @@
                         $user = auth()->user();
                     @endphp
 
-                    @if ($user->role !== 'owner')
+                    @if ($user->role !== 'user')
                         <a href="{{ route('barang.create') }}"
                             class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm text-sm">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,9 +201,6 @@
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Harga Beli</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    User Input</th>
                                    
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -267,24 +264,6 @@
                                             {{ number_format($barang->hbeli, 0, '.', '.') }}
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-8 w-8">
-                                                <div
-                                                    class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                                                    <span class="text-xs font-medium text-gray-600">
-                                                        {{ substr($barang->user->name ?? 'U', 0, 1) }}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="ml-3">
-                                                <div class="text-sm font-medium text-gray-900">
-                                                    {{ $barang->user->name ?? 'Unknown' }}</div>
-                                                <div class="text-sm text-gray-500">{{ $barang->user->email ?? 'N/A' }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
                                     
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="relative inline-block text-left">
@@ -311,7 +290,8 @@
                                                         </svg>
                                                         Lihat Detail
                                                     </a>
-                                                    @if ($user->role !== 'owner') 
+                                                    @if ($user->role !== 'user')
+                                                     <!-- $user->role !== 'owner'-->
                                                     <a href="{{ route('barang.edit', $barang->id) }}"
                                                         class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
                                                         <svg class="w-4 h-4 mr-3 text-yellow-500" fill="none"
@@ -350,7 +330,7 @@
                                             </svg>
                                             <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada data barang</h3>
                                             <p class="text-gray-500 mb-4">Mulai dengan menambahkan barang pertama Anda</p>
-                                            @if (!isset($role) || $role != 'owner')
+                                            @if (!isset($role) || $role != 'user')
                                                 <a href="{{ route('barang.create') }}"
                                                     class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
                                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"

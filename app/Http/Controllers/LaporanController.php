@@ -20,32 +20,39 @@ class LaporanController extends Controller
     {
         $sortBy = $request->query('sort_by', 'value'); 
         $analisis = DB::table('transaksi_details')
-            ->join('transaksis', 'transaksi_details.transaksi_id', '=', 'transaksis.id') // Join dengan tabel transaksis
+            ->join('transaksis', 'transaksi_details.transaksi_id', '=', 'transaksis.id')
             ->selectRaw('transaksi_details.barang_id, transaksi_details.nama_barang, SUM(transaksi_details.qty) as total_qty, SUM(transaksi_details.subtotal) as total_nilai')
             ->groupBy('transaksi_details.barang_id', 'transaksi_details.nama_barang')
             ->orderByDesc($sortBy === 'quantity' ? 'total_qty' : 'total_nilai')
             ->get();
 
         $totalSumOfBasis = $sortBy === 'quantity' ? $analisis->sum('total_qty') : $analisis->sum('total_nilai');
-        $akumulasi = 0;
+        
+        $akumulasiKumulatif = 0;
 
         foreach ($analisis as $item) {
             $itemBasis = $sortBy === 'quantity' ? $item->total_qty : $item->total_nilai;
 
+            // Hitung persentase kontribusi individual
             $persentase = $totalSumOfBasis > 0 ? ($itemBasis / $totalSumOfBasis) * 100 : 0;
-            $akumulasi += $persentase;
+            
+            // Hitung persentase kumulatif
+            $akumulasiKumulatif += $persentase;
 
-            if ($akumulasi <= 80) {
+            // Klasifikasi ABC berdasarkan persentase kumulatif
+            if ($akumulasiKumulatif <= 80) {
                 $kategori = 'A';
-            } elseif ($akumulasi <= 95) {
+            } elseif ($akumulasiKumulatif <= 95) {
                 $kategori = 'B';
             } else {
                 $kategori = 'C';
             }
 
             $item->persentase = round($persentase, 2);
+            $item->persentase_kumulatif = round($akumulasiKumulatif, 2); // Tambah kolom kumulatif
             $item->kategori = $kategori;
 
+            // Ambil data stok saat ini
             $barang = Barang::where('id', $item->barang_id)->first();
             $item->stok_saat_ini = $barang ? $barang->does_pcs : 0;
         }
@@ -71,29 +78,31 @@ class LaporanController extends Controller
         $sortBy = $request->query('sort_by', 'value'); 
 
         $analisis = DB::table('transaksi_details')
-            ->join('transaksis', 'transaksi_details.transaksi_id', '=', 'transaksis.id') // Join dengan tabel transaksis
+            ->join('transaksis', 'transaksi_details.transaksi_id', '=', 'transaksis.id')
             ->selectRaw('transaksi_details.barang_id, transaksi_details.nama_barang, SUM(transaksi_details.qty) as total_qty, SUM(transaksi_details.subtotal) as total_nilai')
             ->groupBy('transaksi_details.barang_id', 'transaksi_details.nama_barang')
             ->orderByDesc($sortBy === 'quantity' ? 'total_qty' : 'total_nilai')
             ->get();
 
         $totalSumOfBasis = $sortBy === 'quantity' ? $analisis->sum('total_qty') : $analisis->sum('total_nilai');
-        $akumulasi = 0;
+        
+        $akumulasiKumulatif = 0;
 
         foreach ($analisis as $item) {
             $itemBasis = $sortBy === 'quantity' ? $item->total_qty : $item->total_nilai;
             $persentase = $totalSumOfBasis > 0 ? ($itemBasis / $totalSumOfBasis) * 100 : 0;
-            $akumulasi += $persentase;
+            $akumulasiKumulatif += $persentase;
 
-            if ($akumulasi <= 80) {
+            if ($akumulasiKumulatif <= 80) {
                 $kategori = 'A';
-            } elseif ($akumulasi <= 95) {
+            } elseif ($akumulasiKumulatif <= 95) {
                 $kategori = 'B';
             } else {
                 $kategori = 'C';
             }
 
             $item->persentase = round($persentase, 2);
+            $item->persentase_kumulatif = round($akumulasiKumulatif, 2);
             $item->kategori = $kategori;
             $item->stok_saat_ini = Barang::find($item->barang_id)?->does_pcs ?? 0;
         }

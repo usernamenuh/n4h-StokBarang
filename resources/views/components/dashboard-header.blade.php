@@ -28,11 +28,11 @@
                     <i class="fas fa-calendar text-gray-400 text-sm"></i>
                     <span class="text-sm text-gray-600">{{ date('M d, Y') }} - {{ date('M d, Y', strtotime('+20 days')) }}</span>
                 </div>
-                               @php
-    $user = auth()->user();
-@endphp
+                @php
+                $user = auth()->user();
+                @endphp
                 <!-- Import Dropdown -->
-                @if($user->role !== 'owner')
+                @if($user->role !== 'user')
                     
                
                 <div class="relative">
@@ -86,25 +86,29 @@
         </div>
 
         @if($showTabs)
-        <!-- Navigation Tabs - Compact background that fits content -->
-        <nav class="inline-flex space-x-2 bg-gray-100 p-1 rounded-lg" id="tabNavigation">
-            <a href="{{ route('dashboard') }}" 
-               class="tab-button {{ $activeTab === 'overview' ? 'active' : '' }} px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md {{ $activeTab === 'overview' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-800 hover:bg-white/50' }} no-underline">
-                Overview
-            </a>
-            <a href="{{ route('barang.index') }}" 
-               class="tab-button {{ $activeTab === 'barang' ? 'active' : '' }} px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md {{ $activeTab === 'barang' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-800 hover:bg-white/50' }} no-underline">
-                Barang
-            </a>
-            <a href="{{ route('transaksi.index') }}" 
-               class="tab-button {{ $activeTab === 'transaksi' ? 'active' : '' }} px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md {{ $activeTab === 'transaksi' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-800 hover:bg-white/50' }} no-underline">
-                Transaksi
-            </a>
-            <a href="{{ route('laporan.pareto') }}" 
-               class="tab-button {{ $activeTab === 'analisis' ? 'active' : '' }} px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md {{ $activeTab === 'analisis' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-800 hover:bg-white/50' }} no-underline">
-                Analisis
-            </a>
-        </nav>
+        <!-- Navigation Tabs - Centered without background, added hover effects -->
+        <div class="flex justify-center">
+            <nav class="inline-flex space-x-8" id="tabNavigation">
+                <a href="{{ route('dashboard') }}" 
+                   class="tab-button {{ $activeTab === 'overview' ? 'active' : '' }} px-3 py-2 text-sm font-medium transition-all duration-200 {{ $activeTab === 'overview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900' }} no-underline hover:scale-105 transform">
+                    Overview
+                </a>
+                <a href="{{ route('barang.index') }}" 
+                   class="tab-button {{ $activeTab === 'barang' ? 'active' : '' }} px-3 py-2 text-sm font-medium transition-all duration-200 {{ $activeTab === 'barang' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900' }} no-underline hover:scale-105 transform">
+                    Barang
+                </a>
+                <a href="{{ route('transaksi.index') }}" 
+                   class="tab-button {{ $activeTab === 'transaksi' ? 'active' : '' }} px-3 py-2 text-sm font-medium transition-all duration-200 {{ $activeTab === 'transaksi' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900' }} no-underline hover:scale-105 transform">
+                    Transaksi
+                </a>
+                @if($user->role !== 'user')
+                <a href="{{ route('laporan.pareto') }}" 
+                   class="tab-button {{ $activeTab === 'analisis' ? 'active' : '' }} px-3 py-2 text-sm font-medium transition-all duration-200 {{ $activeTab === 'analisis' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900' }} no-underline hover:scale-105 transform">
+                    Analisis
+                </a>
+                @endif
+            </nav>
+        </div>
         @endif
     </div>
 </div>
@@ -178,21 +182,26 @@
 </script>
 
 <style>
-    /* Tab Styles */
+    /* Enhanced tab styles with hover effects */
     .tab-button {
         position: relative;
         transition: all 0.2s ease;
         text-decoration: none !important;
+        border-bottom: 2px solid transparent;
     }
 
     .tab-button.active {
-        color: #111827;
-        background-color: white;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        color: #2563eb;
+        border-bottom-color: #2563eb;
     }
 
     .tab-button:hover {
         text-decoration: none !important;
+        transform: translateY(-1px) scale(1.05);
+    }
+
+    .tab-button:not(.active):hover {
+        color: #111827;
     }
 
     .no-underline {

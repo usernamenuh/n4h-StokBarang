@@ -54,8 +54,9 @@ class ParetoExport implements FromView, WithStyles, WithColumnWidths
             'C' => 15,  // Total Qty
             'D' => 20,  // Total Nilai
             'E' => 15,  // Persentase
-            'F' => 10,  // Kategori
-            'G' => 15,  // Stok
+            'F' => 18,  // Persentase Kumulatif (diperlebar)
+            'G' => 10,  // Kategori
+            'H' => 15,  // Stok
         ];
     }
 }

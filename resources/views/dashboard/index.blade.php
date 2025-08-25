@@ -187,47 +187,6 @@
             </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900">
-                        <i class="fas fa-clock mr-2 text-blue-500"></i>
-                        Aktivitas Terbaru
-                    </h3>
-                    <a href="{{ route('barang.index') }}" class="text-sm text-blue-600 hover:text-blue-800">
-                        Lihat Semua
-                    </a>
-                </div>
-            </div>
-            <div class="p-6">
-                <div class="space-y-4">
-                    @forelse($barangs->take(5) as $barang)
-                    <div class="flex items-center space-x-4">
-                        <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-plus text-green-600 text-xs"></i>
-                            </div>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900">{{ $barang->nama }}</p>
-                            <p class="text-sm text-gray-500">Ditambahkan ke kategori {{ $barang->golongan ?: 'Tidak Berkategori' }}</p>
-                        </div>
-                        <div class="flex-shrink-0 text-sm text-gray-500">
-                            {{ $barang->created_at->diffForHumans() }}
-                        </div>
-                    </div>
-                    @empty
-                    <div class="text-center py-8">
-                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        <p class="text-gray-500">Belum ada aktivitas terbaru</p>
-                    </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
